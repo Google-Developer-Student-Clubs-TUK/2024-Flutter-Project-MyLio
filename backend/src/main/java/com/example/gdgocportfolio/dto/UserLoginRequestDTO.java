@@ -3,7 +3,7 @@ package com.example.gdgocportfolio.dto;
 import lombok.Data;
 
 @Data
-public class UserLoginRequestDTO {
+public class UserLoginRequestDto {
 	private String email;
 	private String password;
 }

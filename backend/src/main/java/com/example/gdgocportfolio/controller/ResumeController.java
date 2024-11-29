@@ -54,7 +54,7 @@ public class ResumeController {
         return ResponseEntity.ok(responseDtos);
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity<ResumeResponseDto> getResumeById(@PathVariable Long id) {
         return resumeService.getResumeById(id)
                 .map(this::mapToResponseDto)

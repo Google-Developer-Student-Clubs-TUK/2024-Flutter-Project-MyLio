@@ -3,11 +3,14 @@ package com.example.gdgocportfolio.service;
 import com.example.gdgocportfolio.entity.Resume;
 import com.example.gdgocportfolio.repository.ResumeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ResumeService {
+
     @Autowired
     private ResumeRepository resumeRepository;
 
