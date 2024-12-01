@@ -1,8 +1,8 @@
 package com.example.gdgocportfolio.service;
 
 import com.example.gdgocportfolio.dto.UserJwtInfoDto;
-import com.example.gdgocportfolio.dto.UserLoginRequestDto_;
-import com.example.gdgocportfolio.dto.UserRegisterRequestDto_;
+import com.example.gdgocportfolio.dto.UserLoginRequestDto;
+import com.example.gdgocportfolio.dto.UserRegisterRequestDto;
 import com.example.gdgocportfolio.entity.User;
 import com.example.gdgocportfolio.entity.UserAuthentication;
 import com.example.gdgocportfolio.exceptions.IncorrectPasswordException;
@@ -45,7 +45,7 @@ public class UserAuthenticationService {
 	 * @throws IncorrectPasswordException if password is incorrect
 	 * @throws IllegalArgumentException if user is not found
 	 */
-	public String generateUserJwtToken(UserLoginRequestDto_ userLoginRequestDto) {
+	public String generateUserJwtToken(UserLoginRequestDto userLoginRequestDto) {
 		UserAuthentication userAuthentication = userAuthenticationRepository.findByEmail(userLoginRequestDto.getEmail());
 		if (userAuthentication == null) {
 			throw new IllegalArgumentException("User not found");
@@ -62,7 +62,7 @@ public class UserAuthenticationService {
 	}
 
 	@Transactional
-	public void registerUser(UserRegisterRequestDto_ requestDTO) {
+	public void registerUser(UserRegisterRequestDto requestDTO) {
 		UserAuthentication authenticationInfo = userAuthenticationRepository.findByEmail(requestDTO.getEmail());
 		if (authenticationInfo != null) throw new UserExistsDataException();
 
