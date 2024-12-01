@@ -6,20 +6,17 @@ import com.example.gdgocportfolio.dto.UserRegisterRequestDto;
 import com.example.gdgocportfolio.entity.User;
 import com.example.gdgocportfolio.entity.UserAuthentication;
 import com.example.gdgocportfolio.exceptions.IncorrectPasswordException;
-import com.example.gdgocportfolio.exceptions.InvalidJwtException;
 import com.example.gdgocportfolio.exceptions.UserExistsDataException;
 import com.example.gdgocportfolio.exceptions.UserExistsWithPhoneNumberDataException;
 import com.example.gdgocportfolio.repository.UserAuthenticationRepository;
 import com.example.gdgocportfolio.repository.UserRepository;
 import com.example.gdgocportfolio.util.HashConvertor;
 import com.example.gdgocportfolio.util.JwtUtil;
-import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -48,13 +45,13 @@ public class UserAuthenticationService {
 	 * @throws IncorrectPasswordException if password is incorrect
 	 * @throws IllegalArgumentException if user is not found
 	 */
-	public String generateUserJwtToken(UserLoginRequestDto userLoginRequestDTO) {
-		UserAuthentication userAuthentication = userAuthenticationRepository.findByEmail(userLoginRequestDTO.getEmail());
+	public String generateUserJwtToken(UserLoginRequestDto userLoginRequestDto) {
+		UserAuthentication userAuthentication = userAuthenticationRepository.findByEmail(userLoginRequestDto.getEmail());
 		if (userAuthentication == null) {
 			throw new IllegalArgumentException("User not found");
 		}
 
-		if (userAuthentication.getPassword().equals(hashConvertor.convertToHash(userLoginRequestDTO.getPassword()))) {
+		if (userAuthentication.getPassword().equals(hashConvertor.convertToHash(userLoginRequestDto.getPassword()))) {
 			return jwtUtil.generateJwtToken(
 					Map.of(
 							"email", userAuthentication.getEmail(),

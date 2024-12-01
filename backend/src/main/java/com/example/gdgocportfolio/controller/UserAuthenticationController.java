@@ -41,11 +41,11 @@ public class UserAuthenticationController {
 	@GetMapping("/login")
 	@ResponseStatus(HttpStatus.OK)
 	public void login(@RequestHeader String email, @RequestHeader String password, HttpServletResponse res) {
-		UserLoginRequestDto userLoginRequestDTO = new UserLoginRequestDto();
-		userLoginRequestDTO.setEmail(email);
-		userLoginRequestDTO.setPassword(password);
+		UserLoginRequestDto userLoginRequestDto = new UserLoginRequestDto();
+		userLoginRequestDto.setEmail(email);
+		userLoginRequestDto.setPassword(password);
 
-		res.addHeader("Set-Cookie", "token=" + userAuthenticationService.generateUserJwtToken(userLoginRequestDTO));
+		res.addHeader("Set-Cookie", "token=" + userAuthenticationService.generateUserJwtToken(userLoginRequestDto));
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)
