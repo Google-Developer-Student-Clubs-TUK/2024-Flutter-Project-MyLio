@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @JsonNaming
-public class UserRegisterRequestDto {
+public class UserRegisterRequestDto_ {
 	private String name;
 	private String phoneNumber;
 	private String email;

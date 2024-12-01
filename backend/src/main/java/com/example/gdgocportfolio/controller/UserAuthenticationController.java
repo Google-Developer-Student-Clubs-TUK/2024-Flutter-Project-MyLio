@@ -1,8 +1,8 @@
 package com.example.gdgocportfolio.controller;
 
-import com.example.gdgocportfolio.dto.UserLoginRequestDto;
-import com.example.gdgocportfolio.dto.UserRegisterRequestDto;
-import com.example.gdgocportfolio.dto.UserRegisterResponseDto;
+import com.example.gdgocportfolio.dto.UserLoginRequestDto_;
+import com.example.gdgocportfolio.dto.UserRegisterRequestDto_;
+import com.example.gdgocportfolio.dto.UserRegisterResponseDto_;
 import com.example.gdgocportfolio.exceptions.IncorrectPasswordException;
 import com.example.gdgocportfolio.service.UserAuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,11 +26,11 @@ public class UserAuthenticationController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<UserRegisterResponseDto> registerUser(@RequestBody UserRegisterRequestDto requestDTO) throws URISyntaxException {
+	public ResponseEntity<UserRegisterResponseDto_> registerUser(@RequestBody UserRegisterRequestDto_ requestDTO) throws URISyntaxException {
 		userAuthenticationService.registerUser(requestDTO);
 		return ResponseEntity
 				.created(new URI("/api/v1/login"))
-				.body(new UserRegisterResponseDto("User registered successfully"));
+				.body(new UserRegisterResponseDto_("User registered successfully"));
 	}
 
 	/**
@@ -41,11 +41,11 @@ public class UserAuthenticationController {
 	@GetMapping("/login")
 	@ResponseStatus(HttpStatus.OK)
 	public void login(@RequestHeader String email, @RequestHeader String password, HttpServletResponse res) {
-		UserLoginRequestDto userLoginRequestDTO = new UserLoginRequestDto();
-		userLoginRequestDTO.setEmail(email);
-		userLoginRequestDTO.setPassword(password);
+		UserLoginRequestDto_ userLoginRequestDto = new UserLoginRequestDto_();
+		userLoginRequestDto.setEmail(email);
+		userLoginRequestDto.setPassword(password);
 
-		res.addHeader("Set-Cookie", "token=" + userAuthenticationService.generateUserJwtToken(userLoginRequestDTO));
+		res.addHeader("Set-Cookie", "token=" + userAuthenticationService.generateUserJwtToken(userLoginRequestDto));
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)
