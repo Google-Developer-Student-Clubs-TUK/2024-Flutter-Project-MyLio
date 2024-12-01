@@ -41,7 +41,7 @@ dependencies {
 		exclude(group: 'org.json', module: 'json') //provided by Android natively
 	}
 	implementation 'org.json:json:20240303'
-//	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+	implementation 'com.theokanning.openai-gpt3-java:service:0.13.0'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
