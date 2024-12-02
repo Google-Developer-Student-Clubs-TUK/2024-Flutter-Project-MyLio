@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/activity&experience.dart';
 import 'industrial_group.dart';
 import 'job_duty.dart';
 import 'resume_title.dart';
@@ -78,7 +79,17 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
               child: _buildInputField('직무 *'), // 역량 필드
             ),
             const SizedBox(height: 16),
-            _buildInputField('활동/경험'),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>  Activity_Experience(),
+                  ),
+                );
+              },
+              child: _buildInputField('활동/경험'), // 역량 필드
+            ),
             const SizedBox(height: 16),
             GestureDetector(
               onTap: () {
