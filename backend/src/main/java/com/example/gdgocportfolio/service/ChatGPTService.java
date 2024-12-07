@@ -29,7 +29,7 @@ public class ChatGPTService {
 
         // ChatCompletionRequest 생성
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                .model("gpt-3") // GPT-3 모델 지정
+                .model("gpt-4o") // GPT-4o 모델 지정
                 .messages(List.of(systemMessage, userMessage))
                 .maxTokens(2000)
                 .temperature(0.7)
@@ -44,7 +44,7 @@ public class ChatGPTService {
     }
 
     private String buildPrompt(List<String> questions) {
-        return "Based on the following questions, please create a detailed and professional resume:\n" +
+        return "다음 질문들에 대한 자소서를 작성해줘:\n" +
                 "1. " + questions.get(0) + "\n" +
                 "2. " + questions.get(1) + "\n" +
                 "3. " + questions.get(2);
