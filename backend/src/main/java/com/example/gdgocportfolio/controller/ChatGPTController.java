@@ -11,20 +11,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/chatgpt4")
+@RequestMapping("/api/v1/chatgpt4")
 public class ChatGPTController {
 
     @Autowired
     private ChatGPTService chatGPTService;
 
     @PostMapping("/generate-resume")
-    public ResponseEntity<GenerateResumeResponseDto> generateResume(@Valid @RequestBody GenerateResumeRequestDto requestDTO) {
-        String response = chatGPTService.generateResume(requestDTO.getQuestions());
-        GenerateResumeResponseDto responseDTO = new GenerateResumeResponseDto(response);
+    public ResponseEntity<List<GenerateResumeResponseDto>> generateResume(@Valid @RequestBody GenerateResumeRequestDto requestDTO) {
+        List<GenerateResumeResponseDto> responses = new ArrayList<>();
 
-        return ResponseEntity.ok(responseDTO);
+        for (String question : requestDTO.getQuestions()) {
+            String response = chatGPTService.generateResume(question);
+            responses.add(new GenerateResumeResponseDto(response));
+        }
+
+        return ResponseEntity.ok(responses);
     }
-
 }

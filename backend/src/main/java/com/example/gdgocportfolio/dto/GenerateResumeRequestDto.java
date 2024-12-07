@@ -14,6 +14,6 @@ import java.util.List;
 public class GenerateResumeRequestDto {
 
     @NotNull(message = "Questions cannot be null")
-    @Size(min = 3, max = 3, message = "Exactly 3 questions are required")
+    @Size(min = 1, message = "At least one question is required") // 최소 한 개 이상의 질문을 허용
     private List<String> questions;
 }

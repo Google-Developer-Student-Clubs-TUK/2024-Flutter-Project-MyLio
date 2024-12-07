@@ -1,6 +1,5 @@
 package com.example.gdgocportfolio.service;
 
-
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
@@ -18,14 +17,11 @@ public class ChatGPTService {
         this.openAiService = new OpenAiService(apiKey);
     }
 
-    public String generateResume(List<String> questions) {
-
-        // 프롬프트 생성
-        String prompt = buildPrompt(questions);
+    public String generateResume(String question) {
 
         // ChatGPT 메시지 생성
-        ChatMessage systemMessage = new ChatMessage("system", "You are a professional resume writer.");
-        ChatMessage userMessage = new ChatMessage("user", prompt);
+        ChatMessage systemMessage = new ChatMessage("system", "당신은 뛰어난 자기소개서 작성가입니다.");
+        ChatMessage userMessage = new ChatMessage("user", "다음 질문에 대해 자기소개서를 작성해주세요:\n" + question);
 
         // ChatCompletionRequest 생성
         ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
@@ -41,12 +37,5 @@ public class ChatGPTService {
                 .get(0)
                 .getMessage()
                 .getContent();
-    }
-
-    private String buildPrompt(List<String> questions) {
-        return "다음 질문들에 대한 자소서를 작성해줘:\n" +
-                "1. " + questions.get(0) + "\n" +
-                "2. " + questions.get(1) + "\n" +
-                "3. " + questions.get(2);
     }
 }
