@@ -18,6 +18,10 @@ public class UserAuthenticaionIntercepter implements HandlerInterceptor {
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+		if (!verify) {
+			return true;
+		}
+
 		String token = request.getHeader("token");
 		if (token == null) {
 			response.setStatus(401);
