@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/Signup.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:get/get.dart';
 
@@ -135,7 +136,7 @@ class LoginState extends State<Login> {
                             TextStyle(color: Color(0xFF878CEF), fontSize: 14),
                       ),
                       onTap: () {
-                        // Get.to(() => Signup());
+                         Get.to(() => Signup());
                       },
                     )
                   ],
