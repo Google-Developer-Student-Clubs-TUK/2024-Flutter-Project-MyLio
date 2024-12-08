@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/app_colors.dart';
-import 'package:frontend/screens/question_insert.dart';
+//import 'package:frontend/screens/question_insert.dart';
 import 'package:frontend/screens/setting_screen.dart';
 import 'package:frontend/screens/widgets/bottom_bar.dart';
 
@@ -73,10 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: FloatingActionButton(
           shape: const CircleBorder(),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => QuestionInsert()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => QuestionInsert()),
+            // );
           },
           elevation: 0, // 기본 그림자 제거
           highlightElevation: 0, // 클릭 시 그림자 제거
@@ -98,10 +98,10 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
         onFabPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => QuestionInsert()),
-          );
+         // // Navigator.push(
+         //    context,
+         //    MaterialPageRoute(builder: (context) => QuestionInsert()),
+         //  );
         },
       ),
     );
