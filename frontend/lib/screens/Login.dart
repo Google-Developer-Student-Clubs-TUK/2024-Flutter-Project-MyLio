@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/home_screen.dart';
-// import 'package:frontend/screens/signup.dart';
+import 'package:frontend/screens/signup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 
@@ -31,7 +31,7 @@ class LoginState extends State<Login> {
       body: Container(
         padding: EdgeInsets.all(30),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Spacer(), // 위쪽 공간 확보
             Column(
