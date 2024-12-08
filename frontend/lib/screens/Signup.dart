@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/home_screen.dart';
-import 'package:frontend/screens/signup.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 
 void main() async {
-  runApp(Login());
+  runApp(Signup());
 }
 
-class Login extends StatefulWidget {
+class Signup extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
-    return LoginState();
+    return SignupState();
   }
 }
 
-class LoginState extends State<Login> {
+class SignupState extends State<Signup> {
   final _formkey = GlobalKey<FormState>();
-  late SharedPreferences sharedPreferences;
   bool logincheck = false;
+  bool isChecked = false; // 체크박스 상태 관리
   bool _isPasswordVisible = false;
-
-  late String email;
-  late String password;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +32,7 @@ class LoginState extends State<Login> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '로그인',
+                  '회원가입',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                 ),
                 SizedBox(height: 30),
@@ -46,6 +40,32 @@ class LoginState extends State<Login> {
                   key: _formkey,
                   child: Column(
                     children: [
+                      SizedBox(
+                        width: 323,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            hintText: "이름",
+                            hintStyle: TextStyle(fontSize: 12),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      SizedBox(
+                        width: 323,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            hintText: "전화번호",
+                            hintStyle: TextStyle(fontSize: 12),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 10),
                       SizedBox(
                         width: 323,
                         child: TextFormField(
@@ -83,7 +103,40 @@ class LoginState extends State<Login> {
                                   ))),
                         ),
                       ),
-                      SizedBox(height: 40),
+                      // 체크박스
+                      SizedBox(
+                        height: 20,
+                      ),
+                      SizedBox(
+                        width: 323,
+                        child: Row(
+                          children: [
+                            Checkbox(
+                              shape: RoundedRectangleBorder(
+                                  side: BorderSide(
+                                    color: Colors.black,
+                                    width: 0.1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(50)),
+                              value: isChecked,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  isChecked = value!;
+                                });
+                              },
+                              activeColor: Colors.white,
+                              checkColor: Color(0xFF878CEF),
+                            ),
+                            Expanded(
+                                child: Text(
+                              '이용 약관, 개인정보 처리방침에 동의합니다.',
+                              style: TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.w400),
+                            ))
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10),
                       TextButton(
                         onPressed: () {},
                         style: TextButton.styleFrom(
@@ -94,7 +147,7 @@ class LoginState extends State<Login> {
                           ),
                         ),
                         child: Text(
-                          "로그인",
+                          "회원가입",
                           style: TextStyle(
                               fontSize: 14,
                               color: Colors.white,
@@ -125,7 +178,7 @@ class LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '아직 계정이 없으신가요? ',
+                      '이미 계정이 있나요? ',
                       style: TextStyle(
                         fontSize: 14,
                         color: Color(0xFFAAAAAA),
@@ -133,12 +186,12 @@ class LoginState extends State<Login> {
                     ),
                     GestureDetector(
                       child: Text(
-                        '회원가입',
+                        '로그인',
                         style:
                             TextStyle(color: Color(0xFF878CEF), fontSize: 14),
                       ),
                       onTap: () {
-                        Get.to(() => Signup());
+                        Get.back();
                       },
                     )
                   ],
@@ -151,10 +204,6 @@ class LoginState extends State<Login> {
                     '건너뛰기',
                     style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC)),
                   ),
-                  onTap: () {
-                    // HomeScreen으로 이동
-                    Get.to(() => HomeScreen());
-                  },
                 )
               ],
             )),
