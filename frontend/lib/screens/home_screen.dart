@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/app_colors.dart';
-import 'package:frontend/screens/question_insert.dart';
-import 'package:frontend/screens/setting_screen.dart';
-import 'package:frontend/screens/widgets/bottom_bar.dart';
+import 'introduction_list.dart';
+import 'app_colors.dart';
+import 'question_insert.dart';
+import 'setting_screen.dart';
+import 'widgets/bottom_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,10 +42,11 @@ class _HomeScreenState extends State<HomeScreen> {
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
           ).createShader(bounds),
-          child: const Icon(
-            Icons.all_inclusive,
-            size: 155,
-            color: Colors.white, // ShaderMask가 이 색상을 덮어씀
+          child: Image.asset(
+            'assets/images/logo.png',
+            width: 154,
+            height: 154,
+            fit: BoxFit.cover,
           ),
         ),
       ),
@@ -86,10 +88,15 @@ class _HomeScreenState extends State<HomeScreen> {
           child: const Icon(Icons.add, size: 41, color: Colors.white),
         ),
       ),
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
       bottomNavigationBar: BottomBar(
         onGridPressed: () {
-          print('Grid button pressed');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const IntroductionList()),
+          );
         },
         onSettingsPressed: () {
           Navigator.push(
@@ -107,3 +114,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
