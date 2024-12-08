@@ -118,44 +118,44 @@ class LoginState extends State<Login> {
             Spacer(), // 아래쪽 공간 확보
             Center(
                 child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      '아직 계정이 없으신가요? ',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFFAAAAAA),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '아직 계정이 없으신가요? ',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFFAAAAAA),
+                          ),
+                        ),
+                        GestureDetector(
+                          child: Text(
+                            '회원가입',
+                            style:
+                            TextStyle(color: Color(0xFF878CEF), fontSize: 14),
+                          ),
+                          onTap: () {
+                            Get.to(() => Signup());
+                          },
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
                     ),
                     GestureDetector(
                       child: Text(
-                        '회원가입',
-                        style:
-                            TextStyle(color: Color(0xFF878CEF), fontSize: 14),
+                        '건너뛰기',
+                        style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC)),
                       ),
                       onTap: () {
-                         Get.to(() => Signup());
+                        // HomeScreen으로 이동
+                        Get.to(() => HomeScreen());
                       },
                     )
                   ],
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                GestureDetector(
-                  child: Text(
-                    '건너뛰기',
-                    style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC)),
-                  ),
-                  onTap: () {
-                    // HomeScreen으로 이동
-                    Get.to(() => HomeScreen());
-                  },
-                )
-              ],
-            )),
+                )),
           ],
         ),
       ),
