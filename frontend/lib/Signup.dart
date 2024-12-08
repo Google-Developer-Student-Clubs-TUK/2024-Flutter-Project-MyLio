@@ -23,14 +23,12 @@ class SignupState extends State<Signup> {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return  Scaffold(
         backgroundColor: Colors.white,
         body: Container(
           padding: EdgeInsets.all(30),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Spacer(), // 위쪽 공간 확보
               Column(
@@ -196,7 +194,7 @@ class SignupState extends State<Signup> {
                                   fontSize: 14),
                             ),
                             onTap: (){
-                              Get.to(Login());
+                              Get.back();
                             },
                           )
                         ],
@@ -217,7 +215,6 @@ class SignupState extends State<Signup> {
             ],
           ),
         ),
-      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/Signup.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 
@@ -24,13 +25,15 @@ class LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return
+    return GetMaterialApp(
+    debugShowCheckedModeBanner: false,
+    home:
        Scaffold(
         backgroundColor: Colors.white,
         body: Container(
           padding: EdgeInsets.all(30),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Spacer(), // 위쪽 공간 확보
               Column(
@@ -137,7 +140,7 @@ class LoginState extends State<Login> {
                                 fontSize: 14),
                           ),
                          onTap: (){
-                            Get.back();
+                            Get.to(Signup());
                          },
                         )
                       ],
@@ -158,7 +161,7 @@ class LoginState extends State<Login> {
             ],
           ),
         ),
-
+       )
     );
   }
 }
