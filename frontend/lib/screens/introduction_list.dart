@@ -1,9 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import '../widgets/bottom_bar.dart';
 import 'app_colors.dart';
-
+import 'widgets/bottom_bar.dart';
 
 class IntroductionList extends StatelessWidget {
   const IntroductionList({super.key});
@@ -19,7 +18,7 @@ class IntroductionList extends StatelessWidget {
     ];
 
     return Scaffold(
-
+      
       // 앱바
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -48,7 +47,7 @@ class IntroductionList extends StatelessWidget {
         itemCount: resumes.length,
         itemBuilder: (context, index) {
           return Container(
-
+            
             // 각 리스트 박스 디자인
             margin: const EdgeInsets.only(bottom: 12.0),
             width: MediaQuery.of(context).size.width * 0.9,
@@ -71,7 +70,7 @@ class IntroductionList extends StatelessWidget {
                 ),
               ],
             ),
-
+            
             // 각 리스트 박스 내 자기소개서 제목
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -103,21 +102,21 @@ class IntroductionList extends StatelessWidget {
                     // 옵션: 미리보기 다이얼로그
                     if (value == 'preview'){
                       showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Dialog(
-                              backgroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                width: 353,
-                                height: double.infinity,
-                              ),
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              width: 353,
+                              height: double.infinity,
+                            ),
 
-                            );
-                          }
+                          );
+                        }
 
 
                       );
@@ -139,95 +138,95 @@ class IntroductionList extends StatelessWidget {
                               height: 228,
                               width: 353,
                               child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('${resumes[index]}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: Colors.black
-                                      ),
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('${resumes[index]}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.black
                                     ),
+                                  ),
 
-                                    const SizedBox(
-                                        height: 30
+                                  const SizedBox(
+                                    height: 30
+                                  ),
+
+                                  const Text(
+                                    '정말 삭제하시겠습니까?',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: Colors.black,
                                     ),
+                                  ),
 
-                                    const Text(
-                                      '정말 삭제하시겠습니까?',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                    ),
+                                  const SizedBox(
+                                    height: 30,
+                                  ),
 
-                                    const SizedBox(
-                                      height: 30,
-                                    ),
-
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColor.color2,
-                                            foregroundColor: Colors.white,
-                                            minimumSize: Size(100, 44),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                          ),
-                                          onPressed: () {
-                                            // 삭제 처리 로직
-                                            print('Item Deleted');
-                                            Navigator.of(context).pop(); // 다이얼로그 닫기
-                                          },
-                                          child: const Text('예',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColor.color2,
+                                          foregroundColor: Colors.white,
+                                          minimumSize: Size(100, 44),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
                                           ),
                                         ),
-
-                                        const SizedBox(
-                                          width: 20,
+                                        onPressed: () {
+                                          // 삭제 처리 로직
+                                          print('Item Deleted');
+                                          Navigator.of(context).pop(); // 다이얼로그 닫기
+                                        },
+                                        child: const Text('예',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
                                         ),
+                                      ),
 
-                                        ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.white,
-                                              // foregroundColor: Colors.black26,
-                                              minimumSize: Size(100, 44),
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  side: const BorderSide(
-                                                      color: AppColor.color2
-                                                  )
-                                              ),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
 
-                                            ),
-                                            onPressed: () {
-                                              Navigator.of(context).pop(); // 다이얼로그 닫기
-                                            },
-                                            child: const Text('아니요',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: AppColor.color2,
-                                              ),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          // foregroundColor: Colors.black26,
+                                          minimumSize: Size(100, 44),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                            side: const BorderSide(
+                                              color: AppColor.color2
                                             )
-                                        ),
+                                          ),
 
-                                      ],
-                                    ),
-                                  ]
+                                        ),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(); // 다이얼로그 닫기
+                                        },
+                                        child: const Text('아니요',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColor.color2,
+                                          ),
+                                        )
+                                      ),
+
+                                    ],
+                                  ),
+                                ]
                               ),
                             ),
                           );
-
+                          
                         },
                       );
                     }
@@ -238,72 +237,72 @@ class IntroductionList extends StatelessWidget {
                       print('Selected: $value for ${resumes[index]}');
                     }
                   },
-
+                  
                   // 옵션 팝업메뉴 항목
                   itemBuilder: (BuildContext context) {
                     return [
                       const PopupMenuItem(
-                          value: 'preview',
-                          child: Center(
-                            child: Text('미리보기',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12
-                              ),
+                        value: 'preview',
+                        child: Center(
+                          child: Text('미리보기',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12
                             ),
-                          )
+                          ),
+                        )
                       ),
                       const PopupMenuItem(
-                          value: 'modify',
-                          child: Center(
-                            child: Text('수정하기',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12
-                              ),
+                        value: 'modify',
+                        child: Center(
+                          child: Text('수정하기',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12
                             ),
-                          )
+                          ),
+                        )
                       ),
                       const PopupMenuItem(
-                          value: 'delete',
-                          child: Center(
-                            child: Text('삭제하기',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12
-                              ),
+                        value: 'delete',
+                        child: Center(
+                          child: Text('삭제하기',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12
                             ),
-                          )
+                          ),
+                        )
                       ),
                       const PopupMenuItem(
-                          value: 'copy',
-                          child: Center(
-                              child: Text('복사하기',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 12
-                                ),
-                              )
+                        value: 'copy',
+                        child: Center(
+                          child: Text('복사하기',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.normal,
+                                fontSize: 12
+                            ),
                           )
+                        )
                       ),
                     ];
                   },
-                  // 여기에 선택에 따른 동작 추가
+                    // 여기에 선택에 따른 동작 추가
                 )
               ],
             ),
           );
         },
       ),
-
+      /*
       floatingActionButton: Container(
         height: 70.0,
         width: 70.0,
@@ -347,7 +346,7 @@ class IntroductionList extends StatelessWidget {
           print('FAB pressed');
         },
       ),
-
+      */
     );
   }
 }

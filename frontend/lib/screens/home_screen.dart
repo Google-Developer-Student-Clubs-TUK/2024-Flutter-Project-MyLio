@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'introduction_list.dart';
 import 'app_colors.dart';
 import 'question_insert.dart';
-// import 'setting_screen.dart';
-import '../widgets/bottom_bar.dart';
+import 'setting_screen.dart';
+import 'widgets/bottom_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -99,10 +99,10 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
         onSettingsPressed: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => const SettingScreen()),
-          // );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SettingScreen()),
+          );
         },
         onFabPressed: () {
           Navigator.push(
