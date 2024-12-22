@@ -22,7 +22,7 @@ public class UserAuthenticaionIntercepter implements HandlerInterceptor {
 			return true;
 		}
 
-		String token = request.getHeader("token");
+		String token = request.getHeader("USERTOKEN");
 		if (token == null) {
 			response.setStatus(401);
 			return false;
