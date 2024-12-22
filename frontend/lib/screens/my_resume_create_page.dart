@@ -5,6 +5,11 @@ import 'package:frontend/screens/certificate_page.dart';
 import 'package:frontend/screens/language_page.dart';
 import 'package:frontend/screens/strength_page.dart';
 import 'package:frontend/screens/weakness_page.dart';
+import 'package:get/get.dart';
+import 'resume_title.dart';
+import 'industrial_group.dart';
+import 'job_duty.dart';
+import 'activity_experience.dart';
 
 class MyResumeCreatePage extends StatefulWidget {
   const MyResumeCreatePage({Key? key}) : super(key: key);
@@ -45,13 +50,33 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInputField('이력서 제목 *'),
+            GestureDetector(
+              child: _buildInputField('이력서 제목 *'),
+              onTap: (){
+                Get.to(() => Resume_Title());
+              },
+            ),
             const SizedBox(height: 16),
-            _buildInputField('산업군 *'),
+            GestureDetector(
+              child: _buildInputField('산업군 *'),
+              onTap: (){
+                Get.to(Industrial_Group());
+              },
+            ),
             const SizedBox(height: 16),
-            _buildInputField('직무 *'),
+            GestureDetector(
+              child: _buildInputField('직무 *'),
+              onTap: (){
+                Get.to(Job_Duty());
+              },
+            ),
             const SizedBox(height: 16),
-            _buildInputField('활동/경험'),
+            GestureDetector(
+              child: _buildInputField('활동/경험'),
+              onTap: (){
+                Get.to(Activity_Experience());
+              },
+            ),
             const SizedBox(height: 16),
             GestureDetector(
               onTap: () {
