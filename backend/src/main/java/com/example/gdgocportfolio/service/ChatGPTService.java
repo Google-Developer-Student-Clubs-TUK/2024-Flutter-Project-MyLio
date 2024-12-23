@@ -17,7 +17,7 @@ public class ChatGPTService {
         this.openAiService = new OpenAiService(apiKey);
     }
 
-    public String generateResume(String question) {
+    public String generateCoverLetter(String question) {
 
         // ChatGPT 메시지 생성
         ChatMessage systemMessage = new ChatMessage("system", "당신은 뛰어난 자기소개서 작성가입니다.");

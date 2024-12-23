@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "resume", indexes = {
-		@Index(columnList = "resumeId"),
+@Table(name = "coverLetter", indexes = {
+		@Index(columnList = "coverLetterId"),
 		@Index(columnList = "userId")
 })
-public class Resume {
+public class CoverLetter {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long resumeId;
+	private Long coverLetterId;
 
 	@Column(nullable = false)
 	private Long userId;

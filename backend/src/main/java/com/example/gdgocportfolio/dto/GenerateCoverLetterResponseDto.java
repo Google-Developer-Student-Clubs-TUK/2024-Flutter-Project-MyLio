@@ -1,9 +1,9 @@
 package com.example.gdgocportfolio.dto;
 
-public class GenerateResumeResponseDto {
+public class GenerateCoverLetterResponseDto {
     private String response;
 
-    public GenerateResumeResponseDto(String response) {
+    public GenerateCoverLetterResponseDto(String response) {
         this.response = response;
     }
 

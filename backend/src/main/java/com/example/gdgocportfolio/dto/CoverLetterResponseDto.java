@@ -5,8 +5,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class ResumeResponseDto {
-    private Long resumeId;
+public class CoverLetterResponseDto {
+    private Long coverLetterId;
     private Long userId;
     private String data; // JSON 형태의 데이터
     private LocalDateTime createTime;

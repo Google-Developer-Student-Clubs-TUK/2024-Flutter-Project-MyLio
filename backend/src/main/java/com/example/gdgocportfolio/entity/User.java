@@ -18,5 +18,5 @@ public class User {
 	private String name;
 	private String phoneNumber;
 
-	private LocalDateTime lastResumeUpdateTime; // For checking if the user's resume is up-to-date
+	private LocalDateTime lastCoverLetterUpdateTime; // For checking if the user's coverLetter is up-to-date
 }
