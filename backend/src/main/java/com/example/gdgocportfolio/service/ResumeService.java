@@ -2,7 +2,9 @@ package com.example.gdgocportfolio.service;
 
 import com.example.gdgocportfolio.dto.ResumeDto;
 import com.example.gdgocportfolio.entity.Resume;
+import com.example.gdgocportfolio.entity.User;
 import com.example.gdgocportfolio.repository.ResumeRepository;
+import com.example.gdgocportfolio.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -12,16 +14,22 @@ import java.util.Arrays;
 @Service
 public class ResumeService {
     private final ResumeRepository resumeRepository;
+    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
-    public ResumeService(ResumeRepository resumeRepository, ObjectMapper objectMapper) {
+    public ResumeService(ResumeRepository resumeRepository, UserRepository userRepository, ObjectMapper objectMapper) {
         this.resumeRepository = resumeRepository;
+        this.userRepository = userRepository;
         this.objectMapper = objectMapper;
     }
 
     // 이력서 저장
-    public void saveResume(ResumeDto resumeDto) {
+    public void saveResume(Long userId, ResumeDto resumeDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
         Resume resume = new Resume();
+        resume.setUser(user);
         resume.setTitle(resumeDto.getTitle());
         resume.setIndustries(resumeDto.getIndustries());
         resume.setJob(resumeDto.getJob());

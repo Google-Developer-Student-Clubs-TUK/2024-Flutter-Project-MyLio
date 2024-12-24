@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/resume")
+@RequestMapping("/api/v1/resume")
 public class ResumeController {
     private final ResumeService resumeService;
 
@@ -14,9 +14,9 @@ public class ResumeController {
         this.resumeService = resumeService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createResume(@RequestBody ResumeDto resumeDto) {
-        resumeService.saveResume(resumeDto);
+    @PostMapping("/create/{userId}")
+    public ResponseEntity<String> createResume(@PathVariable Long userId, @RequestBody ResumeDto resumeDto) {
+        resumeService.saveResume(userId, resumeDto);
         return ResponseEntity.ok("이력서 저장 완료");
     }
 

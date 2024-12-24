@@ -14,6 +14,10 @@ public class Resume {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long resumeId;
 
+    @ManyToOne(fetch = FetchType.LAZY) // User와 ManyToOne
+    @JoinColumn(name = "user_id", nullable = false) // FK 매핑
+    private User user;
+
     private String title;                     // 제목
     @ElementCollection
     private List<String> industries;          // 산업군 (최대 3개)
