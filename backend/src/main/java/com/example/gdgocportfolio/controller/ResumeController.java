@@ -1,81 +1,54 @@
 package com.example.gdgocportfolio.controller;
 
-
-import com.example.gdgocportfolio.dto.ResumeRequestDto;
-import com.example.gdgocportfolio.dto.ResumeResponseDto;
-import com.example.gdgocportfolio.entity.Resume;
+import com.example.gdgocportfolio.dto.ResumeDto;
 import com.example.gdgocportfolio.service.ResumeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/resumes")
+@RequestMapping("/api/v1/resume")
 public class ResumeController {
+    private final ResumeService resumeService;
 
-    @Autowired
-    private ResumeService resumeService;
-
-    @PostMapping
-    public ResponseEntity<ResumeResponseDto> createResume(@RequestBody ResumeRequestDto resumeRequestDto) {
-        Resume resume = new Resume();
-        resume.setUserId(resumeRequestDto.getUserId());
-        resume.setData(resumeRequestDto.getData());
-
-        Resume savedResume = resumeService.saveResume(resume);
-        ResumeResponseDto responseDto = mapToResponseDto(savedResume);
-        return ResponseEntity.ok(responseDto);
+    public ResumeController(ResumeService resumeService) {
+        this.resumeService = resumeService;
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ResumeResponseDto> updateResume(
-            @PathVariable Long id,
-            @RequestBody ResumeRequestDto resumeRequestDto) {
-        Resume updatedResume = resumeService.updateResume(id, mapToEntity(resumeRequestDto));
-        ResumeResponseDto responseDto = mapToResponseDto(updatedResume);
-        return ResponseEntity.ok(responseDto);
+    // 이력서 생성
+    @PostMapping("/create/{userId}")
+    public ResponseEntity<String> createResume(@PathVariable Long userId, @RequestBody ResumeDto resumeDto) {
+        resumeService.saveResume(userId, resumeDto);
+        return ResponseEntity.ok("이력서 저장 완료");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteResume(@PathVariable Long id) {
-        resumeService.deleteResume(id);
-        return ResponseEntity.noContent().build();
+    // 이력서 조회 (단건)
+    @GetMapping("/{resumeId}")
+    public ResponseEntity<ResumeDto> getResume(@PathVariable Long resumeId) {
+        ResumeDto resumeDto = resumeService.getResume(resumeId);
+        return ResponseEntity.ok(resumeDto);
     }
 
-    @GetMapping
-    public ResponseEntity<List<ResumeResponseDto>> getAllResumes() {
-        List<Resume> resumes = resumeService.getAllResumes();
-        List<ResumeResponseDto> responseDtos = resumes.stream()
-                .map(this::mapToResponseDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(responseDtos);
+    // 이력서 조회 (사용자별 전체)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ResumeDto>> getResumesByUser(@PathVariable Long userId) {
+        List<ResumeDto> resumes = resumeService.getResumesByUser(userId);
+        return ResponseEntity.ok(resumes);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResumeResponseDto> getResumeById(@PathVariable Long id) {
-        return resumeService.getResumeById(id)
-                .map(this::mapToResponseDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    // 이력서 업데이트
+    @PutMapping("/update/{resumeId}")
+    public ResponseEntity<String> updateResume(@PathVariable Long resumeId, @RequestBody ResumeDto resumeDto) {
+        resumeService.updateResume(resumeId, resumeDto);
+        return ResponseEntity.ok("이력서 업데이트 완료");
     }
 
-    private Resume mapToEntity(ResumeRequestDto dto) {
-        Resume resume = new Resume();
-        resume.setUserId(dto.getUserId());
-        resume.setData(dto.getData());
-        return resume;
+    // 이력서 삭제
+    @DeleteMapping("/delete/{resumeId}")
+    public ResponseEntity<String> deleteResume(@PathVariable Long resumeId) {
+        resumeService.deleteResume(resumeId);
+        return ResponseEntity.ok("이력서 삭제 완료");
     }
 
-    private ResumeResponseDto mapToResponseDto(Resume resume) {
-        ResumeResponseDto dto = new ResumeResponseDto();
-        dto.setResumeId(resume.getResumeId());
-        dto.setUserId(resume.getUserId());
-        dto.setData(resume.getData());
-        dto.setCreateTime(resume.getCreateTime());
-        dto.setLastUpdateTime(resume.getLastUpdateTime());
-        return dto;
-    }
 }

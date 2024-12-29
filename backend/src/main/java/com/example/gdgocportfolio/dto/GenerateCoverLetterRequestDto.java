@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GenerateResumeRequestDto {
+public class GenerateCoverLetterRequestDto {
 
     @NotNull(message = "Questions cannot be null")
     @Size(min = 1, message = "At least one question is required") // 최소 한 개 이상의 질문을 허용

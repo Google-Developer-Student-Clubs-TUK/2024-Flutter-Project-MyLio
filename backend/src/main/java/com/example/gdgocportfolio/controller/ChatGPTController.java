@@ -1,7 +1,7 @@
 package com.example.gdgocportfolio.controller;
 
-import com.example.gdgocportfolio.dto.GenerateResumeRequestDto;
-import com.example.gdgocportfolio.dto.GenerateResumeResponseDto;
+import com.example.gdgocportfolio.dto.GenerateCoverLetterRequestDto;
+import com.example.gdgocportfolio.dto.GenerateCoverLetterResponseDto;
 import com.example.gdgocportfolio.service.ChatGPTService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,13 @@ public class ChatGPTController {
     @Autowired
     private ChatGPTService chatGPTService;
 
-    @PostMapping("/generate-resume")
-    public ResponseEntity<List<GenerateResumeResponseDto>> generateResume(@Valid @RequestBody GenerateResumeRequestDto requestDTO) {
-        List<GenerateResumeResponseDto> responses = new ArrayList<>();
+    @PostMapping("/generate-coverLetter")
+    public ResponseEntity<List<GenerateCoverLetterResponseDto>> generateCoverLetter(@Valid @RequestBody GenerateCoverLetterRequestDto requestDTO) {
+        List<GenerateCoverLetterResponseDto> responses = new ArrayList<>();
 
         for (String question : requestDTO.getQuestions()) {
-            String response = chatGPTService.generateResume(question);
-            responses.add(new GenerateResumeResponseDto(response));
+            String response = chatGPTService.generateCoverLetter(question);
+            responses.add(new GenerateCoverLetterResponseDto(response));
         }
 
         return ResponseEntity.ok(responses);
