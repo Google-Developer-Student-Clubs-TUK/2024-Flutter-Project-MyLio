@@ -5,6 +5,7 @@ import com.example.gdgocportfolio.dto.CoverLetterRequestDto;
 import com.example.gdgocportfolio.dto.CoverLetterResponseDto;
 import com.example.gdgocportfolio.entity.CoverLetter;
 import com.example.gdgocportfolio.service.CoverLetterService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +14,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/coverLetter")
+@RequestMapping("/api/v1/coverLetter")
+@Tag(name = "자소서(틀만 구현. 회원과 mapping x)")
 public class CoverLetterController {
 
     @Autowired
