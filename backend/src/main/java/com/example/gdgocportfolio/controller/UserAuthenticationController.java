@@ -5,6 +5,8 @@ import com.example.gdgocportfolio.dto.UserRegisterRequestDto;
 import com.example.gdgocportfolio.dto.UserRegisterResponseDto;
 import com.example.gdgocportfolio.exceptions.IncorrectPasswordException;
 import com.example.gdgocportfolio.service.UserAuthenticationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,7 @@ import java.net.URISyntaxException;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@Tag(name = "회원")
 public class UserAuthenticationController {
 
 	private final UserAuthenticationService userAuthenticationService;
@@ -26,6 +29,7 @@ public class UserAuthenticationController {
 	}
 
 	@PostMapping("/register")
+	@Operation(summary = "회원가입")
 	public ResponseEntity<UserRegisterResponseDto> registerUser(@RequestBody UserRegisterRequestDto requestDTO) throws URISyntaxException {
 		userAuthenticationService.registerUser(requestDTO);
 		return ResponseEntity
@@ -39,6 +43,7 @@ public class UserAuthenticationController {
 	 * @param password user password
 	 */
 	@GetMapping("/login")
+	@Operation(summary = "로그인")
 	@ResponseStatus(HttpStatus.OK)
 	public void login(@RequestHeader String email, @RequestHeader String password, HttpServletResponse res) {
 		UserLoginRequestDto userLoginRequestDto = new UserLoginRequestDto();
