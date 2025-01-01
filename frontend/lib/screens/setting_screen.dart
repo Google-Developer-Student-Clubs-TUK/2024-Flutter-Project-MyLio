@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/app_colors.dart';
+import 'package:frontend/screens/base_info.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/my_resume_screen.dart';
 import 'package:frontend/screens/widgets/bottom_bar.dart';
+import 'package:get/get.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -48,6 +50,7 @@ class _SettingScreenState extends State<SettingScreen> {
               onTap: () {
                 // 프로필 화면 이동
                 print('프로필 이동');
+                Get.to(Base_Info());
               },
               child: Container(
                 padding:
