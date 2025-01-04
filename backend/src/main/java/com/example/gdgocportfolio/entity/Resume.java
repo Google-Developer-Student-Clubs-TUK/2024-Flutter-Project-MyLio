@@ -18,6 +18,9 @@ public class Resume {
     @JoinColumn(name = "user_id", nullable = false) // FK 매핑
     private User user;
 
+    @Column(nullable = false)
+    private boolean isPrimary; // 대표 이력서 여부
+
     private String title;                     // 제목
     @ElementCollection
     private List<String> industries;          // 산업군 (최대 3개)

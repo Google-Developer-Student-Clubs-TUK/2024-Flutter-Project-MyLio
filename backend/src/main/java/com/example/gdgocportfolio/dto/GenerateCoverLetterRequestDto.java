@@ -14,6 +14,6 @@ import java.util.List;
 public class GenerateCoverLetterRequestDto {
 
     @NotNull(message = "Questions cannot be null")
-    @Size(min = 1, message = "At least one question is required") // 최소 한 개 이상의 질문을 허용
+    @Size(min = 1, message = "최소 한 개 이상의 질문이 존재해야 합니다") // 최소 한 개 이상의 질문을 허용
     private List<String> questions;
 }
