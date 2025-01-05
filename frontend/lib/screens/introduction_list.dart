@@ -4,19 +4,29 @@ import 'app_colors.dart';
 import 'widgets/bottom_bar.dart';
 
 class IntroductionList extends StatefulWidget {
-  const IntroductionList({super.key});
+  final List<Map<String, dynamic>> initialData; // 초기 데이터 추가
+
+  // 생성자에 초기 데이터 추가
+  IntroductionList({Key? key, this.initialData = const []}) : super(key: key);
 
   @override
   State<IntroductionList> createState() => _IntroductionListState();
 }
 
 class _IntroductionListState extends State<IntroductionList> {
-  // 리스트 항목 데이터
   List<String> resumes = [
     '[GDSC] 웹 개발자 (체험형 인턴)',
     '[GDSC] AI 엔지니어 (정규직)',
     '[GDSC] 프로젝트 매니저 (인턴)',
   ];
+
+  List<Map<String, dynamic>> introductions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    introductions = widget.initialData; // 초기 데이터 적용
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +50,14 @@ class _IntroductionListState extends State<IntroductionList> {
           },
         ),
       ),
+
+
       backgroundColor: Colors.white,
       body: ListView.builder(
         padding: const EdgeInsets.all(16.0),
-        itemCount: resumes.length,
+        itemCount: introductions.length,
         itemBuilder: (context, index) {
+          final intro = introductions[index];
           return Container(
             margin: const EdgeInsets.only(bottom: 12.0),
             width: MediaQuery.of(context).size.width * 0.9,
@@ -71,14 +84,18 @@ class _IntroductionListState extends State<IntroductionList> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    resumes[index],
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+                  child: Column(
+                    children: [
+                      Text(
+                        '${intro['title']}\n${intro['company']}-${intro['jobTitle']}',
+                        textAlign: TextAlign.start,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 
@@ -181,11 +198,41 @@ class _IntroductionListState extends State<IntroductionList> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('${resumes[index]}',
-                    style: const TextStyle(
+                  Text(
+                      '${introductions[index]['title']}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.black
+                        fontSize: 14,
+                      ),
+                  ),
+                  Text(
+                      '${introductions[index]['company']}-${introductions[index]['jobTitle']}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 12,
+                      ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    '${introductions[index]['questions']}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    '${introductions[index]['answers']}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -211,7 +258,7 @@ class _IntroductionListState extends State<IntroductionList> {
             width: 353,
             child: Column(mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('${resumes[index]}',
+                  Text('${introductions[index]['title']}',
                     style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -250,7 +297,7 @@ class _IntroductionListState extends State<IntroductionList> {
                         ),
                         onPressed: () {
                           setState(() {
-                            resumes.removeAt(index);
+                            introductions.removeAt(index);
                           });
                           Navigator.of(context).pop(); // 다이얼로그 닫기
                         },

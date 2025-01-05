@@ -1,10 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'introduction_list.dart';
 
 class QuestionResult extends StatefulWidget {
+  final String title;
+  final String companyName;
+  final String jobTitle;
   final List<String> questions; // 외부에서 전달받는 질문 리스트
-  const QuestionResult({super.key, required this.questions});
+  const QuestionResult({super.key,
+    required this.title,
+    required this.companyName,
+    required this.jobTitle,
+    required this.questions
+  });
 
   @override
   _QuestionResultState createState() => _QuestionResultState();
@@ -17,6 +26,7 @@ class _QuestionResultState extends State<QuestionResult> {
 
   late List<TextEditingController> _answerControllers;
   late List<int> _currentTextLengths;
+  late List<String> savedAnswers;
 
   @override
   void initState(){
@@ -25,6 +35,8 @@ class _QuestionResultState extends State<QuestionResult> {
         widget.questions.length, (index) => TextEditingController());
     _currentTextLengths = List.generate(
         widget.questions.length, (index) => 0);
+    savedAnswers = List.generate(
+        widget.questions.length, (index) => "");
   }
 
   @override
@@ -208,11 +220,16 @@ class _QuestionResultState extends State<QuestionResult> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+
+
                 SizedBox(
                   width: 120,
                   height: 50,
                   child: OutlinedButton(
                     onPressed: () {
+                      setState(() {
+                        savedAnswers[_selectedQuestion] = _answerControllers[_selectedQuestion].text; // 해당 답변 저장
+                      });
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content:
@@ -233,11 +250,33 @@ class _QuestionResultState extends State<QuestionResult> {
                     ),
                   ),
                 ),
+
+
                 SizedBox(
                   width: 120,
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () {
+                      // 데이터 구성
+                      final introduction = {
+                        'title': widget.title, // 제목 데이터
+                        'company': widget.companyName, // 회사명 데이터
+                        'jobTitle': widget.jobTitle, // 직무명 데이터
+                        'questions': widget.questions,
+                        'answers': _answerControllers.map((controller) => controller.text).toList(),
+                      };
+
+                      // IntroductionList로 바로 이동
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => IntroductionList(
+                            initialData: [introduction], // 데이터 전달
+                          ),
+                        ),
+                      );
+
+                      // 완료 메시지
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('제출 완료'),
@@ -245,6 +284,25 @@ class _QuestionResultState extends State<QuestionResult> {
                         ),
                       );
                     },
+                    // onPressed: () {
+                    //
+                    //   final introduction = {
+                    //     'title': widget.title,  // 추후 입력값과 연동
+                    //     'company': widget.companyName, // 추후 입력값과 연동
+                    //     'jobTitle': widget.jobTitle, // 추후 입력값과 연동
+                    //     'questions': widget.questions,
+                    //     'answers': savedAnswers,
+                    //   };
+                    //
+                    //   Navigator.pop(context, introduction);
+                    //
+                    //   ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(
+                    //       content: Text('제출 완료'),
+                    //       duration: Duration(seconds: 1),
+                    //     ),
+                    //   );
+                    // },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColor.color2,
                       shape: RoundedRectangleBorder(

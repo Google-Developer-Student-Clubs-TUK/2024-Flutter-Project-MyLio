@@ -44,6 +44,9 @@ class _LoadingScreenState extends State<LoadingScreen>
         context,
         MaterialPageRoute(
           builder: (context) => QuestionResult(
+            title: widget.title,
+            companyName: widget.companyName,
+            jobTitle: widget.jobTitle,
             questions: widget.questions,
 
           ),

@@ -73,6 +73,14 @@ class _QuestionInsertState extends State<QuestionInsert> {
                   ),
                 ),
 
+
+                const SizedBox(height: 16),
+                // 제목 입력 필드
+                _buildTextField(
+                  label: '자기소개서 제목',
+                  hint: '제목을 입력해주세요.',
+                  controller: titleController,
+                ),
                 const SizedBox(height: 16),
                 // 회사명 및 직무명 입력 필드 (가로 배치)
                 Row(
@@ -94,16 +102,6 @@ class _QuestionInsertState extends State<QuestionInsert> {
                     ),
                   ],
                 ),
-
-
-                const SizedBox(height: 16),
-                // 제목 입력 필드
-                _buildTextField(
-                  label: '자기소개서 제목',
-                  hint: '제목을 입력해주세요.',
-                  controller: titleController,
-                ),
-
 
                 const SizedBox(height: 16),
                 // 문항 입력 필드
@@ -262,10 +260,10 @@ class _QuestionInsertState extends State<QuestionInsert> {
       context,
       MaterialPageRoute(
         builder: (context) => LoadingScreen(
-          questions: questions,
           title: title,
           companyName: companyName,
           jobTitle: jobTitle,
+          questions: questions,
         ),
       ),
     );
