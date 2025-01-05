@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/add_resume.dart';
 import 'package:frontend/screens/award_page.dart';
 import 'package:frontend/screens/capability_page.dart';
 import 'package:frontend/screens/certificate_page.dart';
@@ -158,6 +159,7 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
         child: ElevatedButton(
           onPressed: () {
             print('저장하기 버튼 클릭');
+            Get.to(Add_Resume());
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF908CFF),
