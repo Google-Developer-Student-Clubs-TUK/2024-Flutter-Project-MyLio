@@ -50,7 +50,7 @@ class LoginState extends State<Login> {
                         width: 323,
                         child: TextFormField(
                           decoration: InputDecoration(
-                            hintText: "아이디 또는 이메일",
+                            hintText: "이메일",
                             hintStyle: TextStyle(fontSize: 12),
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Colors.grey),
