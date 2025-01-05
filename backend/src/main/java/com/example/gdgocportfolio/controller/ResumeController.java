@@ -28,10 +28,10 @@ public class ResumeController {
     }
 
     // 이력서 조회 (단건)
-    @GetMapping("/{resumeId}")
+    @GetMapping("/{userId}/{resumeId}")
     @Operation(summary = "이력서 조회(단건)", description = "이력서 단건을 조회합니다.")
-    public ResponseEntity<ResumeDto> getResume(@PathVariable Long resumeId) {
-        ResumeDto resumeDto = resumeService.getResume(resumeId);
+    public ResponseEntity<ResumeDto> getResume(@PathVariable Long userId, @PathVariable Long resumeId) {
+        ResumeDto resumeDto = resumeService.getResume(userId, resumeId);
         return ResponseEntity.ok(resumeDto);
     }
 
@@ -44,10 +44,10 @@ public class ResumeController {
     }
 
     // 이력서 업데이트
-    @PutMapping("/update/{resumeId}")
+    @PutMapping("/update/{userId}/{resumeId}")
     @Operation(summary = "이력서 업데이트", description = "이력서를 업데이트합니다.")
-    public ResponseEntity<String> updateResume(@PathVariable Long resumeId, @RequestBody ResumeDto resumeDto) {
-        resumeService.updateResume(resumeId, resumeDto);
+    public ResponseEntity<String> updateResume(@PathVariable Long userId, @PathVariable Long resumeId, @RequestBody ResumeDto resumeDto) {
+        resumeService.updateResume(userId, resumeId, resumeDto);
         return ResponseEntity.ok("이력서 업데이트 완료");
     }
 

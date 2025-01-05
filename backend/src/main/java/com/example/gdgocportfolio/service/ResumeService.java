@@ -37,8 +37,8 @@ public class ResumeService {
     }
 
     // 이력서 조회 (단건)
-    public ResumeDto getResume(Long resumeId) {
-        Resume resume = resumeRepository.findById(resumeId)
+    public ResumeDto getResume(Long userId, Long resumeId) {
+        Resume resume = resumeRepository.findByIdAndUserId(resumeId, userId)
                 .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
         return mapResumeToDto(resume);
     }
@@ -50,11 +50,14 @@ public class ResumeService {
     }
 
     // 이력서 업데이트
-    public void updateResume(Long resumeId, ResumeDto resumeDto) {
-        Resume resume = resumeRepository.findById(resumeId)
+    public void updateResume(Long userId, Long resumeId, ResumeDto resumeDto) {
+        Resume resume = resumeRepository.findByIdAndUserId(resumeId, userId)
                 .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
 
-        mapDtoToResume(resumeDto, resume);
+        // 이력서 내용 업데이트
+        resume.setTitle(resumeDto.getTitle());
+        resume.setJob(resumeDto.getJob());
+        resume.setSkills(resumeDto.getSkills());
         resumeRepository.save(resume);
     }
 
