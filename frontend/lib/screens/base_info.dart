@@ -15,6 +15,7 @@ class Base_Info_State extends State<Base_Info> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: Text(
@@ -99,7 +100,7 @@ class Base_Info_State extends State<Base_Info> {
                         height: 20,
                       ),
                       Text(
-                        '아이디',
+                        '이메일',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                       ),
                       SizedBox(
@@ -110,7 +111,7 @@ class Base_Info_State extends State<Base_Info> {
                         height: 47,
                         child: TextFormField(
                           decoration: InputDecoration(
-                            hintText: "seojinJeon0321",
+                            hintText: "gij0321@gmail.com",
                             hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC), fontWeight: FontWeight.w500),
                             border: OutlineInputBorder(
                               borderSide: BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
@@ -141,8 +142,42 @@ class Base_Info_State extends State<Base_Info> {
                         width: 352,
                         height: 47,
                         child: TextFormField(
+                          obscureText: true,
                           decoration: InputDecoration(
-                            hintText: "1234",
+                            hintText: "****",
+                            hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC), fontWeight: FontWeight.w500),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
+                              borderRadius: BorderRadius.circular(12.0), // 테두리 둥글게
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCCCCCC), width: 2.0),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        '비밀번호 확인',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        width: 352,
+                        height: 47,
+                        child: TextFormField(
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            hintText: "****",
                             hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC), fontWeight: FontWeight.w500),
                             border: OutlineInputBorder(
                               borderSide: BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
