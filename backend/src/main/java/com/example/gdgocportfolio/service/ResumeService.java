@@ -65,6 +65,23 @@ public class ResumeService {
         resumeRepository.delete(resume);
     }
 
+    // 대표 이력서 설정
+    public void setPrimaryResume(Long userId, Long resumeId) {
+        // 기존 대표 이력서 초기화
+        List<Resume> resumes = resumeRepository.findAll();
+        for (Resume resume : resumes) {
+            if (resume.getUser().getUserId().equals(userId)) {
+                resume.setPrimary(false);
+            }
+        }
+
+        // 새로운 대표 이력서 설정
+        Resume primaryResume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
+        primaryResume.setPrimary(true);
+        resumeRepository.saveAll(resumes);
+    }
+
     // DTO -> Entity
     private void mapDtoToResume(ResumeDto resumeDto, Resume resume) {
         resume.setTitle(resumeDto.getTitle());

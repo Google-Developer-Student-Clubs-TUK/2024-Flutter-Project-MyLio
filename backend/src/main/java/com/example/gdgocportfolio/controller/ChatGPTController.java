@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +23,11 @@ public class ChatGPTController {
 
     @PostMapping("/generate-coverLetter")
     @Operation(summary = "자소서 생성", description = "자소서를 생성합니다.")
-    public ResponseEntity<List<GenerateCoverLetterResponseDto>> generateCoverLetter(@Valid @RequestBody GenerateCoverLetterRequestDto requestDTO) {
+    public ResponseEntity<List<GenerateCoverLetterResponseDto>> generateCoverLetter(@RequestParam Long userId, @Valid @RequestBody GenerateCoverLetterRequestDto requestDTO) {
         List<GenerateCoverLetterResponseDto> responses = new ArrayList<>();
 
         for (String question : requestDTO.getQuestions()) {
-            String response = chatGPTService.generateCoverLetter(question);
+            String response = chatGPTService.generateCoverLetter(userId, question);
             responses.add(new GenerateCoverLetterResponseDto(response));
         }
 

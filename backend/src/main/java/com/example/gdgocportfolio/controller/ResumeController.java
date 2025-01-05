@@ -59,4 +59,11 @@ public class ResumeController {
         return ResponseEntity.ok("이력서 삭제 완료");
     }
 
+    // 대표 이력서 설정
+    @PostMapping("/set-primary/{userId}/{resumeId}")
+    public ResponseEntity<String> setPrimaryResume(@PathVariable Long userId, @PathVariable Long resumeId) {
+        resumeService.setPrimaryResume(userId, resumeId);
+        return ResponseEntity.ok("대표 이력서 설정 완료");
+    }
+
 }
