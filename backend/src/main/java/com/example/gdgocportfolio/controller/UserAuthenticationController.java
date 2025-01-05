@@ -1,5 +1,6 @@
 package com.example.gdgocportfolio.controller;
 
+import com.example.gdgocportfolio.dto.UserJwtDto;
 import com.example.gdgocportfolio.dto.UserLoginRequestDto;
 import com.example.gdgocportfolio.dto.UserRegisterRequestDto;
 import com.example.gdgocportfolio.dto.UserRegisterResponseDto;
@@ -57,7 +58,6 @@ public class UserAuthenticationController {
 		UserLoginRequestDto userLoginRequestDto = new UserLoginRequestDto();
 		userLoginRequestDto.setEmail(email);
 		userLoginRequestDto.setPassword(password);
-
 		Set<ConstraintViolation<UserLoginRequestDto>> violation = validator.validate(userLoginRequestDto);
 		if (!violation.isEmpty()) {
 			String message = violation.stream()
@@ -67,7 +67,10 @@ public class UserAuthenticationController {
 			throw new IllegalArgumentException(message);
 		}
 
-		res.addHeader("Set-Cookie", "token=" + userAuthenticationService.generateUserJwtToken(userLoginRequestDto));
+		UserJwtDto userJwtDto = userAuthenticationService.generateUserJwtToken(userLoginRequestDto);
+
+		res.addHeader("Set-Cookie", "ACCESS_TOKEN=" + userJwtDto.getAccessToken());
+		res.addHeader("Set-Cookie", "REFRESH_TOKEN=" + userJwtDto.getRefreshToken());
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
