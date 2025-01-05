@@ -1,158 +1,40 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter/cupertino.dart';
-// import 'app_colors.dart';
-// import 'introduction_list.dart';
-//
-// class QuestionResult extends StatefulWidget {
-//   final String companyName; // 회사명
-//   final String position; // 직무명
-//   final List<String> questions; // 질문 목록
-//
-//   const QuestionResult({
-//     super.key,
-//     required this.companyName,
-//     required this.position,
-//     required this.questions,
-//   });
-//
-//   @override
-//   _QuestionResultState createState() => _QuestionResultState();
-// }
-//
-// class _QuestionResultState extends State<QuestionResult> {
-//   final Map<String, String> answers = {}; // 질문-답변 매핑
-//   int _selectedQuestion = 0;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.transparent,
-//         elevation: 0.0,
-//         leading: IconButton(
-//           icon: const Icon(
-//             Icons.arrow_back_ios_new,
-//             size: 24,
-//             color: Colors.black,
-//           ),
-//           onPressed: () {
-//             Navigator.pop(context);
-//           },
-//         ),
-//       ),
-//       backgroundColor: Colors.white,
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.stretch,
-//           children: [
-//             // 상단 질문 선택 버튼
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: List.generate(
-//                 widget.questions.length,
-//                     (index) => Padding(
-//                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
-//                   child: OutlinedButton(
-//                     style: OutlinedButton.styleFrom(
-//                       shape: const CircleBorder(),
-//                       side: BorderSide(
-//                         color: _selectedQuestion == index
-//                             ? AppColor.color2
-//                             : Colors.grey,
-//                       ),
-//                     ),
-//                     onPressed: () {
-//                       setState(() {
-//                         _selectedQuestion = index;
-//                       });
-//                     },
-//                     child: Text(
-//                       '${index + 1}',
-//                       style: TextStyle(
-//                         color: _selectedQuestion == index
-//                             ? AppColor.color2
-//                             : Colors.black,
-//                       ),
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(height: 16),
-//
-//             // 질문 텍스트
-//             Text(
-//               '[필수] ${widget.questions[_selectedQuestion]}',
-//               style: const TextStyle(
-//                 fontSize: 16,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             const SizedBox(height: 16),
-//
-//             // 답변 입력 박스
-//             Expanded(
-//               child: TextField(
-//                 maxLines: null,
-//                 onChanged: (value) {
-//                   answers[widget.questions[_selectedQuestion]] = value;
-//                 },
-//                 decoration: InputDecoration(
-//                   hintText: '답변을 입력해주세요.',
-//                   border: OutlineInputBorder(
-//                     borderRadius: BorderRadius.circular(10.0),
-//                     borderSide: const BorderSide(color: Colors.grey),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(height: 16),
-//
-//             // 하단 버튼
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//               children: [
-//                 // 끝내기 버튼
-//                 ElevatedButton(
-//                   onPressed: (){},
-//                   style: ElevatedButton.styleFrom(
-//                     backgroundColor: AppColor.color2,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(10.0),
-//                     ),
-//                   ),
-//                   child: const Text(
-//                     '끝내기',
-//                     style: TextStyle(color: Colors.white),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
 class QuestionResult extends StatefulWidget {
   final List<String> questions; // 외부에서 전달받는 질문 리스트
-
   const QuestionResult({super.key, required this.questions});
 
   @override
   _QuestionResultState createState() => _QuestionResultState();
 }
 
+
+
 class _QuestionResultState extends State<QuestionResult> {
   int _selectedQuestion = 0; // 첫 번째 질문을 선택
+
+  late List<TextEditingController> _answerControllers;
+  late List<int> _currentTextLengths;
+
+  @override
+  void initState(){
+    super.initState();
+    _answerControllers = List.generate(
+        widget.questions.length, (index) => TextEditingController());
+    _currentTextLengths = List.generate(
+        widget.questions.length, (index) => 0);
+  }
+
+  @override
+  void dispose() {
+    for (var controller in _answerControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -255,11 +137,21 @@ class _QuestionResultState extends State<QuestionResult> {
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
-                        "여기에 ${_selectedQuestion + 1}번 질문에 대한 GPT 답변이 표시됩니다.",
-                        style: const TextStyle(fontSize: 14, color: Color(0xff888888)),
+                      child: TextField(
+                        controller: _answerControllers[_selectedQuestion],
+                        maxLines: null,
+                        onChanged: (text) {
+                          setState(() {
+                            _currentTextLengths[_selectedQuestion] = text.length;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: '${_selectedQuestion + 1}번 질문에 대한 답변을 입력해주세요.',
+                          hintStyle: TextStyle(fontSize: 14, color: Color(0xff888888)),
+                        ),
                       ),
-                    ),
+                    )
                   ),
                   const SizedBox(height: 8),
 
@@ -267,20 +159,22 @@ class _QuestionResultState extends State<QuestionResult> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const Text(
-                        '0/1000자',
+                      Text(
+                        '${_currentTextLengths[_selectedQuestion]}/1000자',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF8978EB),
                           fontWeight: FontWeight.normal,
                         ),
                       ),
+
+
                       // 새로고침 버튼
                       IconButton(
                         onPressed: () {
-                          // 새로고침 버튼 클릭 시 동작
                           setState(() {
-
+                            _answerControllers[_selectedQuestion].clear(); // 선택된 질문 초기화
+                            _currentTextLengths[_selectedQuestion] = 0;   // 글자 수 초기화
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -371,7 +265,5 @@ class _QuestionResultState extends State<QuestionResult> {
     );
   }
 }
-
-
 
 
