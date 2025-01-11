@@ -14,8 +14,7 @@ public class UserLoginRequestDto {
 	private String email;
 
 	@Size(min = 8, message = "Password must be at least 8 characters long")
-	@Schema(description = "아이디", example = "test")
 	@Pattern(regexp = "^[A-Za-z0-9]+")
-	@Schema(description = "아이디", example = "test")
+	@Schema(description = "아이디", example = "123")
 	private String password;
 }
