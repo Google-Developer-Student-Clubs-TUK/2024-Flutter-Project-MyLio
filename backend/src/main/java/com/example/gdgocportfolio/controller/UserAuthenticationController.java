@@ -26,6 +26,7 @@ import java.util.Set;
 @RestController
 @Tag(name = "회원")
 @RequestMapping("/api/v1/auth/user")
+@Tag(name = "회원")
 public class UserAuthenticationController {
 
 	private final UserAuthenticationService userAuthenticationService;
