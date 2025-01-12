@@ -52,10 +52,10 @@ public class ResumeController {
     }
 
     // 이력서 삭제
-    @DeleteMapping("/delete/{resumeId}")
+    @DeleteMapping("/delete/{userId}/{resumeId}")
     @Operation(summary = "이력서 삭제", description = "이력서를 삭제합니다.")
-    public ResponseEntity<String> deleteResume(@PathVariable Long resumeId) {
-        resumeService.deleteResume(resumeId);
+    public ResponseEntity<String> deleteResume(@PathVariable Long userId, @PathVariable Long resumeId) {
+        resumeService.deleteResume(userId, resumeId);
         return ResponseEntity.ok("이력서 삭제 완료");
     }
 

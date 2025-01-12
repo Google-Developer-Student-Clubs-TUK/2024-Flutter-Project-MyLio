@@ -62,8 +62,8 @@ public class ResumeService {
     }
 
     // 이력서 삭제
-    public void deleteResume(Long resumeId) {
-        Resume resume = resumeRepository.findById(resumeId)
+    public void deleteResume(Long userId, Long resumeId) {
+        Resume resume = resumeRepository.findByIdAndUserId(resumeId, userId)
                 .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
         resumeRepository.delete(resume);
     }
