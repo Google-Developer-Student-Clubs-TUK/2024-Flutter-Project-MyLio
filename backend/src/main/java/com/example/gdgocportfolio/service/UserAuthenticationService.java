@@ -47,17 +47,12 @@ public class UserAuthenticationService {
 	public UserRefreshTokenInfoDto verifyUserRefreshToken(String refreshToken) {
 		UserRefreshTokenInfoDto userRefreshTokenInfoDto;
 		try {
-			Map<String, String> result = jwtProvider.parseJwtToken(refreshToken, Set.of("uuid", "user_id", "authorization"));
+			Map<String, String> result = jwtProvider.parseJwtToken(refreshToken, Set.of("uuid", "user_id", "exp", "iat"));
 			long exp = Long.parseLong(result.get("exp"));
-			if (exp < jwtProvider.getCurrentTime() + expireTime) throw new InvalidJwtException();
-			JSONArray permissionArray = new JSONArray(result.get("authorization"));
-			String[] permissions = new String[permissionArray.length()];
-			for (int i = 0; i < permissionArray.length(); i++) {
-				permissions[i] = permissionArray.getString(i);
-			}
-			userRefreshTokenInfoDto = new UserRefreshTokenInfoDto(UUID.fromString(result.get("uuid")), Long.parseLong(result.get("user_id")), permissions);
+			if (exp < jwtProvider.getCurrentTime()) throw new InvalidJwtException("Expired token");
+			userRefreshTokenInfoDto = new UserRefreshTokenInfoDto(UUID.fromString(result.get("uuid")), Long.parseLong(result.get("user_id")));
 		} catch (Exception e) {
-			throw new InvalidJwtException();
+			throw new InvalidJwtException(e.toString());
 		}
 		return userRefreshTokenInfoDto;
 	}
@@ -67,11 +62,17 @@ public class UserAuthenticationService {
 		try {
 			Map<String, String> result = jwtProvider.parseJwtToken(accessToken, Set.of("email", "user_id", "authorization", "exp", "iat"));
 			long exp = Long.parseLong(result.get("exp"));
-			if (exp < jwtProvider.getCurrentTime() + expireTime) throw new InvalidJwtException();
+			if (exp < jwtProvider.getCurrentTime()) throw new InvalidJwtException("Expired Token");
 			List<String> permissions = new JSONArray(result.get("authorization")).toList().stream().map(Object::toString).toList();
-			userAccessTokenInfoDto = new UserAccessTokenInfoDto(result.get("email"), result.get("userId"), permissions);
+
+			String email = result.get("email");
+			String userId = result.get("user_id");
+			if (userId == null || email == null) {
+				throw new InvalidJwtException();
+			}
+			userAccessTokenInfoDto = new UserAccessTokenInfoDto(email, userId, permissions);
 		} catch (Exception e) {
-			throw new InvalidJwtException();
+			throw new InvalidJwtException(e.getMessage());
 		}
 		return userAccessTokenInfoDto;
 	}
@@ -83,10 +84,7 @@ public class UserAuthenticationService {
 	 */
 	@Transactional
 	public UserJwtDto generateUserJwtToken(final UserLoginRequestDto userLoginRequestDto) {
-		UserAuthentication userAuthentication = userAuthenticationRepository.findByEmail(userLoginRequestDto.getEmail());
-		if (userAuthentication == null) {
-			throw new IllegalArgumentException("User not found");
-		}
+		UserAuthentication userAuthentication = userAuthenticationRepository.findByEmailEquals(userLoginRequestDto.getEmail()).orElseThrow(() -> new IllegalArgumentException("User not found"));
 		if (!userAuthentication.getPassword().equals(hashConvertor.convertToHash(userLoginRequestDto.getPassword()))) {
 			throw new IncorrectPasswordException();
 		}
@@ -123,19 +121,21 @@ public class UserAuthenticationService {
 		return new UserJwtDto(accessToken.getToken(), refreshToken.getToken());
 	}
 
+	@Transactional
 	public UserJwtDto refreshUserJwtToken(String refreshToken) {
 		UserRefreshTokenInfoDto userRefreshTokenInfoDto = verifyUserRefreshToken(refreshToken);
-		RefreshTokenEntity refreshTokenEntity = userRefreshTokenRepository.findById(userRefreshTokenInfoDto.getUuid()).orElseThrow(InvalidJwtException::new);
-		UserAuthentication userAuthentication = userAuthenticationRepository.findById(userRefreshTokenInfoDto.getUserId()).orElseThrow(InvalidJwtException::new);
+		RefreshTokenEntity refreshTokenEntity = userRefreshTokenRepository.findById(userRefreshTokenInfoDto.getUuid()).orElseThrow(() -> new InvalidJwtException("Expired refresh token"));
+		UserAuthentication userAuthentication = userAuthenticationRepository.findById(userRefreshTokenInfoDto.getUserId()).orElseThrow(() -> new InvalidJwtException("Invalid user id"));
 		userRefreshTokenRepository.delete(refreshTokenEntity);
 
 		return generateUserJwtToken(userAuthentication.getEmail(), userAuthentication.getUserId(), userAuthentication.getPermissions());
 	}
 
 	@Transactional
-	public void registerUser(UserRegisterRequestDto requestDTO) {
-		UserAuthentication authenticationInfo = userAuthenticationRepository.findByEmail(requestDTO.getEmail());
-		if (authenticationInfo != null) throw new UserExistsDataException();
+	public void registerUser(final UserRegisterRequestDto requestDTO) {
+		if (userAuthenticationRepository.findByEmailEquals(requestDTO.getEmail()).isPresent()) {
+			throw new UserExistsDataException();
+		}
 
 		User user = userRepository.findByPhoneNumber(requestDTO.getPhoneNumber());
 		if (user != null) throw new UserExistsWithPhoneNumberDataException();
@@ -150,6 +150,7 @@ public class UserAuthenticationService {
 		userAuthentication.setEmail(requestDTO.getEmail());
 		userAuthentication.setPassword(hashConvertor.convertToHash(requestDTO.getPassword()));
 		userAuthentication.setEnabled(true);
+		userAuthentication.setPermissions(Set.of("user.resume", "user.coverletter"));
 		userAuthenticationRepository.save(userAuthentication);
 	}
 }

@@ -3,9 +3,9 @@ package com.example.gdgocportfolio.controller;
 import com.example.gdgocportfolio.dto.UserJwtDto;
 import com.example.gdgocportfolio.dto.UserLoginRequestDto;
 import com.example.gdgocportfolio.dto.UserRegisterRequestDto;
-import com.example.gdgocportfolio.dto.UserRegisterResponseDto;
 import com.example.gdgocportfolio.exceptions.IncorrectPasswordException;
 import com.example.gdgocportfolio.exceptions.UserExistsDataException;
+import com.example.gdgocportfolio.exceptions.UserExistsWithPhoneNumberDataException;
 import com.example.gdgocportfolio.service.UserAuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Set;
 
@@ -40,11 +39,10 @@ public class UserAuthenticationController {
 
 	@PostMapping
 	@Operation(summary = "회원가입")
-	public ResponseEntity<UserRegisterResponseDto> registerUser(@RequestBody @Valid UserRegisterRequestDto requestDTO) throws URISyntaxException {
+	@ResponseStatus(HttpStatus.CREATED)
+	public String registerUser(@RequestBody @Valid UserRegisterRequestDto requestDTO) throws URISyntaxException {
 		userAuthenticationService.registerUser(requestDTO);
-		return ResponseEntity
-				.created(new URI("/api/v1/login"))
-				.body(new UserRegisterResponseDto("User registered successfully"));
+		return "User registered successfully";
 	}
 
 	/**
@@ -108,5 +106,10 @@ public class UserAuthenticationController {
 		return ResponseEntity
 				.badRequest()
 				.body("User already exists");
+	}
+
+	@ExceptionHandler(UserExistsWithPhoneNumberDataException.class)
+	public String userExistsWithPhoneNumberDataException(UserExistsWithPhoneNumberDataException e) {
+		return "Phone number already used";
 	}
 }

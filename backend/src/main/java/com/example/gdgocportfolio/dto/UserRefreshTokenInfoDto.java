@@ -10,5 +10,4 @@ import java.util.UUID;
 public class UserRefreshTokenInfoDto {
 	private final UUID uuid;
 	private final Long userId;
-	private final String[] permissions;
 }

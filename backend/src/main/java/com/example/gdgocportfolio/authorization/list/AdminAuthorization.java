@@ -4,6 +4,6 @@ import com.example.gdgocportfolio.authorization.AuthorizationAbstract;
 
 public class AdminAuthorization extends AuthorizationAbstract {
 	protected AdminAuthorization() {
-		super("admin");
+		super("admin", "/api/v1/admin/*");
 	}
 }

@@ -20,10 +20,10 @@ public class UserRegisterRequestDto {
 	private String phoneNumber;
 
 	@Email(message = "Invalid email address")
-	@Schema(description = "이메일", example = "test@naver.com")
+	@Schema(description = "이메일", example = "abc@gmail.com")
 	private String email;
 
 	@Size(min = 8, message = "Password must be at least 8 characters long")
-	@Schema(description = "비밀번호", example = "test123")
+	@Schema(description = "비밀번호", example = "12345678")
 	private String password;
 }

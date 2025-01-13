@@ -7,9 +7,12 @@ import java.util.Objects;
 public abstract class AuthorizationAbstract {
 	@Getter
 	protected final String permission;
+	@Getter
+	protected final String uri;
 
-	protected AuthorizationAbstract(final String permission) {
+	protected AuthorizationAbstract(final String permission, String uri) {
 		this.permission = permission;
+		this.uri = uri;
 	}
 
 	@Override

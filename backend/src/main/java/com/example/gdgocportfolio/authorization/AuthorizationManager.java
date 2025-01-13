@@ -1,5 +1,6 @@
 package com.example.gdgocportfolio.authorization;
 
+import com.example.gdgocportfolio.authorization.list.UserCoverLetterAuthorization;
 import com.example.gdgocportfolio.authorization.list.UserResumeAuthorization;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ public class AuthorizationManager {
 
 	public void init() {
 		this.registerPermission(new UserResumeAuthorization());
+		this.registerPermission(new UserCoverLetterAuthorization());
 	}
 
 	public void registerPermission(AuthorizationAbstract authorization) {

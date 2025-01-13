@@ -61,10 +61,10 @@ public class JwtProvider {
 			try {
 				val = payload.getString(key);
 			} catch (JSONException e) {
-				throw new InvalidJwtException();
+				throw new InvalidJwtException("required information is missing");
 			}
 			if (val == null) {
-				throw new InvalidJwtException();
+				throw new InvalidJwtException("required information is missing");
 			}
 			result.put(key, val);
 		}
