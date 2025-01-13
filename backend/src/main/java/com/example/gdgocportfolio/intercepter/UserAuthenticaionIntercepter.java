@@ -82,29 +82,37 @@ public class UserAuthenticaionIntercepter implements HandlerInterceptor {
 			return false;
 		}
 
-		try {
-			UserAccessTokenInfoDto userAccessTokenInfoDto = userAuthenticationService.verifyUserAccessToken(accessToken);
-			request.setAttribute("ACCESS_TOKEN", userAccessTokenInfoDto);
+		for (int i = 0; i < 2; i++) {
+			try {
+				UserAccessTokenInfoDto userAccessTokenInfoDto = userAuthenticationService.verifyUserAccessToken(accessToken);
+				request.setAttribute("ACCESS_TOKEN", userAccessTokenInfoDto);
 
-			boolean fail = false;
-			for (AuthorizationAbstract a : authorizations) {
-				if (!userAccessTokenInfoDto.getPermissions().contains(a.getPermission())) {
-					fail = true;
-					break;
+				boolean fail = false;
+				for (AuthorizationAbstract a : authorizations) {
+					if (!userAccessTokenInfoDto.getPermissions().contains(a.getPermission())) {
+						fail = true;
+						break;
+					}
+				}
+				if (fail) {
+					response.setStatus(HttpStatus.UNAUTHORIZED.value());
+					return false;
+				}
+				return true;
+			} catch (Exception e) {
+				if (i == 0) {
+					UserJwtDto userJwtDto = userAuthenticationService.refreshUserJwtToken(refreshToken);
+					response.addHeader("Set-Cookie", "ACCESS_TOKEN=" + userJwtDto.getAccessToken());
+					response.addHeader("Set-Cookie", "REFRESH_TOKEN=" + userJwtDto.getRefreshToken());
+					accessToken = userJwtDto.getAccessToken();
+					refreshToken = userJwtDto.getRefreshToken();
 				}
 			}
-			if (fail) {
-				response.setStatus(HttpStatus.UNAUTHORIZED.value());
-				return false;
-			}
-			return true;
-		} catch (Exception e) {
-			response.setStatus(HttpStatus.UNAUTHORIZED.value());
-			return false;
 		}
+
+		response.setStatus(HttpStatus.UNAUTHORIZED.value());
+		return false;
 	}
-
-
 
 	public List<AuthorizationAbstract> uriFilter(String uri) {
 		List<AuthorizationAbstract> authorizations = new LinkedList<>();
