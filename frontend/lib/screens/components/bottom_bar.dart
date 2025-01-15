@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/app_colors.dart';
+import 'package:frontend/screens/theme/app_colors.dart';
 
 class BottomBar extends StatelessWidget {
   final VoidCallback onGridPressed;

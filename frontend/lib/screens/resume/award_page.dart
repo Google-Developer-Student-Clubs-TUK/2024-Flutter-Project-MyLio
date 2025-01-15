@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 
-class LanguagePage extends StatefulWidget {
-  const LanguagePage({Key? key}) : super(key: key);
+class AwardPage extends StatefulWidget {
+  final List<Map<String, String>> initialAwards;
+
+  const AwardPage({Key? key, required this.initialAwards}) : super(key: key);
 
   @override
-  State<LanguagePage> createState() => _LanguagePageState();
+  State<AwardPage> createState() => _AwardPageState();
 }
 
-class _LanguagePageState extends State<LanguagePage> {
-  // 어학 리스트
-  List<Map<String, String>> languages = [
-    {"language": "", "exam": "", "score": "", "date": ""}
-  ]; // 기본 1개의 입력 필드
+class _AwardPageState extends State<AwardPage> {
+  // 수상경력 리스트
+  late List<Map<String, String>> awards;
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 데이터 복사
+    awards = List.from(widget.initialAwards);
+    if (awards.isEmpty) {
+      awards.add({"title": "", "organization": "", "date": "", "details": ""});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +31,7 @@ class _LanguagePageState extends State<LanguagePage> {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          '어학',
+          '수상경력',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18,
@@ -34,7 +44,7 @@ class _LanguagePageState extends State<LanguagePage> {
             color: Colors.black,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, awards);
           },
         ),
       ),
@@ -47,7 +57,7 @@ class _LanguagePageState extends State<LanguagePage> {
               children: [
                 const Center(
                   child: Text(
-                    '어학은 최대 10개까지 입력이 가능합니다.',
+                    '해당 직무와 관련이 높은 수상경력을 입력해주세요.\n최대 5개까지 입력이 가능합니다.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
@@ -56,39 +66,37 @@ class _LanguagePageState extends State<LanguagePage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // 어학 입력 필드
+                // 수상경력 입력 필드
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: languages.length,
+                  itemCount: awards.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 40),
-                      child: _buildLanguageField(index),
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: _buildAwardField(index),
                     );
                   },
                 ),
-                // 어학 추가 버튼
-                if (languages.length < 10)
+                // 수상경력 추가 버튼
+                if (awards.length < 5)
                   TextButton.icon(
                     onPressed: () {
-                      if (languages.length < 10) {
-                        setState(() {
-                          languages.add({
-                            "language": "",
-                            "exam": "",
-                            "score": "",
-                            "date": ""
-                          }); // 새 필드 추가
+                      setState(() {
+                        awards.add({
+                          "title": "",
+                          "organization": "",
+                          "date": "",
+                          "details": ""
                         });
-                      }
+                      });
                     },
                     icon: const Icon(
                       Icons.add,
                       color: Color(0xFF908CFF),
                     ),
                     label: const Text(
-                      '어학 추가',
+                      '수상 경력 추가',
                       style: TextStyle(
                         color: Color(0xFF908CFF),
                         fontSize: 16,
@@ -115,7 +123,7 @@ class _LanguagePageState extends State<LanguagePage> {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               onPressed: () {
-                print('입력 완료: $languages');
+                Navigator.pop(context, awards);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF908CFF),
@@ -139,20 +147,27 @@ class _LanguagePageState extends State<LanguagePage> {
     );
   }
 
-  Widget _buildLanguageField(int index) {
+  Widget _buildAwardField(int index) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 언어 입력 필드
+        // 수상명 입력 필드
         Row(
           children: [
             Expanded(
               child: TextField(
                 onChanged: (value) {
-                  languages[index]["language"] = value;
+                  awards[index]["title"] = value;
                 },
+                controller: TextEditingController.fromValue(
+                  TextEditingValue(
+                    text: awards[index]["title"]!,
+                    selection: TextSelection.collapsed(
+                        offset: awards[index]["title"]!.length),
+                  ),
+                ),
                 decoration: InputDecoration(
-                  hintText: '언어',
+                  hintText: '수상명',
                   hintStyle: const TextStyle(color: Colors.black38),
                   filled: true,
                   fillColor: Colors.white,
@@ -162,14 +177,6 @@ class _LanguagePageState extends State<LanguagePage> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.grey),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.grey),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF908CFF)),
-                  ),
                 ),
               ),
             ),
@@ -178,7 +185,7 @@ class _LanguagePageState extends State<LanguagePage> {
             IconButton(
               onPressed: () {
                 setState(() {
-                  languages.removeAt(index);
+                  awards.removeAt(index);
                 });
               },
               icon: const Icon(Icons.close, color: Colors.black38),
@@ -186,13 +193,27 @@ class _LanguagePageState extends State<LanguagePage> {
           ],
         ),
         const SizedBox(height: 16),
-        // 시험명 입력 필드
+        _buildAwardDetails(index),
+      ],
+    );
+  }
+
+  Widget _buildAwardDetails(int index) {
+    return Column(
+      children: [
         TextField(
           onChanged: (value) {
-            languages[index]["exam"] = value;
+            awards[index]["organization"] = value;
           },
+          controller: TextEditingController.fromValue(
+            TextEditingValue(
+              text: awards[index]["organization"]!,
+              selection: TextSelection.collapsed(
+                  offset: awards[index]["organization"]!.length),
+            ),
+          ),
           decoration: InputDecoration(
-            hintText: '시험명',
+            hintText: '기관명',
             hintStyle: const TextStyle(color: Colors.black38),
             filled: true,
             fillColor: Colors.white,
@@ -202,45 +223,9 @@ class _LanguagePageState extends State<LanguagePage> {
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Colors.grey),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.grey),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF908CFF)),
-            ),
           ),
         ),
         const SizedBox(height: 16),
-        // 점수/급수 입력 필드
-        TextField(
-          onChanged: (value) {
-            languages[index]["score"] = value;
-          },
-          decoration: InputDecoration(
-            hintText: '점수/급수',
-            hintStyle: const TextStyle(color: Colors.black38),
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.grey),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.grey),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF908CFF)),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        // 취득 연도 DatePicker 필드
         GestureDetector(
           onTap: () async {
             DateTime? selectedDate = await showDatePicker(
@@ -251,14 +236,14 @@ class _LanguagePageState extends State<LanguagePage> {
             );
             if (selectedDate != null) {
               setState(() {
-                languages[index]["date"] =
+                awards[index]["date"] =
                     "${selectedDate.year}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.day.toString().padLeft(2, '0')}";
               });
             }
           },
           child: InputDecorator(
             decoration: InputDecoration(
-              hintText: '취득 연도 ex) 24.01.01',
+              hintText: '수상 연도 ex) 24.01.01',
               hintStyle: const TextStyle(color: Colors.black38),
               filled: true,
               fillColor: Colors.white,
@@ -268,27 +253,18 @@ class _LanguagePageState extends State<LanguagePage> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Colors.grey),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFF908CFF)),
-              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  languages[index]["date"]!.isEmpty
-                      ? '취득 연도 ex) 24.01.01'
-                      : languages[index]["date"]!,
+                  awards[index]["date"]!.isEmpty
+                      ? '수상 연도 ex) 24.01.01'
+                      : awards[index]["date"]!,
                   style: TextStyle(
-                    color: languages[index]["date"]!.isEmpty
+                    color: awards[index]["date"]!.isEmpty
                         ? Colors.black38
                         : Colors.black87,
-                    fontSize: 16,
                   ),
                 ),
                 const Icon(
@@ -297,6 +273,32 @@ class _LanguagePageState extends State<LanguagePage> {
                   size: 20,
                 ),
               ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          onChanged: (value) {
+            awards[index]["details"] = value;
+          },
+          controller: TextEditingController.fromValue(
+            TextEditingValue(
+              text: awards[index]["details"]!,
+              selection: TextSelection.collapsed(
+                  offset: awards[index]["details"]!.length),
+            ),
+          ),
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: '수상 내용을 입력해주세요.',
+            hintStyle: const TextStyle(color: Colors.black38),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.grey),
             ),
           ),
         ),

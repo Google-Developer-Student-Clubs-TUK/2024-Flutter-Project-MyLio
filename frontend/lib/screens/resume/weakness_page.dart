@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
 
 class WeaknessPage extends StatefulWidget {
-  const WeaknessPage({Key? key}) : super(key: key);
+  final List<String> initialWeaknesses; // 초기 약점 리스트를 전달받기 위한 필드
+
+  const WeaknessPage({Key? key, required this.initialWeaknesses})
+      : super(key: key);
 
   @override
   State<WeaknessPage> createState() => _WeaknessPageState();
 }
 
 class _WeaknessPageState extends State<WeaknessPage> {
-  // 약점 리스트
-  List<String> weaknesses = ["", "", ""]; // 기본 3개의 입력 필드
+  late List<String> weaknesses; // 약점 리스트
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 데이터를 복사
+    weaknesses = List.from(widget.initialWeaknesses);
+    // 기본 3개의 필드가 없으면 추가
+    while (weaknesses.length < 3) {
+      weaknesses.add("");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +45,11 @@ class _WeaknessPageState extends State<WeaknessPage> {
             color: Colors.black,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            // 빈 값 제거 후 데이터 반환
+            weaknesses = weaknesses
+                .where((weakness) => weakness.trim().isNotEmpty)
+                .toList();
+            Navigator.pop(context, weaknesses);
           },
         ),
       ),
@@ -110,7 +127,11 @@ class _WeaknessPageState extends State<WeaknessPage> {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               onPressed: () {
-                print('입력 완료: $weaknesses');
+                // 빈 필드를 제거하고 데이터 반환
+                weaknesses = weaknesses
+                    .where((weakness) => weakness.trim().isNotEmpty)
+                    .toList();
+                Navigator.pop(context, weaknesses);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF908CFF),
@@ -139,7 +160,7 @@ class _WeaknessPageState extends State<WeaknessPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '약점${index + 1}',
+          '약점 ${index + 1}',
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -148,6 +169,7 @@ class _WeaknessPageState extends State<WeaknessPage> {
         ),
         const SizedBox(height: 8),
         TextField(
+          controller: TextEditingController(text: weaknesses[index]),
           onChanged: (value) {
             weaknesses[index] = value; // 입력 값 업데이트
           },
@@ -157,7 +179,7 @@ class _WeaknessPageState extends State<WeaknessPage> {
                 : index == 1
                     ? 'ex) 스트레스를 잘 받는다'
                     : index == 2
-                        ? 'ex) 끝까지 일을 해내는데 의지가 좀 부족하다.'
+                        ? 'ex) 끝까지 일을 해내는 의지가 좀 부족하다'
                         : 'ex) 기타 약점',
             hintStyle: const TextStyle(color: Colors.black38),
             filled: true,
