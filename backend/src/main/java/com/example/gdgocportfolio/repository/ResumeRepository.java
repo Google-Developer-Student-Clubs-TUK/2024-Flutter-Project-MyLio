@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface ResumeRepository extends JpaRepository<Resume, Long> {
     List<Resume> findByUserUserId(Long userId); // 사용자별 이력서 조회
     Optional<Resume> findByUserUserIdAndIsPrimaryTrue(Long userId); // 대표 이력서 찾기
-    Optional<Resume> findByIdAndUserId(Long resumeId, Long userId);
+    Optional<Resume> findByResumeIdAndUserUserId(Long resumeId, Long userId);
 }

@@ -23,7 +23,8 @@ public class ChatGPTService {
         this.resumeRepository = resumeRepository;
     }
 
-    public String generateCoverLetter(Long userId, String question) {
+    // 단일 문항에 대해 GPT 답변 반환
+    public String generateAnswer(Long userId, String question) {
 
         // ChatGPT 메시지 생성
         ChatMessage systemMessage = new ChatMessage("system", "당신은 뛰어난 자기소개서 작성가입니다.");
@@ -32,7 +33,7 @@ public class ChatGPTService {
         Resume resume = resumeRepository.findByUserUserIdAndIsPrimaryTrue(userId)
                 .orElseThrow(() -> new RuntimeException("대표 이력서가 존재하지 않습니다."));
 
-        // 이력서 정보 구성
+        // 이력서 내용
         String resumeContent = String.format(
                 "제목: %s\n직무: %s\n강점: %s\n약점: %s\n기술: %s\n활동: %s\n수상: %s\n자격증: %s\n언어: %s\n",
                 resume.getTitle(),

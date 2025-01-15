@@ -15,33 +15,33 @@ public class CoverLetterService {
     private CoverLetterRepository coverLetterRepository;
 
     public CoverLetter saveCoverLetter(CoverLetter coverLetter) {
+        // questionAnswers는 cascade로 함께 저장
         return coverLetterRepository.save(coverLetter);
     }
 
-    public CoverLetter updateCoverLetter(Long CoverLetterId, CoverLetter updatedCoverLetter) {
-        Optional<CoverLetter> existingCoverLetter = coverLetterRepository.findById(CoverLetterId);
-        if (existingCoverLetter.isPresent()) {
-            CoverLetter coverLetter = existingCoverLetter.get();
-            coverLetter.setUserId((updatedCoverLetter.getUserId()));
-            coverLetter.setData(updatedCoverLetter.getData());
-            return coverLetterRepository.save(coverLetter);
-        }
-        throw new RuntimeException("CoverLetter not found");
+    public CoverLetter updateCoverLetter(Long coverLetterId, Long userId, CoverLetter updated) {
+        return coverLetterRepository.findByCoverLetterIdAndUserId(coverLetterId, userId)
+                .map(existing -> {
+                    existing.setTitle(updated.getTitle());
+                    // questionAnswers는 필요 시 별도 로직으로 관리
+                    return coverLetterRepository.save(existing);
+                })
+                .orElseThrow(() -> new RuntimeException("CoverLetter not found or does not belong to this user"));
     }
 
-    public void deleteCoverLetter(Long coverLetterID) {
-        if (coverLetterRepository.existsById(coverLetterID)) {
-            coverLetterRepository.deleteById(coverLetterID);
+    public void deleteCoverLetter(Long coverLetterId, Long userId) {
+        if (coverLetterRepository.existsByCoverLetterIdAndUserId(coverLetterId, userId)) {
+            coverLetterRepository.deleteById(coverLetterId);
         } else {
-            throw new RuntimeException("CoverLetter not found");
+            throw new RuntimeException("CoverLetter not found or does not belong to this user");
         }
     }
 
-    public List<CoverLetter> getAllCoverLetters() {
-        return coverLetterRepository.findAll();
+    public Optional<CoverLetter> getCoverLetterByIdAndUserId(Long coverLetterId, Long userId) {
+        return coverLetterRepository.findByCoverLetterIdAndUserId(coverLetterId, userId);
     }
 
-    public Optional<CoverLetter> getCoverLetterById(Long coverLetterId) {
-        return coverLetterRepository.findById(coverLetterId);
+    public List<CoverLetter> getAllCoverLettersByUserId(Long userId) {
+        return coverLetterRepository.findAllByUserId(userId);
     }
 }
