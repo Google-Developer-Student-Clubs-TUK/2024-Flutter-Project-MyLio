@@ -25,8 +25,9 @@ public class CoverLetter {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long coverLetterId;
 
-	@Column(nullable = false)
-	private Long userId;
+	@ManyToOne(fetch = FetchType.LAZY) // User와 ManyToOne
+	@JoinColumn(name = "user_id", nullable = false) // FK 매핑
+	private User user;
 
 	@Column(nullable = false, length = 200)
 	private String title; // 제목

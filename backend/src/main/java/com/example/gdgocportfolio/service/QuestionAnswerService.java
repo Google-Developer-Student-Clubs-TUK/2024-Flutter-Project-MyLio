@@ -22,7 +22,7 @@ public class QuestionAnswerService {
     public QuestionAnswer createQuestionAnswer(Long coverLetterId, Long userId,
                                                String question, String answer) {
         // coverLetter 소유 확인
-        CoverLetter coverLetter = coverLetterRepository.findByCoverLetterIdAndUserId(coverLetterId, userId)
+        CoverLetter coverLetter = coverLetterRepository.findByCoverLetterIdAndUserUserId(coverLetterId, userId)
                 .orElseThrow(() -> new RuntimeException("CoverLetter not found or not your resource."));
 
         QuestionAnswer qa = new QuestionAnswer();
@@ -45,7 +45,7 @@ public class QuestionAnswerService {
                                                Long questionAnswerId,
                                                String newQuestion, String newAnswer) {
         // 우선 coverLetter 소유 확인
-        CoverLetter coverLetter = coverLetterRepository.findByCoverLetterIdAndUserId(coverLetterId, userId)
+        CoverLetter coverLetter = coverLetterRepository.findByCoverLetterIdAndUserUserId(coverLetterId, userId)
                 .orElseThrow(() -> new RuntimeException("CoverLetter not found or not your resource."));
 
         // QA가 해당 coverLetter에 속해있는지 확인
@@ -63,7 +63,7 @@ public class QuestionAnswerService {
 
     public void deleteQuestionAnswer(Long coverLetterId, Long userId, Long questionAnswerId) {
         // coverLetter 소유 확인
-        if (!coverLetterRepository.existsByCoverLetterIdAndUserId(coverLetterId, userId)) {
+        if (!coverLetterRepository.existsByCoverLetterIdAndUserUserId(coverLetterId, userId)) {
             throw new RuntimeException("CoverLetter not found or not your resource.");
         }
 

@@ -9,15 +9,12 @@ import com.example.gdgocportfolio.entity.CoverLetter;
 import com.example.gdgocportfolio.entity.QuestionAnswer;
 import com.example.gdgocportfolio.service.ChatGPTService;
 import com.example.gdgocportfolio.service.CoverLetterService;
-import com.example.gdgocportfolio.service.QuestionAnswerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -25,14 +22,14 @@ import java.util.List;
 @Tag(name = "자소서 관리 및 GPT 생성 결과 저장")
 public class CoverLetterController {
 
-    @Autowired
-    private CoverLetterService coverLetterService;
+    private final CoverLetterService coverLetterService;
+    private final ChatGPTService chatGPTService;
 
-    @Autowired
-    private QuestionAnswerService questionAnswerService;
+    public CoverLetterController(CoverLetterService coverLetterService, ChatGPTService chatGPTService) {
+        this.coverLetterService = coverLetterService;
+        this.chatGPTService = chatGPTService;
+    }
 
-    @Autowired
-    private ChatGPTService chatGPTService;
 
     // ------------------------------------------------------
     // 1) CoverLetter CRUD
@@ -46,29 +43,7 @@ public class CoverLetterController {
             @PathVariable Long userId,
             @Valid @RequestBody CoverLetterCreateRequestDto requestDto
     ) {
-        // CoverLetter 생성
-        CoverLetter coverLetter = new CoverLetter();
-        coverLetter.setUserId(userId);
-        coverLetter.setTitle(requestDto.getTitle());
-
-        // GPT 호출하여 Q/A 생성
-        List<String> questions = requestDto.getQuestions();
-        List<QuestionAnswer> qaList = new ArrayList<>();
-        for (String question : questions) {
-            String answer = chatGPTService.generateAnswer(userId, question);
-
-            QuestionAnswer qa = new QuestionAnswer();
-            qa.setQuestion(question);
-            qa.setAnswer(answer);
-            qa.setCoverLetter(coverLetter);
-            qaList.add(qa);
-        }
-        coverLetter.getQuestionAnswers().addAll(qaList);
-
-        // DB 저장
-        CoverLetter saved = coverLetterService.saveCoverLetter(coverLetter);
-
-        // 응답 DTO
+        CoverLetter saved = coverLetterService.createCoverLetterWithGpt(userId, requestDto.getTitle(), requestDto.getQuestions());
         return ResponseEntity.ok(toResponseDto(saved));
     }
 
@@ -92,10 +67,7 @@ public class CoverLetterController {
             @PathVariable Long userId
     ) {
         List<CoverLetter> list = coverLetterService.getAllCoverLettersByUserId(userId);
-        List<CoverLetterResponseDto> dtos = new ArrayList<>();
-        for (CoverLetter c : list) {
-            dtos.add(toResponseDto(c));
-        }
+        List<CoverLetterResponseDto> dtos = list.stream().map(this::toResponseDto).toList();
         return ResponseEntity.ok(dtos);
     }
 
@@ -136,11 +108,10 @@ public class CoverLetterController {
 //    public ResponseEntity<QuestionAnswerDto> createQuestionAnswer(
 //            @PathVariable Long userId,
 //            @PathVariable Long coverLetterId,
-//            @RequestBody QuestionAnswerCreateRequestDto req
+//            @Valid @RequestBody QuestionAnswerCreateRequestDto requestDto
 //    ) {
-//        QuestionAnswer qa = questionAnswerService.createQuestionAnswer(
-//                coverLetterId, userId, req.getQuestion(), req.getAnswer()
-//        );
+//        QuestionAnswer qa = coverLetterService.createQuestionAnswer(
+//                userId, coverLetterId, requestDto.getQuestion(), requestDto.getAnswer());
 //        return ResponseEntity.ok(toQaDto(qa));
 //    }
 
@@ -153,33 +124,11 @@ public class CoverLetterController {
             @PathVariable Long coverLetterId,
             @PathVariable Long qaId
     ) {
-        try {
-            // 1) CoverLetter와 소유권 확인
-            coverLetterService.getCoverLetterByIdAndUserId(coverLetterId, userId)
-                    .orElseThrow(() -> new RuntimeException("CoverLetter not found or not yours."));
-
-            // 2) coverLetter 범위 내에서 QuestionAnswer 가져오기
-            QuestionAnswer qa = questionAnswerService
-                    .getQuestionAnswerWithinCoverLetter(coverLetterId, qaId)
-                    .orElseThrow(() -> new RuntimeException("QuestionAnswer not found in this CoverLetter."));
-
-            // 3) 기존 question
-            String originalQuestion = qa.getQuestion();
-
-            // 4) GPT 다시 호출 (새 answer 생성)
-            String ephemeralAnswer = chatGPTService.generateAnswer(userId, originalQuestion);
-
-            // 5) DB에는 저장하지 않고, 응답용 DTO만 생성
-            QuestionAnswerDto dto = toQaDto(qa);
-            // 단, answer만 GPT의 새 결과로 교체 (임시)
-            dto.setAnswer(ephemeralAnswer);
-
-            // 6) 임시 DTO 반환
-            return ResponseEntity.ok(dto);
-
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        String regeneratedAnswer = coverLetterService.regenQuestionAnswer(userId, coverLetterId, qaId);
+        QuestionAnswerDto dto = new QuestionAnswerDto();
+        dto.setQuestionAnswerId(qaId);
+        dto.setAnswer(regeneratedAnswer);
+        return ResponseEntity.ok(dto);
     }
 
 
@@ -191,15 +140,9 @@ public class CoverLetterController {
             @PathVariable Long coverLetterId,
             @PathVariable Long qaId
     ) {
-        // 우선 CoverLetter 소유권 확인
-        return coverLetterService.getCoverLetterByIdAndUserId(coverLetterId, userId)
-                .map(cover -> {
-                    // QA가 해당 CoverLetter에 속하는지 확인
-                    return questionAnswerService.getQuestionAnswerWithinCoverLetter(coverLetterId, qaId)
-                            .map(this::toQaDto)
-                            .map(ResponseEntity::ok)
-                            .orElse(ResponseEntity.notFound().build());
-                })
+        return coverLetterService.getQuestionAnswer(coverLetterId, qaId)
+                .map(this::toQaDto)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -210,18 +153,13 @@ public class CoverLetterController {
             @PathVariable Long userId,
             @PathVariable Long coverLetterId,
             @PathVariable Long qaId,
-            @RequestBody QuestionAnswerCreateRequestDto req
+            @Valid @RequestBody QuestionAnswerCreateRequestDto requestDto
     ) {
-        try {
-            QuestionAnswer updated = questionAnswerService.updateQuestionAnswer(
-                    coverLetterId, userId, qaId,
-                    req.getQuestion(), req.getAnswer()
-            );
-            return ResponseEntity.ok(toQaDto(updated));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        QuestionAnswer updated = coverLetterService.updateQuestionAnswer(
+                userId, coverLetterId, qaId, requestDto.getQuestion(), requestDto.getAnswer());
+        return ResponseEntity.ok(toQaDto(updated));
     }
+
 
     // QuestionAnswer 삭제
     @DeleteMapping("/{userId}/{coverLetterId}/question-answer/{qaId}")
@@ -231,12 +169,8 @@ public class CoverLetterController {
             @PathVariable Long coverLetterId,
             @PathVariable Long qaId
     ) {
-        try {
-            questionAnswerService.deleteQuestionAnswer(coverLetterId, userId, qaId);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        coverLetterService.deleteQuestionAnswer(userId, coverLetterId, qaId);
+        return ResponseEntity.noContent().build();
     }
 
     // ------------------------------------------------------
@@ -245,15 +179,14 @@ public class CoverLetterController {
     private CoverLetterResponseDto toResponseDto(CoverLetter coverLetter) {
         CoverLetterResponseDto dto = new CoverLetterResponseDto();
         dto.setCoverLetterId(coverLetter.getCoverLetterId());
-        dto.setUserId(coverLetter.getUserId());
+        dto.setUserId(coverLetter.getUser().getUserId()); // User 객체에서 userId 가져옴
         dto.setTitle(coverLetter.getTitle());
         dto.setCreateTime(coverLetter.getCreateTime());
         dto.setLastUpdateTime(coverLetter.getLastUpdateTime());
 
-        List<QuestionAnswerDto> qaDtos = new ArrayList<>();
-        for (QuestionAnswer qa : coverLetter.getQuestionAnswers()) {
-            qaDtos.add(toQaDto(qa));
-        }
+        List<QuestionAnswerDto> qaDtos = coverLetter.getQuestionAnswers().stream()
+                .map(this::toQaDto)
+                .toList();
         dto.setQuestionAnswers(qaDtos);
 
         return dto;

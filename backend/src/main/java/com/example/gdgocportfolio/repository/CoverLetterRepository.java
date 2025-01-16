@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface CoverLetterRepository extends JpaRepository<CoverLetter, Long> {
-    Optional<CoverLetter> findByCoverLetterIdAndUserId(Long id, Long userId);
-    List<CoverLetter> findAllByUserId(Long userId);
-    boolean existsByCoverLetterIdAndUserId(Long id, Long userId);
+    Optional<CoverLetter> findByCoverLetterIdAndUserUserId(Long id, Long userId);
+    List<CoverLetter> findAllByUserUserId(Long userId);
+    boolean existsByCoverLetterIdAndUserUserId(Long id, Long userId);
 }
