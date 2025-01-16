@@ -4,7 +4,7 @@ import 'package:frontend/screens/edit.dart';
 import 'package:get/get.dart';
 import 'my_resume_create_page.dart';
 import 'widgets/my_resume_empty_widget.dart';
-import 'widgets/resume_PopupMenu_Btn.dart';
+import 'components/resume_PopupMenu_Btn.dart';
 
 class MyResumeScreen extends StatefulWidget {
   const MyResumeScreen({Key? key, required this.resumeTitle}) : super(key: key);
