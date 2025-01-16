@@ -40,8 +40,8 @@ class Industrial_Group_State extends State<Industrial_Group> {
         Text(
           '산업군 ${index + 1}',
           style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
             color: Colors.black,
           ),
         ),
