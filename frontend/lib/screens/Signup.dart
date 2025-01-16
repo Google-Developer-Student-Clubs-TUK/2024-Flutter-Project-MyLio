@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/home_screen.dart';
 import 'package:get/get.dart';
 
 void main() async {
@@ -70,7 +71,7 @@ class SignupState extends State<Signup> {
                         width: 323,
                         child: TextFormField(
                           decoration: InputDecoration(
-                            hintText: "아이디 또는 이메일",
+                            hintText: "이메일",
                             hintStyle: TextStyle(fontSize: 12),
                             focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Colors.grey),
@@ -200,6 +201,9 @@ class SignupState extends State<Signup> {
                   height: 20,
                 ),
                 GestureDetector(
+                  onTap: (){
+                    Get.to(HomeScreen());
+                  },
                   child: Text(
                     '건너뛰기',
                     style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC)),

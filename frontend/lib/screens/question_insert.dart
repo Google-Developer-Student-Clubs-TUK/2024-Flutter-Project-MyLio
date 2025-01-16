@@ -95,7 +95,6 @@ class _QuestionInsertState extends State<QuestionInsert> {
                   ],
                 ),
 
-
                 const SizedBox(height: 16),
                 // 제목 입력 필드
                 _buildTextField(
@@ -103,7 +102,6 @@ class _QuestionInsertState extends State<QuestionInsert> {
                   hint: '제목을 입력해주세요.',
                   controller: titleController,
                 ),
-
 
                 const SizedBox(height: 16),
                 // 문항 입력 필드
@@ -213,7 +211,7 @@ class _QuestionInsertState extends State<QuestionInsert> {
             filled: true,
             fillColor: Colors.white,
             contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Colors.grey),
@@ -238,7 +236,8 @@ class _QuestionInsertState extends State<QuestionInsert> {
     if (titleController.text.trim().isEmpty ||
         companyNameController.text.trim().isEmpty ||
         jobTitleController.text.trim().isEmpty ||
-        questionControllers.any((controller) => controller.text.trim().isEmpty)) {
+        questionControllers
+            .any((controller) => controller.text.trim().isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('모든 필드를 입력해주세요.')),
       );
@@ -249,8 +248,9 @@ class _QuestionInsertState extends State<QuestionInsert> {
     final title = titleController.text.trim();
     final companyName = companyNameController.text.trim();
     final jobTitle = jobTitleController.text.trim();
-    final questions =
-    questionControllers.map((controller) => controller.text.trim()).toList();
+    final questions = questionControllers
+        .map((controller) => controller.text.trim())
+        .toList();
 
     print('제목: $title');
     print('회사명: $companyName');
