@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/app_colors.dart';
+import 'package:frontend/screens/theme/app_colors.dart';
 import 'package:frontend/screens/base_info.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/my_resume_screen.dart';
-import 'package:frontend/screens/widgets/bottom_bar.dart';
+import 'package:frontend/screens/components/bottom_bar.dart';
 import 'package:get/get.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -81,7 +81,9 @@ class _SettingScreenState extends State<SettingScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const MyResumeScreen()),
+                      builder: (context) => const MyResumeScreen(
+                            resumeTitle: '', // 빈 문자열 전달
+                          )),
                 );
               },
               child: Container(

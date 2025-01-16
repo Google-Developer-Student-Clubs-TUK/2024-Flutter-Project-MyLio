@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
 
 class CapabilityPage extends StatefulWidget {
-  const CapabilityPage({Key? key}) : super(key: key);
+  final List<String> initialCapabilities;
+
+  const CapabilityPage({Key? key, required this.initialCapabilities})
+      : super(key: key);
 
   @override
   State<CapabilityPage> createState() => _CapabilityPageState();
 }
 
 class _CapabilityPageState extends State<CapabilityPage> {
-  // 역량 리스트
-  List<String> capabilities = ["", "", ""]; // 기본 3개의 입력 필드
+  late List<String> capabilities;
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 데이터 복사
+    capabilities = List.from(widget.initialCapabilities);
+    // 기본 3개의 필드가 없으면 추가
+    while (capabilities.length < 3) {
+      capabilities.add("");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +45,10 @@ class _CapabilityPageState extends State<CapabilityPage> {
             color: Colors.black,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            // 빈 값 제거 후 데이터 반환
+            capabilities =
+                capabilities.where((cap) => cap.trim().isNotEmpty).toList();
+            Navigator.pop(context, capabilities);
           },
         ),
       ),
@@ -60,21 +76,20 @@ class _CapabilityPageState extends State<CapabilityPage> {
                   itemCount: capabilities.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 16), // 각 입력 필드 간격 증가
+                      padding: const EdgeInsets.only(bottom: 16),
                       child: _buildCapabilityField(index),
                     );
                   },
                 ),
                 // 역량 추가 버튼
-                if (capabilities.length < 5) // 최대 5개일 때 추가 버튼 숨기기
+                if (capabilities.length < 5)
                   Padding(
-                    padding: const EdgeInsets.only(top: 24), // 버튼 위 여백 추가
+                    padding: const EdgeInsets.only(top: 24),
                     child: TextButton.icon(
                       onPressed: () {
                         if (capabilities.length < 5) {
                           setState(() {
-                            capabilities.add(""); // 새 입력 필드 추가
+                            capabilities.add(""); // 새로운 필드 추가
                           });
                         }
                       },
@@ -91,7 +106,7 @@ class _CapabilityPageState extends State<CapabilityPage> {
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50), // 버튼 크기
+                        minimumSize: const Size(double.infinity, 50),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         side: const BorderSide(
                             color: Color(0xFF908CFF), width: 1),
@@ -109,7 +124,10 @@ class _CapabilityPageState extends State<CapabilityPage> {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               onPressed: () {
-                print('입력 완료: $capabilities');
+                // 빈 필드를 제거하고 데이터 반환
+                capabilities =
+                    capabilities.where((cap) => cap.trim().isNotEmpty).toList();
+                Navigator.pop(context, capabilities);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF908CFF),
@@ -138,7 +156,7 @@ class _CapabilityPageState extends State<CapabilityPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '역량${index + 1}',
+          '역량 ${index + 1}',
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -147,6 +165,7 @@ class _CapabilityPageState extends State<CapabilityPage> {
         ),
         const SizedBox(height: 8),
         TextField(
+          controller: TextEditingController(text: capabilities[index]),
           onChanged: (value) {
             capabilities[index] = value; // 입력 값 업데이트
           },

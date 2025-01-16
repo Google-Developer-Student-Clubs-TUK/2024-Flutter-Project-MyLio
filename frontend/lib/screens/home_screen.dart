@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'introduction_list.dart';
-import 'app_colors.dart';
+import 'theme/app_colors.dart';
 import 'question_insert.dart';
 import 'setting_screen.dart';
-import 'widgets/bottom_bar.dart';
+import 'components/bottom_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -88,9 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: const Icon(Icons.add, size: 41, color: Colors.white),
         ),
       ),
-
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
       bottomNavigationBar: BottomBar(
         onGridPressed: () {
           Navigator.push(
@@ -114,4 +112,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-

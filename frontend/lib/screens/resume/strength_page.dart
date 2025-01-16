@@ -1,15 +1,34 @@
 import 'package:flutter/material.dart';
 
 class StrengthPage extends StatefulWidget {
-  const StrengthPage({Key? key}) : super(key: key);
+  final List<String> initialStrengths; // 초기 강점 리스트를 전달받기 위한 필드
+
+  const StrengthPage({Key? key, required this.initialStrengths})
+      : super(key: key);
 
   @override
   State<StrengthPage> createState() => _StrengthPageState();
 }
 
 class _StrengthPageState extends State<StrengthPage> {
-  // 강점 리스트
-  List<String> strengths = ["", "", ""]; // 기본 3개의 입력 필드
+  late List<String> strengths; // 강점 리스트
+
+  @override
+  void initState() {
+    super.initState();
+    strengths = List.from(widget.initialStrengths); // 전달받은 강점 리스트 복사
+    // 전달받은 리스트가 3개 미만이면 기본값 추가
+    while (strengths.length < 3) {
+      strengths.add("");
+    }
+  }
+
+  void _handleReturn() {
+    // 빈 문자열 제거 후 반환
+    final filteredStrengths =
+        strengths.where((strength) => strength.trim().isNotEmpty).toList();
+    Navigator.pop(context, filteredStrengths); // 필터링된 강점 리스트 반환
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +50,7 @@ class _StrengthPageState extends State<StrengthPage> {
             Icons.arrow_back_ios_new,
             color: Colors.black,
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: _handleReturn, // 뒤로가기 시 강점 리스트 반환
         ),
       ),
       backgroundColor: Colors.white,
@@ -60,16 +77,15 @@ class _StrengthPageState extends State<StrengthPage> {
                   itemCount: strengths.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      padding:
-                          const EdgeInsets.only(bottom: 16), // 각 입력 필드 간격 증가
+                      padding: const EdgeInsets.only(bottom: 16),
                       child: _buildStrengthField(index),
                     );
                   },
                 ),
                 // 강점 추가 버튼
-                if (strengths.length < 5) // 최대 5개일 때 추가 버튼 숨기기
+                if (strengths.length < 5)
                   Padding(
-                    padding: const EdgeInsets.only(top: 24), // 버튼 위 여백 추가
+                    padding: const EdgeInsets.only(top: 24),
                     child: TextButton.icon(
                       onPressed: () {
                         if (strengths.length < 5) {
@@ -91,10 +107,12 @@ class _StrengthPageState extends State<StrengthPage> {
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50), // 버튼 크기
+                        minimumSize: const Size(double.infinity, 50),
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         side: const BorderSide(
-                            color: Color(0xFF908CFF), width: 1),
+                          color: Color(0xFF908CFF),
+                          width: 1,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -108,9 +126,7 @@ class _StrengthPageState extends State<StrengthPage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
-              onPressed: () {
-                print('입력 완료: $strengths');
-              },
+              onPressed: _handleReturn,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF908CFF),
                 minimumSize: const Size(double.infinity, 50),
@@ -138,7 +154,7 @@ class _StrengthPageState extends State<StrengthPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '강점${index + 1}',
+          '강점 ${index + 1}',
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -147,6 +163,7 @@ class _StrengthPageState extends State<StrengthPage> {
         ),
         const SizedBox(height: 8),
         TextField(
+          controller: TextEditingController(text: strengths[index]),
           onChanged: (value) {
             strengths[index] = value; // 입력 값 업데이트
           },
