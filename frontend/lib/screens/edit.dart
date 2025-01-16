@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/add_resume.dart';
-import 'package:frontend/screens/award_page.dart';
-import 'package:frontend/screens/capability_page.dart';
-import 'package:frontend/screens/certificate_page.dart';
-import 'package:frontend/screens/language_page.dart';
-import 'package:frontend/screens/strength_page.dart';
-import 'package:frontend/screens/weakness_page.dart';
+import 'package:frontend/screens/resume/award_page.dart';
+import 'package:frontend/screens/resume/capability_page.dart';
+import 'package:frontend/screens/resume/certificate_page.dart';
+import 'package:frontend/screens/resume/language_page.dart';
+import 'package:frontend/screens/resume/strength_page.dart';
+import 'package:frontend/screens/resume/weakness_page.dart';
 import 'package:get/get.dart';
-import 'resume_title.dart';
-import 'industrial_group.dart';
-import 'job_duty.dart';
-import 'activity_experience.dart';
+import 'resume/resume_title.dart';
+import 'resume/industrial_group.dart';
+import 'resume/job_duty.dart';
+import 'resume/activity_experience.dart';
 
 class Edit extends StatefulWidget {
   const Edit({Key? key}) : super(key: key);
@@ -53,29 +53,36 @@ class Edit_State extends State<Edit> {
           children: [
             GestureDetector(
               child: _buildInputField('이력서 제목 *'),
-              onTap: (){
-                Get.to(() => Resume_Title());
+              onTap: () {
+                Get.to(() => Resume_Title(
+                      initialTitle: '',
+                      title: '',
+                    ));
               },
             ),
             const SizedBox(height: 16),
             GestureDetector(
               child: _buildInputField('산업군 *'),
-              onTap: (){
-                Get.to(Industrial_Group());
+              onTap: () {
+                Get.to(Industrial_Group(
+                  initialIndustries: [],
+                ));
               },
             ),
             const SizedBox(height: 16),
             GestureDetector(
               child: _buildInputField('직무 *'),
-              onTap: (){
-                Get.to(Job_Duty());
+              onTap: () {
+                Get.to(Job_Duty(
+                  initialJobDuty: '',
+                ));
               },
             ),
             const SizedBox(height: 16),
             GestureDetector(
               child: _buildInputField('활동/경험'),
-              onTap: (){
-                Get.to(Activity_Experience());
+              onTap: () {
+                Get.to(() => ActivityExperience());
               },
             ),
             const SizedBox(height: 16),
@@ -84,7 +91,9 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CapabilityPage(),
+                    builder: (context) => const CapabilityPage(
+                      initialCapabilities: [],
+                    ),
                   ),
                 );
               },
@@ -96,7 +105,9 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AwardPage(),
+                    builder: (context) => const AwardPage(
+                      initialAwards: [],
+                    ),
                   ),
                 );
               },
@@ -108,7 +119,9 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const StrengthPage(),
+                    builder: (context) => const StrengthPage(
+                      initialStrengths: [],
+                    ),
                   ),
                 );
               },
@@ -120,7 +133,9 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const WeaknessPage(),
+                    builder: (context) => const WeaknessPage(
+                      initialWeaknesses: [],
+                    ),
                   ),
                 );
               },
@@ -132,7 +147,9 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CertificatePage(),
+                    builder: (context) => const CertificatePage(
+                      initialCertificates: [],
+                    ),
                   ),
                 );
               },
@@ -144,7 +161,9 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const LanguagePage(),
+                    builder: (context) => const LanguagePage(
+                      initialLanguages: [],
+                    ),
                   ),
                 );
               },
