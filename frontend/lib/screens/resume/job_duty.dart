@@ -76,14 +76,14 @@ class _Job_DutyState extends State<Job_Duty> {
                               color: Color(0xFFCCCCCC), width: 1.0),
                           borderRadius: BorderRadius.circular(12.0),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                              color: Color(0xFFCCCCCC), width: 2.0),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(
                               color: Color(0xFFCCCCCC), width: 1.0),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                              color: Color(0xFF908CFF), width: 1.0),
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),

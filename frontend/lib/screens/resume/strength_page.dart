@@ -156,8 +156,8 @@ class _StrengthPageState extends State<StrengthPage> {
         Text(
           '강점 ${index + 1}',
           style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
             color: Colors.black,
           ),
         ),

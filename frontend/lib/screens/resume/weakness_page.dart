@@ -162,8 +162,8 @@ class _WeaknessPageState extends State<WeaknessPage> {
         Text(
           '약점 ${index + 1}',
           style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
             color: Colors.black,
           ),
         ),
