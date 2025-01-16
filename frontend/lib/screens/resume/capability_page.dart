@@ -158,8 +158,8 @@ class _CapabilityPageState extends State<CapabilityPage> {
         Text(
           '역량 ${index + 1}',
           style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            fontWeight: FontWeight.w400,
             color: Colors.black,
           ),
         ),
