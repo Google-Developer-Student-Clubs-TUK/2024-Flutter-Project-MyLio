@@ -2,12 +2,17 @@ package com.example.gdgocportfolio.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name = "resume")
+@EntityListeners(AuditingEntityListener.class)
 public class Resume {
 
     @Id
@@ -41,4 +46,10 @@ public class Resume {
     private String certificates;              // JSON 문자열 저장
     @Column(columnDefinition = "TEXT")
     private String languages;
+
+    @CreatedDate
+    private LocalDateTime createTime;
+
+    @LastModifiedDate
+    private LocalDateTime lastUpdateTime;
 }
