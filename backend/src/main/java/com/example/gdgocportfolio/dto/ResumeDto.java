@@ -1,6 +1,7 @@
 package com.example.gdgocportfolio.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,18 +16,21 @@ import java.util.List;
 public class ResumeDto {
 
     // 필수 입력 항목
+    @NotNull(message = "이력서 제목은 필수입니다.")
     @Schema(
             description = "이력서 제목 (필수)",
             example = "네이버 백엔드 개발자 이력서"
-    ) private String title; // 이력서 제목 (필수)
+    ) private String resumeTitle; // 이력서 제목 (필수)
+    @NotNull(message = "산업군은 필수입니다. (최대 3개)")
     @Schema(
             description = "산업군 (필수; 최대 3개)",
             example = "[\"IT\", \"금융\"]"
-    ) private List<String> industries;  // 산업군 (최대 3개, 필수)
+    ) private List<String> industryGroups;  // 산업군 (최대 3개, 필수)
+    @NotNull(message = "직무는 필수입니다.")
     @Schema(
             description = "직무 (필수)",
             example = "백엔드 개발자"
-    ) private String job;  // 직무 (필수)
+    ) private String jobDuty;  // 직무 (필수)
 
     // 활동 경험
     @Data
@@ -55,7 +59,7 @@ public class ResumeDto {
                 example = "Java Spring 실무교육"
         ) private String description;  // 활동내용
     }
-    @Schema(description = "활동 경험") private List<Activity> activities;   // 여러 활동 추가 가능
+    @Schema(description = "활동 경험") private List<Activity> activityExperience;   // 여러 활동 추가 가능
 
     // 수상 경력
     @Data
@@ -140,5 +144,5 @@ public class ResumeDto {
     @Schema(
             description = "역량",
             example = "[\"Java\", \"Spring Boot\", \"MySQL\"]"
-    )private List<String> skills;
+    )private List<String> capabilities;
 }

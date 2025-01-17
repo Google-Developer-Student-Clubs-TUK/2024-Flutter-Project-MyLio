@@ -23,6 +23,7 @@ public class UserRegisterRequestDto {
 	@Schema(description = "이메일", example = "abc@gmail.com")
 	private String email;
 
+	@Pattern(regexp = "^[A-Za-z0-9]+")
 	@Size(min = 8, message = "Password must be at least 8 characters long")
 	@Schema(description = "비밀번호", example = "12345678")
 	private String password;

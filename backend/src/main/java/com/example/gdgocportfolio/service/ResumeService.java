@@ -37,8 +37,8 @@ public class ResumeService {
     }
 
     // 이력서 조회 (단건)
-    public ResumeDto getResume(Long resumeId) {
-        Resume resume = resumeRepository.findById(resumeId)
+    public ResumeDto getResume(Long userId, Long resumeId) {
+        Resume resume = resumeRepository.findByResumeIdAndUserUserId(resumeId, userId)
                 .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
         return mapResumeToDto(resume);
     }
@@ -50,32 +50,52 @@ public class ResumeService {
     }
 
     // 이력서 업데이트
-    public void updateResume(Long resumeId, ResumeDto resumeDto) {
-        Resume resume = resumeRepository.findById(resumeId)
+    public void updateResume(Long userId, Long resumeId, ResumeDto resumeDto) {
+        Resume resume = resumeRepository.findByResumeIdAndUserUserId(resumeId, userId)
                 .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
 
-        mapDtoToResume(resumeDto, resume);
+        // 이력서 내용 업데이트
+        resume.setResumeTitle(resumeDto.getResumeTitle());
+        resume.setJobDuty(resumeDto.getJobDuty());
+        resume.setCapabilities(resumeDto.getCapabilities());
         resumeRepository.save(resume);
     }
 
     // 이력서 삭제
-    public void deleteResume(Long resumeId) {
-        Resume resume = resumeRepository.findById(resumeId)
+    public void deleteResume(Long userId, Long resumeId) {
+        Resume resume = resumeRepository.findByResumeIdAndUserUserId(resumeId, userId)
                 .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
         resumeRepository.delete(resume);
     }
 
+    // 대표 이력서 설정
+    public void setPrimaryResume(Long userId, Long resumeId) {
+        // 기존 대표 이력서 초기화
+        List<Resume> resumes = resumeRepository.findAll();
+        for (Resume resume : resumes) {
+            if (resume.getUser().getUserId().equals(userId)) {
+                resume.setPrimary(false);
+            }
+        }
+
+        // 새로운 대표 이력서 설정
+        Resume primaryResume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
+        primaryResume.setPrimary(true);
+        resumeRepository.saveAll(resumes);
+    }
+
     // DTO -> Entity
     private void mapDtoToResume(ResumeDto resumeDto, Resume resume) {
-        resume.setTitle(resumeDto.getTitle());
-        resume.setIndustries(resumeDto.getIndustries());
-        resume.setJob(resumeDto.getJob());
+        resume.setResumeTitle(resumeDto.getResumeTitle());
+        resume.setIndustryGroups(resumeDto.getIndustryGroups());
+        resume.setJobDuty(resumeDto.getJobDuty());
         resume.setStrengths(resumeDto.getStrengths());
         resume.setWeaknesses(resumeDto.getWeaknesses());
-        resume.setSkills(resumeDto.getSkills());
+        resume.setCapabilities(resumeDto.getCapabilities());
 
         try {
-            resume.setActivities(objectMapper.writeValueAsString(resumeDto.getActivities()));
+            resume.setActivityExperience(objectMapper.writeValueAsString(resumeDto.getActivityExperience()));
             resume.setAwards(objectMapper.writeValueAsString(resumeDto.getAwards()));
             resume.setCertificates(objectMapper.writeValueAsString(resumeDto.getCertificates()));
             resume.setLanguages(objectMapper.writeValueAsString(resumeDto.getLanguages()));
@@ -88,13 +108,13 @@ public class ResumeService {
     private ResumeDto mapResumeToDto(Resume resume) {
         try {
             return ResumeDto.builder()
-                    .title(resume.getTitle())
-                    .industries(resume.getIndustries())
-                    .job(resume.getJob())
+                    .resumeTitle(resume.getResumeTitle())
+                    .industryGroups(resume.getIndustryGroups())
+                    .jobDuty(resume.getJobDuty())
                     .strengths(resume.getStrengths())
                     .weaknesses(resume.getWeaknesses())
-                    .skills(resume.getSkills())
-                    .activities(List.of(objectMapper.readValue(resume.getActivities(), ResumeDto.Activity[].class)))
+                    .capabilities(resume.getCapabilities())
+                    .activityExperience(List.of(objectMapper.readValue(resume.getActivityExperience(), ResumeDto.Activity[].class)))
                     .awards(List.of(objectMapper.readValue(resume.getAwards(), ResumeDto.Award[].class)))
                     .certificates(List.of(objectMapper.readValue(resume.getCertificates(), ResumeDto.Certificate[].class)))
                     .languages(List.of(objectMapper.readValue(resume.getLanguages(), ResumeDto.Language[].class)))
