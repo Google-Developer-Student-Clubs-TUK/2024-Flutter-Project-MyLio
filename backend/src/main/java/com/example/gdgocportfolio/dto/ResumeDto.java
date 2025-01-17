@@ -1,6 +1,7 @@
 package com.example.gdgocportfolio.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,14 +16,17 @@ import java.util.List;
 public class ResumeDto {
 
     // 필수 입력 항목
+    @NotNull(message = "이력서 제목은 필수입니다.")
     @Schema(
             description = "이력서 제목 (필수)",
             example = "네이버 백엔드 개발자 이력서"
     ) private String resumeTitle; // 이력서 제목 (필수)
+    @NotNull(message = "산업군은 필수입니다. (최대 3개)")
     @Schema(
             description = "산업군 (필수; 최대 3개)",
             example = "[\"IT\", \"금융\"]"
     ) private List<String> industryGroups;  // 산업군 (최대 3개, 필수)
+    @NotNull(message = "직무는 필수입니다.")
     @Schema(
             description = "직무 (필수)",
             example = "백엔드 개발자"

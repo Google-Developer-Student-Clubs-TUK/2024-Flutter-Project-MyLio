@@ -40,5 +40,4 @@ public class CoverLetter {
 
 	@LastModifiedDate
 	private LocalDateTime lastUpdateTime;
-
 }

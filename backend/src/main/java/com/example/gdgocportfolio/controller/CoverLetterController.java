@@ -3,12 +3,13 @@ package com.example.gdgocportfolio.controller;
 
 import com.example.gdgocportfolio.dto.CoverLetterCreateRequestDto;
 import com.example.gdgocportfolio.dto.CoverLetterResponseDto;
-import com.example.gdgocportfolio.dto.QuestionAnswerCreateRequestDto;
 import com.example.gdgocportfolio.dto.QuestionAnswerDto;
+import com.example.gdgocportfolio.dto.QuestionAnswerUpdateRequestDto;
 import com.example.gdgocportfolio.entity.CoverLetter;
 import com.example.gdgocportfolio.entity.QuestionAnswer;
 import com.example.gdgocportfolio.service.ChatGPTService;
 import com.example.gdgocportfolio.service.CoverLetterService;
+import com.example.gdgocportfolio.service.QuestionAnswerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,10 +25,12 @@ public class CoverLetterController {
 
     private final CoverLetterService coverLetterService;
     private final ChatGPTService chatGPTService;
+    private final QuestionAnswerService questionAnswerService;
 
-    public CoverLetterController(CoverLetterService coverLetterService, ChatGPTService chatGPTService) {
+    public CoverLetterController(CoverLetterService coverLetterService, ChatGPTService chatGPTService, QuestionAnswerService questionAnswerService) {
         this.coverLetterService = coverLetterService;
         this.chatGPTService = chatGPTService;
+        this.questionAnswerService = questionAnswerService;
     }
 
 
@@ -71,20 +74,20 @@ public class CoverLetterController {
         return ResponseEntity.ok(dtos);
     }
 
-    // 자소서 수정 -> 제목 변경용으로 추후 구현 예정
-//    @PutMapping("/{userId}/{coverLetterId}")
-//    @Operation(summary = "자소서 수정")
-//    public ResponseEntity<CoverLetterResponseDto> updateCoverLetter(
-//            @PathVariable Long userId,
-//            @PathVariable Long coverLetterId,
-//            @RequestBody CoverLetterCreateRequestDto dto
-//    ) {
-//        CoverLetter newData = new CoverLetter();
-//        newData.setTitle(dto.getTitle());
-//
-//        CoverLetter updated = coverLetterService.updateCoverLetter(coverLetterId, userId, newData);
-//        return ResponseEntity.ok(toResponseDto(updated));
-//    }
+    // 자소서 수정 (제목 변경)
+    @PutMapping("/{userId}/{coverLetterId}")
+    @Operation(summary = "자소서 수정")
+    public ResponseEntity<CoverLetterResponseDto> updateCoverLetter(
+            @PathVariable Long userId,
+            @PathVariable Long coverLetterId,
+            @RequestBody CoverLetterCreateRequestDto dto
+    ) {
+        CoverLetter newData = new CoverLetter();
+        newData.setTitle(dto.getTitle());
+
+        CoverLetter updated = coverLetterService.updateCoverLetter(coverLetterId, userId, newData);
+        return ResponseEntity.ok(toResponseDto(updated));
+    }
 
     // 자소서 삭제
     @DeleteMapping("/{userId}/{coverLetterId}")
@@ -147,31 +150,18 @@ public class CoverLetterController {
     }
 
     // QuestionAnswer 수정
-    @PutMapping("/{userId}/{coverLetterId}/question-answer/{qaId}")
+    @PatchMapping("/{userId}/{coverLetterId}/question-answer/{qaId}")
     @Operation(summary = "개별 Q/A 수정 (해당 coverLetterId 범위에서)")
     public ResponseEntity<QuestionAnswerDto> updateQuestionAnswer(
             @PathVariable Long userId,
             @PathVariable Long coverLetterId,
             @PathVariable Long qaId,
-            @Valid @RequestBody QuestionAnswerCreateRequestDto requestDto
+            @RequestBody QuestionAnswerUpdateRequestDto requestDto
     ) {
-        QuestionAnswer updated = coverLetterService.updateQuestionAnswer(
-                userId, coverLetterId, qaId, requestDto.getQuestion(), requestDto.getAnswer());
-        return ResponseEntity.ok(toQaDto(updated));
+        QuestionAnswer updatedQa = questionAnswerService.updateQuestionAnswer(coverLetterId, userId, qaId, requestDto);
+        return ResponseEntity.ok(toQaDto(updatedQa));
     }
 
-
-    // QuestionAnswer 삭제
-    @DeleteMapping("/{userId}/{coverLetterId}/question-answer/{qaId}")
-    @Operation(summary = "개별 Q/A 삭제 (coverLetterId 범위 안)")
-    public ResponseEntity<Void> deleteQuestionAnswer(
-            @PathVariable Long userId,
-            @PathVariable Long coverLetterId,
-            @PathVariable Long qaId
-    ) {
-        coverLetterService.deleteQuestionAnswer(userId, coverLetterId, qaId);
-        return ResponseEntity.noContent().build();
-    }
 
     // ------------------------------------------------------
     // DTO 변환 메서드

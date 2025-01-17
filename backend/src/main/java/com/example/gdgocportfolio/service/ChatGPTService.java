@@ -17,7 +17,6 @@ public class ChatGPTService {
     private final OpenAiService openAiService;
     private final ResumeRepository resumeRepository;
 
-    @Autowired
     public ChatGPTService(@Value("${openai.api-key}") String apiKey, ResumeRepository resumeRepository) {
         this.openAiService = new OpenAiService(apiKey);
         this.resumeRepository = resumeRepository;

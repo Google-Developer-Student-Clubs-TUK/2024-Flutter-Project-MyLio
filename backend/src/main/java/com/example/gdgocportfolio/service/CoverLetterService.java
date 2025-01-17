@@ -5,7 +5,6 @@ import com.example.gdgocportfolio.entity.QuestionAnswer;
 import com.example.gdgocportfolio.entity.User;
 import com.example.gdgocportfolio.repository.CoverLetterRepository;
 import com.example.gdgocportfolio.repository.QuestionAnswerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

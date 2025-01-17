@@ -4,6 +4,7 @@ import com.example.gdgocportfolio.dto.ResumeDto;
 import com.example.gdgocportfolio.service.ResumeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class ResumeController {
     // 이력서 생성
     @PostMapping("/create/{userId}")
     @Operation(summary = "이력서 생성", description = "이력서를 생성합니다.")
-    public ResponseEntity<String> createResume(@PathVariable Long userId, @RequestBody ResumeDto resumeDto) {
+    public ResponseEntity<String> createResume(@PathVariable Long userId, @Valid @RequestBody ResumeDto resumeDto) {
         resumeService.saveResume(userId, resumeDto);
         return ResponseEntity.ok("이력서 저장 완료");
     }
