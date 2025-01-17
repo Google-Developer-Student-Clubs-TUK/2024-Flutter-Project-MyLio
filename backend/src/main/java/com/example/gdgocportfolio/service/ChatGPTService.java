@@ -5,10 +5,12 @@ import com.example.gdgocportfolio.repository.ResumeRepository;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -20,6 +22,14 @@ public class ChatGPTService {
     public ChatGPTService(@Value("${openai.api-key}") String apiKey, ResumeRepository resumeRepository) {
         this.openAiService = new OpenAiService(apiKey);
         this.resumeRepository = resumeRepository;
+    }
+
+    private OkHttpClient createCustomClient() {
+        return new OkHttpClient.Builder()
+                .connectTimeout(Duration.ofSeconds(60)) // 연결 타임아웃
+                .readTimeout(Duration.ofSeconds(60))    // 읽기 타임아웃
+                .writeTimeout(Duration.ofSeconds(60))   // 쓰기 타임아웃
+                .build();
     }
 
     // 단일 문항에 대해 GPT 답변 반환
