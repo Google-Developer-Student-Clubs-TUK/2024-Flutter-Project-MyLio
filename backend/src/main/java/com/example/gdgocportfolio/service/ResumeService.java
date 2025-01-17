@@ -55,9 +55,9 @@ public class ResumeService {
                 .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
 
         // 이력서 내용 업데이트
-        resume.setTitle(resumeDto.getTitle());
-        resume.setJob(resumeDto.getJob());
-        resume.setSkills(resumeDto.getSkills());
+        resume.setResumeTitle(resumeDto.getResumeTitle());
+        resume.setJobDuty(resumeDto.getJobDuty());
+        resume.setCapabilities(resumeDto.getCapabilities());
         resumeRepository.save(resume);
     }
 
@@ -87,15 +87,15 @@ public class ResumeService {
 
     // DTO -> Entity
     private void mapDtoToResume(ResumeDto resumeDto, Resume resume) {
-        resume.setTitle(resumeDto.getTitle());
-        resume.setIndustries(resumeDto.getIndustries());
-        resume.setJob(resumeDto.getJob());
+        resume.setResumeTitle(resumeDto.getResumeTitle());
+        resume.setIndustryGroups(resumeDto.getIndustryGroups());
+        resume.setJobDuty(resumeDto.getJobDuty());
         resume.setStrengths(resumeDto.getStrengths());
         resume.setWeaknesses(resumeDto.getWeaknesses());
-        resume.setSkills(resumeDto.getSkills());
+        resume.setCapabilities(resumeDto.getCapabilities());
 
         try {
-            resume.setActivities(objectMapper.writeValueAsString(resumeDto.getActivities()));
+            resume.setActivityExperience(objectMapper.writeValueAsString(resumeDto.getActivityExperience()));
             resume.setAwards(objectMapper.writeValueAsString(resumeDto.getAwards()));
             resume.setCertificates(objectMapper.writeValueAsString(resumeDto.getCertificates()));
             resume.setLanguages(objectMapper.writeValueAsString(resumeDto.getLanguages()));
@@ -108,13 +108,13 @@ public class ResumeService {
     private ResumeDto mapResumeToDto(Resume resume) {
         try {
             return ResumeDto.builder()
-                    .title(resume.getTitle())
-                    .industries(resume.getIndustries())
-                    .job(resume.getJob())
+                    .resumeTitle(resume.getResumeTitle())
+                    .industryGroups(resume.getIndustryGroups())
+                    .jobDuty(resume.getJobDuty())
                     .strengths(resume.getStrengths())
                     .weaknesses(resume.getWeaknesses())
-                    .skills(resume.getSkills())
-                    .activities(List.of(objectMapper.readValue(resume.getActivities(), ResumeDto.Activity[].class)))
+                    .capabilities(resume.getCapabilities())
+                    .activityExperience(List.of(objectMapper.readValue(resume.getActivityExperience(), ResumeDto.Activity[].class)))
                     .awards(List.of(objectMapper.readValue(resume.getAwards(), ResumeDto.Award[].class)))
                     .certificates(List.of(objectMapper.readValue(resume.getCertificates(), ResumeDto.Certificate[].class)))
                     .languages(List.of(objectMapper.readValue(resume.getLanguages(), ResumeDto.Language[].class)))

@@ -36,12 +36,12 @@ public class ChatGPTService {
         // 이력서 내용
         String resumeContent = String.format(
                 "제목: %s\n직무: %s\n강점: %s\n약점: %s\n기술: %s\n활동: %s\n수상: %s\n자격증: %s\n언어: %s\n",
-                resume.getTitle(),
-                resume.getJob(),
+                resume.getResumeTitle(),
+                resume.getJobDuty(),
                 String.join(", ", resume.getStrengths()),
                 String.join(", ", resume.getWeaknesses()),
-                String.join(", ", resume.getSkills()),
-                resume.getActivities(),
+                String.join(", ", resume.getCapabilities()),
+                resume.getActivityExperience(),
                 resume.getAwards(),
                 resume.getCertificates(),
                 resume.getLanguages()
