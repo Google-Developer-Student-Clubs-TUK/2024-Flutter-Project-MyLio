@@ -208,13 +208,13 @@ class _CertificatePageState extends State<CertificatePage> {
             if (selectedDate != null) {
               setState(() {
                 certificates[index]["date"] =
-                    "${selectedDate.year}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.day.toString().padLeft(2, '0')}";
+                    "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}";
               });
             }
           },
           child: InputDecorator(
             decoration: InputDecoration(
-              hintText: '취득 연도 ex) 24.01.01',
+              hintText: '취득 연도 ex) 2025-01-16',
               hintStyle: const TextStyle(color: Colors.black38),
               filled: true,
               fillColor: Colors.white,
@@ -230,7 +230,7 @@ class _CertificatePageState extends State<CertificatePage> {
               children: [
                 Text(
                   certificates[index]["date"]!.isEmpty
-                      ? '취득 연도 ex) 24.01.01'
+                      ? '취득 연도 ex) 2025-01-16'
                       : certificates[index]["date"]!,
                   style: TextStyle(
                     color: certificates[index]["date"]!.isEmpty
