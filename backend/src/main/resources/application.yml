@@ -1,9 +1,12 @@
 server:
   port: 8080
+  timezone: Asia/Seoul
 
 spring:
   profiles:
     active: local
+  jackson:
+    time-zone: Asia/Seoul
 
 springdoc:
   swagger-ui:

@@ -136,11 +136,9 @@
 //   }
 // }
 
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+import 'theme/app_colors.dart';
 
 class QuestionResult extends StatefulWidget {
   final List<String> questions; // 외부에서 전달받는 질문 리스트
@@ -171,22 +169,18 @@ class _QuestionResultState extends State<QuestionResult> {
           },
         ),
       ),
-
-
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
-
             // 상단 숫자 버튼
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: List.generate(
                 widget.questions.length,
-                    (index) => OutlinedButton(
+                (index) => OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     shape: const CircleBorder(),
                     side: const BorderSide(
@@ -217,18 +211,16 @@ class _QuestionResultState extends State<QuestionResult> {
             ),
             const SizedBox(height: 16),
 
-
-
             // 안내문 텍스트
             const Text(
               "번호를 클릭해서 생성된 답변들을 확인해 주세요.\n만약 답변이 마음에 들지 않는다면, 새로고침을 해주세요.",
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 14, color: Colors.black, fontWeight: FontWeight.w400),
+                  fontSize: 14,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w400),
             ),
             const SizedBox(height: 48),
-
-
 
             // 현재 질문 텍스트
             Text(
@@ -240,8 +232,6 @@ class _QuestionResultState extends State<QuestionResult> {
               ),
             ),
             const SizedBox(height: 16),
-
-
 
             // 답변 입력 박스
             Expanded(
@@ -257,7 +247,8 @@ class _QuestionResultState extends State<QuestionResult> {
                       ),
                       child: Text(
                         "여기에 ${_selectedQuestion + 1}번 질문에 대한 GPT 답변이 표시됩니다.",
-                        style: const TextStyle(fontSize: 14, color: Color(0xff888888)),
+                        style: const TextStyle(
+                            fontSize: 14, color: Color(0xff888888)),
                       ),
                     ),
                   ),
@@ -279,17 +270,20 @@ class _QuestionResultState extends State<QuestionResult> {
                       IconButton(
                         onPressed: () {
                           // 새로고침 버튼 클릭 시 동작
-                          setState(() {
-
-                          });
+                          setState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('답변 입력이 초기화되었습니다.',),
+                              content: Text(
+                                '답변 입력이 초기화되었습니다.',
+                              ),
                               duration: Duration(seconds: 1),
                             ),
                           );
                         },
-                        icon: const Icon(Icons.refresh, color: AppColor.color2,),
+                        icon: const Icon(
+                          Icons.refresh,
+                          color: AppColor.color2,
+                        ),
                         color: AppColor.color2,
                         iconSize: 20, // 아이콘 크기
                         padding: const EdgeInsets.all(0), // 여백 제거
@@ -304,11 +298,7 @@ class _QuestionResultState extends State<QuestionResult> {
               ),
             ),
 
-
             const SizedBox(height: 16),
-
-
-
 
             // 하단 버튼
             Row(
@@ -322,7 +312,7 @@ class _QuestionResultState extends State<QuestionResult> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content:
-                          Text('${_selectedQuestion + 1}번 질문이 저장되었습니다.'),
+                              Text('${_selectedQuestion + 1}번 질문이 저장되었습니다.'),
                           duration: const Duration(seconds: 1),
                         ),
                       );
@@ -371,7 +361,3 @@ class _QuestionResultState extends State<QuestionResult> {
     );
   }
 }
-
-
-
-

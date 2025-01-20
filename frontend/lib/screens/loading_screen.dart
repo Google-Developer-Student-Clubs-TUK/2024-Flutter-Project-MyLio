@@ -1,9 +1,7 @@
 import 'dart:math';
 import 'question_result.dart';
-import 'app_colors.dart';
+import 'theme/app_colors.dart';
 import 'package:flutter/material.dart';
-
-
 
 // 로딩 화면
 class LoadingScreen extends StatefulWidget {
@@ -45,7 +43,6 @@ class _LoadingScreenState extends State<LoadingScreen>
         MaterialPageRoute(
           builder: (context) => QuestionResult(
             questions: widget.questions,
-
           ),
         ),
       );
@@ -98,7 +95,9 @@ class _LoadingScreenState extends State<LoadingScreen>
               child: const Text(
                 'Loading...',
                 style: TextStyle(
-                    fontSize: 24, fontWeight: FontWeight.w500, color: Colors.white),
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white),
               ),
             )
           ],
@@ -107,5 +106,3 @@ class _LoadingScreenState extends State<LoadingScreen>
     );
   }
 }
-
-

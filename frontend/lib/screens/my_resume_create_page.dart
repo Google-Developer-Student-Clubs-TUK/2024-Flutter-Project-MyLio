@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/add_resume.dart';
-import 'package:frontend/screens/award_page.dart';
-import 'package:frontend/screens/capability_page.dart';
-import 'package:frontend/screens/certificate_page.dart';
-import 'package:frontend/screens/language_page.dart';
-import 'package:frontend/screens/strength_page.dart';
-import 'package:frontend/screens/weakness_page.dart';
-import 'package:get/get.dart';
-import 'resume_title.dart';
-import 'industrial_group.dart';
-import 'job_duty.dart';
-import 'activity_experience.dart';
+import 'resume/resume_title.dart';
+import 'resume/industrial_group.dart';
+import 'resume/job_duty.dart';
+import 'resume/activity_experience.dart';
+import 'resume/capability_page.dart';
+import 'resume/strength_page.dart';
+import 'resume/weakness_page.dart';
+import 'resume/award_page.dart';
+import 'resume/certificate_page.dart';
+import 'resume/language_page.dart';
 
 class MyResumeCreatePage extends StatefulWidget {
   const MyResumeCreatePage({Key? key}) : super(key: key);
@@ -20,6 +18,17 @@ class MyResumeCreatePage extends StatefulWidget {
 }
 
 class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
+  String resumeTitle = ""; // 이력서 제목 저장
+  List<String> industryGroups = []; // 산업군 데이터 저장
+  String jobDuty = ""; // 직무 저장
+  List<Map<String, String>> activityExperience = []; // 활동/경험 데이터 저장
+  List<String> capabilities = []; // 역량 데이터 저장
+  List<String> strengths = []; // 강점 데이터 저장
+  List<String> weaknesses = []; // 약점 데이터 저장
+  List<Map<String, String>> awards = []; // 수상경력 데이터 저장
+  List<Map<String, String>> certificates = []; // 자격증 데이터 저장
+  List<Map<String, String>> languages = []; // 어학 데이터 저장
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,12 +45,9 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.black,
-          ),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context); // 이전 화면으로 돌아가기
           },
         ),
       ),
@@ -51,104 +57,205 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              child: _buildInputField('이력서 제목 *'),
-              onTap: (){
-                Get.to(() => Resume_Title());
-              },
-            ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              child: _buildInputField('산업군 *'),
-              onTap: (){
-                Get.to(Industrial_Group());
-              },
-            ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              child: _buildInputField('직무 *'),
-              onTap: (){
-                Get.to(Job_Duty());
-              },
-            ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              child: _buildInputField('활동/경험'),
-              onTap: (){
-                Get.to(Activity_Experience());
-              },
-            ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
+            _buildInputFieldWithNavigation(
+              label: '이력서 제목 *',
+              value: resumeTitle.isEmpty ? "입력되지 않음" : resumeTitle,
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CapabilityPage(),
+                    builder: (context) => Resume_Title(
+                      initialTitle: resumeTitle,
+                      title: '',
+                    ),
                   ),
                 );
+                if (result != null && result is String) {
+                  setState(() {
+                    resumeTitle = result;
+                  });
+                }
               },
-              child: _buildInputField('역량'), // 역량 필드
             ),
             const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
+            _buildInputFieldWithNavigation(
+              label: '산업군 *',
+              value: industryGroups.isEmpty
+                  ? "선택하지 않음"
+                  : industryGroups.join(", "),
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AwardPage(),
+                    builder: (context) => Industrial_Group(
+                      initialIndustries: industryGroups,
+                    ),
                   ),
                 );
+                if (result != null && result is List<String>) {
+                  setState(() {
+                    industryGroups = result;
+                  });
+                }
               },
-              child: _buildInputField('수상경력'), // 수상경력 필드
             ),
             const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
+            _buildInputFieldWithNavigation(
+              label: '직무 *',
+              value: jobDuty.isEmpty ? "입력되지 않음" : jobDuty,
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const StrengthPage(),
+                    builder: (context) => Job_Duty(initialJobDuty: jobDuty),
                   ),
                 );
+                if (result != null && result is String) {
+                  setState(() {
+                    jobDuty = result;
+                  });
+                }
               },
-              child: _buildInputField('강점'), // 강점 필드
             ),
             const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
+            _buildInputFieldWithNavigation(
+              label: '활동/경험',
+              value: activityExperience.isEmpty
+                  ? "선택하지 않음"
+                  : "${activityExperience.length}개 활동 입력됨",
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const WeaknessPage(),
+                    builder: (context) => ActivityExperience(),
                   ),
                 );
+                if (result != null && result is List<Map<String, String>>) {
+                  setState(() {
+                    activityExperience = result;
+                  });
+                }
               },
-              child: _buildInputField('약점'), // 약점 필드
             ),
             const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
+            _buildInputFieldWithNavigation(
+              label: '역량',
+              value: capabilities.isEmpty ? "선택하지 않음" : capabilities.join(", "),
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CertificatePage(),
+                    builder: (context) => CapabilityPage(
+                      initialCapabilities: capabilities,
+                    ),
                   ),
                 );
+                if (result != null && result is List<String>) {
+                  setState(() {
+                    capabilities = result;
+                  });
+                }
               },
-              child: _buildInputField('자격증'), // 자격증 필드
             ),
             const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
+            _buildInputFieldWithNavigation(
+              label: '강점',
+              value: strengths.isEmpty ? "선택하지 않음" : strengths.join(", "),
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const LanguagePage(),
+                    builder: (context) => StrengthPage(
+                      initialStrengths: strengths,
+                    ),
                   ),
                 );
+                if (result != null && result is List<String>) {
+                  setState(() {
+                    strengths = result;
+                  });
+                }
               },
-              child: _buildInputField('어학'), // 어학 필드
+            ),
+            const SizedBox(height: 16),
+            _buildInputFieldWithNavigation(
+              label: '약점',
+              value: weaknesses.isEmpty ? "선택하지 않음" : weaknesses.join(", "),
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WeaknessPage(
+                      initialWeaknesses: weaknesses,
+                    ),
+                  ),
+                );
+                if (result != null && result is List<String>) {
+                  setState(() {
+                    weaknesses = result;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildInputFieldWithNavigation(
+              label: '수상경력',
+              value: awards.isEmpty ? "선택하지 않음" : "${awards.length}개 입력됨",
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AwardPage(initialAwards: awards),
+                  ),
+                );
+                if (result != null && result is List<Map<String, String>>) {
+                  setState(() {
+                    awards = result;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildInputFieldWithNavigation(
+              label: '자격증',
+              value: certificates.isEmpty
+                  ? "선택하지 않음"
+                  : "${certificates.length}개 입력됨",
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CertificatePage(
+                      initialCertificates: certificates,
+                    ),
+                  ),
+                );
+                if (result != null && result is List<Map<String, String>>) {
+                  setState(() {
+                    certificates = result;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            _buildInputFieldWithNavigation(
+              label: '어학',
+              value: languages.isEmpty ? "선택하지 않음" : "${languages.length}개 입력됨",
+              onTap: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LanguagePage(
+                      initialLanguages: languages,
+                    ),
+                  ),
+                );
+                if (result != null && result is List<Map<String, String>>) {
+                  setState(() {
+                    languages = result;
+                  });
+                }
+              },
             ),
             const SizedBox(height: 32),
           ],
@@ -158,8 +265,27 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
         padding: const EdgeInsets.all(16),
         child: ElevatedButton(
           onPressed: () {
-            print('저장하기 버튼 클릭');
-            Get.to(Add_Resume());
+            if (resumeTitle.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('이력서 제목을 입력해주세요.'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            } else {
+              Navigator.pop(context, {
+                "title": resumeTitle,
+                "industries": industryGroups,
+                "jobDuty": jobDuty,
+                "activityExperience": activityExperience,
+                "capabilities": capabilities,
+                "strengths": strengths,
+                "weaknesses": weaknesses,
+                "awards": awards,
+                "certificates": certificates,
+                "languages": languages,
+              });
+            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF908CFF),
@@ -181,33 +307,34 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
     );
   }
 
-  Widget _buildInputField(String label) {
-    return Container(
-      height: 70, // 상자 높이
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(
-          color: Colors.grey[300]!,
-          width: 1.0,
+  Widget _buildInputFieldWithNavigation({
+    required String label,
+    required String value,
+    required Function() onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 70,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey[300]!, width: 1.0),
+          borderRadius: BorderRadius.circular(12),
         ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                "$label: $value",
+                style: const TextStyle(fontSize: 16, color: Colors.black54),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          const Icon(
-            Icons.chevron_right,
-            color: Colors.grey,
-          ),
-        ],
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
