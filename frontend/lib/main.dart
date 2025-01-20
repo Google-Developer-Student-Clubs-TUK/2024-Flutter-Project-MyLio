@@ -1,11 +1,24 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get/get.dart';
 import 'package:frontend/screens/Login.dart';
 import 'package:frontend/screens/home_screen.dart';
-// import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:frontend/screens/splash_screen.dart';
-import 'package:get/get.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Flutter 시스템 초기화
+
+  // .env 파일 로드
+  try {
+    final envPath = File('.env').absolute.path;
+    print('Env file path: $envPath');
+    await dotenv.load(fileName: ".env");
+    print("dotenv 로드 성공: ${dotenv.env}");
+  } catch (e) {
+    print("dotenv 로드 실패: $e");
+  }
+
   runApp(const MyApp());
 }
 
@@ -15,20 +28,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      // GetMaterialApp으로 변경
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      // SplashScreen을 첫 화면으로 설정
-      home: const SplashScreen(),
+      initialRoute: '/splash', // 초기 화면
       getPages: [
-        // 페이지 라우팅
-        GetPage(name: '/home', page: () => const HomeScreen()),
+        GetPage(name: '/splash', page: () => const SplashScreen()),
         GetPage(name: '/login', page: () => Login()),
-        // GetPage(name: '/signup', page: () => Signup()),
+        GetPage(name: '/home', page: () => const HomeScreen()),
       ],
     );
   }
