@@ -4,7 +4,7 @@ import com.example.gdgocportfolio.authorization.AuthorizationAbstract;
 import com.example.gdgocportfolio.authorization.AuthorizationManager;
 import com.example.gdgocportfolio.entity.RefreshTokenEntity;
 import com.example.gdgocportfolio.entity.UserAuthentication;
-import com.example.gdgocportfolio.exceptions.InvalidUserDataException;
+import com.example.gdgocportfolio.exceptions.InvalidUserException;
 import com.example.gdgocportfolio.repository.UserAuthenticationRepository;
 import com.example.gdgocportfolio.repository.UserRefreshTokenRepository;
 import com.example.gdgocportfolio.util.JwtProvider;
@@ -32,7 +32,7 @@ public class AdminAuthenticationService {
 
 	@Transactional
 	public void addPermission(Long userId, Class<AuthorizationAbstract> permission) {
-		UserAuthentication userAuthentication = userAuthenticationRepository.findById(userId).orElseThrow(InvalidUserDataException::new);
+		UserAuthentication userAuthentication = userAuthenticationRepository.findById(userId).orElseThrow(InvalidUserException::new);
 		Set<String> newPermissions = new HashSet<>(userAuthentication.getPermissions());
 		newPermissions.add(authorizationManager.find(permission).getPermission());
 		userAuthentication.setPermissions(newPermissions);
@@ -40,7 +40,7 @@ public class AdminAuthenticationService {
 
 	@Transactional
 	public boolean deletePermission(Long userId, Class<AuthorizationAbstract> permission) {
-		UserAuthentication userAuthentication = userAuthenticationRepository.findById(userId).orElseThrow(InvalidUserDataException::new);
+		UserAuthentication userAuthentication = userAuthenticationRepository.findById(userId).orElseThrow(InvalidUserException::new);
 		Set<String> newPermissions = new HashSet<>(userAuthentication.getPermissions());
 		boolean result = newPermissions.remove(authorizationManager.find(permission).getPermission());
 		if (!result) {

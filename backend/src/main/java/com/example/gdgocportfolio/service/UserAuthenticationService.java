@@ -7,8 +7,8 @@ import com.example.gdgocportfolio.entity.User;
 import com.example.gdgocportfolio.entity.UserAuthentication;
 import com.example.gdgocportfolio.exceptions.IncorrectPasswordException;
 import com.example.gdgocportfolio.exceptions.InvalidJwtException;
-import com.example.gdgocportfolio.exceptions.UserExistsDataException;
-import com.example.gdgocportfolio.exceptions.UserExistsWithPhoneNumberDataException;
+import com.example.gdgocportfolio.exceptions.UserExistsException;
+import com.example.gdgocportfolio.exceptions.UserExistsWithPhoneNumberException;
 import com.example.gdgocportfolio.repository.UserAuthenticationRepository;
 import com.example.gdgocportfolio.repository.UserRefreshTokenRepository;
 import com.example.gdgocportfolio.repository.UserRepository;
@@ -134,11 +134,11 @@ public class UserAuthenticationService {
 	@Transactional
 	public void registerUser(final UserRegisterRequestDto requestDTO) {
 		if (userAuthenticationRepository.findByEmailEquals(requestDTO.getEmail()).isPresent()) {
-			throw new UserExistsDataException();
+			throw new UserExistsException();
 		}
 
 		User user = userRepository.findByPhoneNumber(requestDTO.getPhoneNumber());
-		if (user != null) throw new UserExistsWithPhoneNumberDataException();
+		if (user != null) throw new UserExistsWithPhoneNumberException();
 
 		user = new User();
 		user.setPhoneNumber(requestDTO.getPhoneNumber());
@@ -150,7 +150,7 @@ public class UserAuthenticationService {
 		userAuthentication.setEmail(requestDTO.getEmail());
 		userAuthentication.setPassword(hashConvertor.convertToHash(requestDTO.getPassword()));
 		userAuthentication.setEnabled(true);
-		userAuthentication.setPermissions(Set.of("user.resume", "user.coverletter"));
+		userAuthentication.setPermissions(Set.of("user.resume", "user.coverletter", "user.user"));
 		userAuthenticationRepository.save(userAuthentication);
 	}
 }
