@@ -236,14 +236,15 @@ class _AwardPageState extends State<AwardPage> {
             );
             if (selectedDate != null) {
               setState(() {
+                // 'yyyy-MM-dd' 형식으로 변환하여 저장
                 awards[index]["date"] =
-                    "${selectedDate.year}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.day.toString().padLeft(2, '0')}";
+                    "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}";
               });
             }
           },
           child: InputDecorator(
             decoration: InputDecoration(
-              hintText: '수상 연도 ex) 24.01.01',
+              hintText: '수상 연도 ex) 2025-01-16',
               hintStyle: const TextStyle(color: Colors.black38),
               filled: true,
               fillColor: Colors.white,
@@ -259,7 +260,7 @@ class _AwardPageState extends State<AwardPage> {
               children: [
                 Text(
                   awards[index]["date"]!.isEmpty
-                      ? '수상 연도 ex) 24.01.01'
+                      ? '수상 연도 ex) 2025-01-16'
                       : awards[index]["date"]!,
                   style: TextStyle(
                     color: awards[index]["date"]!.isEmpty

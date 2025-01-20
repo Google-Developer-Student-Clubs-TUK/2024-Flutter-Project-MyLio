@@ -235,14 +235,15 @@ class _LanguagePageState extends State<LanguagePage> {
             );
             if (selectedDate != null) {
               setState(() {
+                // 'yyyy-MM-dd' 형태로 저장
                 languages[index]["date"] =
-                    "${selectedDate.year}.${selectedDate.month.toString().padLeft(2, '0')}.${selectedDate.day.toString().padLeft(2, '0')}";
+                    "${selectedDate.year}-${selectedDate.month}-${selectedDate.day}";
               });
             }
           },
           child: InputDecorator(
             decoration: InputDecoration(
-              hintText: '취득 연도',
+              hintText: '취득 연도 ex) 2025-01-16',
               hintStyle: const TextStyle(color: Colors.black38),
               filled: true,
               fillColor: Colors.white,
