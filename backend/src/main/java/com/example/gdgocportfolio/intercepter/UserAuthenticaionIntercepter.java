@@ -32,8 +32,7 @@ public class UserAuthenticaionIntercepter implements HandlerInterceptor {
 	}
 
 	private void uriInit() {
-		add(authorizationManager.find(UserResumeAuthorization.class));
-		add(authorizationManager.find(UserCoverLetterAuthorization.class));
+		this.authorizationManager.getAll().forEach(this::add);
 	};
 
 	private void add(AuthorizationAbstract authorization) {

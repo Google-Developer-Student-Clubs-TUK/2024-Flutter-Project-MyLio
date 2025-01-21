@@ -4,8 +4,8 @@ import com.example.gdgocportfolio.dto.UserJwtDto;
 import com.example.gdgocportfolio.dto.UserLoginRequestDto;
 import com.example.gdgocportfolio.dto.UserRegisterRequestDto;
 import com.example.gdgocportfolio.exceptions.IncorrectPasswordException;
-import com.example.gdgocportfolio.exceptions.UserExistsDataException;
-import com.example.gdgocportfolio.exceptions.UserExistsWithPhoneNumberDataException;
+import com.example.gdgocportfolio.exceptions.UserExistsException;
+import com.example.gdgocportfolio.exceptions.UserExistsWithPhoneNumberException;
 import com.example.gdgocportfolio.service.UserAuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -101,15 +101,15 @@ public class UserAuthenticationController {
 				.body("URI syntax error");
 	}
 
-	@ExceptionHandler(UserExistsDataException.class)
-	public ResponseEntity<String> handleUserExistsDataException(UserExistsDataException e) {
+	@ExceptionHandler(UserExistsException.class)
+	public ResponseEntity<String> handleUserExistsDataException(UserExistsException e) {
 		return ResponseEntity
 				.badRequest()
 				.body("User already exists");
 	}
 
-	@ExceptionHandler(UserExistsWithPhoneNumberDataException.class)
-	public String userExistsWithPhoneNumberDataException(UserExistsWithPhoneNumberDataException e) {
+	@ExceptionHandler(UserExistsWithPhoneNumberException.class)
+	public String userExistsWithPhoneNumberDataException(UserExistsWithPhoneNumberException e) {
 		return "Phone number already used";
 	}
 }

@@ -4,8 +4,8 @@ import com.example.gdgocportfolio.authorization.Authentication;
 import com.example.gdgocportfolio.authorization.AuthorizationAbstract;
 
 @Authentication
-public class UserCoverLetterAuthorization extends AuthorizationAbstract {
-	public UserCoverLetterAuthorization() {
-		super("user.coverletter", "/api/v1/coverletter/*");
+public class UserAuthorization extends AuthorizationAbstract {
+	public UserAuthorization() {
+		super("user.user", "/api/v1/user");
 	}
 }
