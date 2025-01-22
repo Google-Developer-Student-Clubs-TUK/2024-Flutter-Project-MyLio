@@ -3,12 +3,15 @@ package com.example.gdgocportfolio.service;
 import com.example.gdgocportfolio.dto.ResumeDto;
 import com.example.gdgocportfolio.entity.Resume;
 import com.example.gdgocportfolio.entity.User;
+import com.example.gdgocportfolio.exceptions.ResumeNotExistsException;
 import com.example.gdgocportfolio.repository.ResumeRepository;
 import com.example.gdgocportfolio.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,6 +105,27 @@ public class ResumeService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("JSON 변환 오류", e);
         }
+    }
+
+    @Transactional
+    public Resume copyResume(Long resumeId) {
+        Resume resume = resumeRepository.findById(resumeId).orElseThrow(ResumeNotExistsException::new);
+        Resume newResume = new Resume(null,
+                resume.getUser(),
+                resume.isPrimary(),
+                resume.getResumeTitle(),
+                new ArrayList<>(resume.getIndustryGroups()),
+                resume.getJobDuty(),
+                new ArrayList<>(resume.getStrengths()),
+                new ArrayList<>(resume.getWeaknesses()),
+                new ArrayList<>(resume.getCapabilities()),
+                resume.getActivityExperience(),
+                resume.getAwards(),
+                resume.getCertificates(),
+                resume.getLanguages(),
+                resume.getCreateTime(),
+                resume.getLastUpdateTime());
+        return resumeRepository.save(newResume);
     }
 
     // Entity -> DTO
