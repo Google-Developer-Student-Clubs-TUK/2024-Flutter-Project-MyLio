@@ -3,6 +3,8 @@ package com.example.gdgocportfolio.service;
 import com.example.gdgocportfolio.dto.QuestionAnswerUpdateRequestDto;
 import com.example.gdgocportfolio.entity.CoverLetter;
 import com.example.gdgocportfolio.entity.QuestionAnswer;
+import com.example.gdgocportfolio.exceptions.CoverLetterNotExistsException;
+import com.example.gdgocportfolio.exceptions.QuestionAnswerNotExistsException;
 import com.example.gdgocportfolio.repository.CoverLetterRepository;
 import com.example.gdgocportfolio.repository.QuestionAnswerRepository;
 import jakarta.persistence.EntityManager;
@@ -67,11 +69,11 @@ public class QuestionAnswerService {
                                                QuestionAnswerUpdateRequestDto dto) {
         // CoverLetter 소유 확인
         CoverLetter coverLetter = coverLetterRepository.findByCoverLetterIdAndUserUserId(coverLetterId, userId)
-                .orElseThrow(() -> new RuntimeException("CoverLetter not found or not your resource."));
+                .orElseThrow(() -> new CoverLetterNotExistsException("CoverLetter not found or not your resource."));
 
         // QA가 해당 CoverLetter에 속해 있는지 확인
         QuestionAnswer qa = questionAnswerRepository.findByQuestionAnswerIdAndCoverLetterCoverLetterId(questionAnswerId, coverLetterId)
-                .orElseThrow(() -> new RuntimeException("QuestionAnswer not found in this CoverLetter."));
+                .orElseThrow(() -> new QuestionAnswerNotExistsException("QuestionAnswer not found in this CoverLetter."));
 
         // QA 수정
         qa.setQuestion(dto.getQuestion());
@@ -89,12 +91,12 @@ public class QuestionAnswerService {
     public void deleteQuestionAnswer(Long coverLetterId, Long userId, Long questionAnswerId) {
         // coverLetter 소유 확인
         CoverLetter coverLetter = coverLetterRepository.findByCoverLetterIdAndUserUserId(coverLetterId, userId)
-                .orElseThrow(() -> new RuntimeException("CoverLetter not found or not your resource."));
+                .orElseThrow(() -> new CoverLetterNotExistsException("CoverLetter not found or not your resource."));
 
         // QA가 해당 coverLetter에 속하는지 확인
         QuestionAnswer qa = questionAnswerRepository
                 .findByQuestionAnswerIdAndCoverLetterCoverLetterId(questionAnswerId, coverLetterId)
-                .orElseThrow(() -> new RuntimeException("QuestionAnswer not found in this CoverLetter."));
+                .orElseThrow(() -> new QuestionAnswerNotExistsException("QuestionAnswer not found in this CoverLetter."));
 
         questionAnswerRepository.delete(qa);
 

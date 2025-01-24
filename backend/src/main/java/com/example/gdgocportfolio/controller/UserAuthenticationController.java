@@ -87,12 +87,12 @@ public class UserAuthenticationController {
 				.body(e.getMessage());
 	}
 
-	@ExceptionHandler(IncorrectPasswordException.class)
-	public ResponseEntity<String> handleIncorrectPasswordException(IncorrectPasswordException e) {
-		return ResponseEntity
-				.badRequest()
-				.body("Incorrect password");
-	}
+//	@ExceptionHandler(IncorrectPasswordException.class)
+//	public ResponseEntity<String> handleIncorrectPasswordException(IncorrectPasswordException e) {
+//		return ResponseEntity
+//				.badRequest()
+//				.body("Incorrect password");
+//	}
 
 	@ExceptionHandler(URISyntaxException.class)
 	public ResponseEntity<String> handleURISyntaxException(URISyntaxException e) {
@@ -101,15 +101,15 @@ public class UserAuthenticationController {
 				.body("URI syntax error");
 	}
 
-	@ExceptionHandler(UserExistsException.class)
-	public ResponseEntity<String> handleUserExistsDataException(UserExistsException e) {
-		return ResponseEntity
-				.badRequest()
-				.body("User already exists");
-	}
-
-	@ExceptionHandler(UserExistsWithPhoneNumberException.class)
-	public String userExistsWithPhoneNumberDataException(UserExistsWithPhoneNumberException e) {
-		return "Phone number already used";
-	}
+//	@ExceptionHandler(UserExistsException.class)
+//	public ResponseEntity<String> handleUserExistsDataException(UserExistsException e) {
+//		return ResponseEntity
+//				.badRequest()
+//				.body("User already exists");
+//	}
+//
+//	@ExceptionHandler(UserExistsWithPhoneNumberException.class)
+//	public String userExistsWithPhoneNumberDataException(UserExistsWithPhoneNumberException e) {
+//		return "Phone number already used";
+//	}
 }

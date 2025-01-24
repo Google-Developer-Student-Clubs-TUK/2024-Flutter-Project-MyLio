@@ -4,6 +4,7 @@ import com.example.gdgocportfolio.dto.ResumeDto;
 import com.example.gdgocportfolio.entity.Resume;
 import com.example.gdgocportfolio.entity.User;
 import com.example.gdgocportfolio.exceptions.ResumeNotExistsException;
+import com.example.gdgocportfolio.exceptions.UserNotExistsException;
 import com.example.gdgocportfolio.repository.ResumeRepository;
 import com.example.gdgocportfolio.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,7 +32,7 @@ public class ResumeService {
     // 이력서 저장
     public void saveResume(Long userId, ResumeDto resumeDto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(UserNotExistsException::new);
 
         Resume resume = new Resume();
         mapDtoToResume(resumeDto, resume);
@@ -42,7 +43,7 @@ public class ResumeService {
     // 이력서 조회 (단건)
     public ResumeDto getResume(Long userId, Long resumeId) {
         Resume resume = resumeRepository.findByResumeIdAndUserUserId(resumeId, userId)
-                .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
+                .orElseThrow(ResumeNotExistsException::new);
         return mapResumeToDto(resume);
     }
 
@@ -55,7 +56,7 @@ public class ResumeService {
     // 이력서 업데이트
     public void updateResume(Long userId, Long resumeId, ResumeDto resumeDto) {
         Resume resume = resumeRepository.findByResumeIdAndUserUserId(resumeId, userId)
-                .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
+                .orElseThrow(ResumeNotExistsException::new);
 
         // 이력서 내용 업데이트
         resume.setResumeTitle(resumeDto.getResumeTitle());
@@ -67,7 +68,7 @@ public class ResumeService {
     // 이력서 삭제
     public void deleteResume(Long userId, Long resumeId) {
         Resume resume = resumeRepository.findByResumeIdAndUserUserId(resumeId, userId)
-                .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
+                .orElseThrow(ResumeNotExistsException::new);
         resumeRepository.delete(resume);
     }
 
@@ -83,7 +84,7 @@ public class ResumeService {
 
         // 새로운 대표 이력서 설정
         Resume primaryResume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new RuntimeException("이력서를 찾을 수 없습니다."));
+                .orElseThrow(ResumeNotExistsException::new);
         primaryResume.setPrimary(true);
         resumeRepository.saveAll(resumes);
     }

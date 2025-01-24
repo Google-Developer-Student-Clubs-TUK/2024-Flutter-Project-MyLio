@@ -3,6 +3,9 @@ package com.example.gdgocportfolio.service;
 import com.example.gdgocportfolio.entity.CoverLetter;
 import com.example.gdgocportfolio.entity.QuestionAnswer;
 import com.example.gdgocportfolio.entity.User;
+import com.example.gdgocportfolio.exceptions.CoverLetterNotExistsException;
+import com.example.gdgocportfolio.exceptions.QuestionAnswerNotExistsException;
+import com.example.gdgocportfolio.exceptions.UserNotExistsException;
 import com.example.gdgocportfolio.repository.CoverLetterRepository;
 import com.example.gdgocportfolio.repository.QuestionAnswerRepository;
 import org.springframework.stereotype.Service;
@@ -35,14 +38,14 @@ public class CoverLetterService {
                     // questionAnswers는 필요 시 별도 로직으로 관리
                     return coverLetterRepository.save(existing);
                 })
-                .orElseThrow(() -> new RuntimeException("CoverLetter not found or does not belong to this user"));
+                .orElseThrow(() -> new CoverLetterNotExistsException("CoverLetter not found or does not belong to this user"));
     }
 
 
     // CoverLetter 생성 (GPT 이용)
     public CoverLetter createCoverLetterWithGpt(Long userId, String title, List<String> questions) {
         User user = userService.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(UserNotExistsException::new);
 
         CoverLetter coverLetter = new CoverLetter();
         coverLetter.setUser(user);
@@ -64,7 +67,7 @@ public class CoverLetterService {
     // QuestionAnswer 생성
     public QuestionAnswer createQuestionAnswer(Long userId, Long coverLetterId, String question, String answer) {
         CoverLetter coverLetter = getCoverLetterByIdAndUserId(coverLetterId, userId)
-                .orElseThrow(() -> new RuntimeException("CoverLetter not found or not yours"));
+                .orElseThrow(() -> new CoverLetterNotExistsException("CoverLetter not found or not yours"));
 
         QuestionAnswer qa = new QuestionAnswer();
         qa.setQuestion(question);
@@ -82,10 +85,10 @@ public class CoverLetterService {
     // QuestionAnswer 수정
     public QuestionAnswer updateQuestionAnswer(Long userId, Long coverLetterId, Long qaId, String question, String answer) {
         CoverLetter coverLetter = getCoverLetterByIdAndUserId(coverLetterId, userId)
-                .orElseThrow(() -> new RuntimeException("CoverLetter not found or not yours"));
+                .orElseThrow(() -> new CoverLetterNotExistsException("CoverLetter not found or not yours"));
 
         QuestionAnswer qa = getQuestionAnswer(coverLetterId, qaId)
-                .orElseThrow(() -> new RuntimeException("QuestionAnswer not found in this CoverLetter"));
+                .orElseThrow(() -> new QuestionAnswerNotExistsException("QuestionAnswer not found in this CoverLetter"));
 
         if (question != null) qa.setQuestion(question);
         if (answer != null) qa.setAnswer(answer);
@@ -96,10 +99,10 @@ public class CoverLetterService {
     // QuestionAnswer 삭제
     public void deleteQuestionAnswer(Long userId, Long coverLetterId, Long qaId) {
         CoverLetter coverLetter = getCoverLetterByIdAndUserId(coverLetterId, userId)
-                .orElseThrow(() -> new RuntimeException("CoverLetter not found or not yours"));
+                .orElseThrow(() -> new CoverLetterNotExistsException("CoverLetter not found or not yours"));
 
         QuestionAnswer qa = getQuestionAnswer(coverLetterId, qaId)
-                .orElseThrow(() -> new RuntimeException("QuestionAnswer not found in this CoverLetter"));
+                .orElseThrow(() -> new QuestionAnswerNotExistsException("QuestionAnswer not found in this CoverLetter"));
 
         questionAnswerRepository.delete(qa);
     }
@@ -107,7 +110,7 @@ public class CoverLetterService {
     // QuestionAnswer GPT 재생성
     public String regenQuestionAnswer(Long userId, Long coverLetterId, Long qaId) {
         QuestionAnswer qa = getQuestionAnswer(coverLetterId, qaId)
-                .orElseThrow(() -> new RuntimeException("QuestionAnswer not found"));
+                .orElseThrow(() -> new QuestionAnswerNotExistsException("QuestionAnswer not found"));
 
         String question = qa.getQuestion();
         return chatGPTService.generateAnswer(userId, question);
@@ -128,7 +131,7 @@ public class CoverLetterService {
         if (coverLetterRepository.existsByCoverLetterIdAndUserUserId(coverLetterId, userId)) {
             coverLetterRepository.deleteById(coverLetterId);
         } else {
-            throw new RuntimeException("CoverLetter not found or does not belong to this user");
+            throw new CoverLetterNotExistsException("CoverLetter not found or does not belong to this user");
         }
     }
 }
