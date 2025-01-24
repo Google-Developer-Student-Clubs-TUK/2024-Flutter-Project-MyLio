@@ -10,6 +10,9 @@
 .svn/
 migrate_working_dir/
 
+# 환경 변수
+.env
+
 # IntelliJ related
 *.iml
 *.ipr
