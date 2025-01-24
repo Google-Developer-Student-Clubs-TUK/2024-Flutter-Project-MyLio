@@ -22,7 +22,7 @@ public class AuthorizationManager {
 	}
 
 	public void init() {
-		InputStream resourceAsStream = ClassLoader.getSystemClassLoader().getResourceAsStream(packagePath.replaceAll("[.]", "/"));
+		InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(packagePath.replaceAll("[.]", "/"));
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resourceAsStream));
 		Set<? extends Class<?>> collect = bufferedReader.lines().filter(line -> line.endsWith(".class")).map(line -> {
 			try {
