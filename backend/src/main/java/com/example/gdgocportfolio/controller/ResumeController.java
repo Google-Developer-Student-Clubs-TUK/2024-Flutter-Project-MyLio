@@ -1,10 +1,13 @@
 package com.example.gdgocportfolio.controller;
 
 import com.example.gdgocportfolio.dto.ResumeDto;
+import com.example.gdgocportfolio.dto.UserAccessTokenInfoDto;
+import com.example.gdgocportfolio.exceptions.UnauthorizedException;
 import com.example.gdgocportfolio.service.ResumeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,4 +70,16 @@ public class ResumeController {
         return ResponseEntity.ok("대표 이력서 설정 완료");
     }
 
+    @PutMapping("/copy/{userId}/{resumeId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void copyResume(@PathVariable("userId") Long userId, @PathVariable("resumeId") Long resumeId, UserAccessTokenInfoDto accessToken) {
+        if (!Long.valueOf(accessToken.getUserId()).equals(userId)) throw new UnauthorizedException("User id is difference (" + userId + ", " + accessToken.getUserId() + ")");
+        resumeService.copyResume(resumeId);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public String unauthorized(UnauthorizedException e) {
+        return e.getMessage();
+    }
 }
