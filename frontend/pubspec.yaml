@@ -38,6 +38,11 @@ dependencies:
   shared_preferences: ^2.2.3
   dotted_border: ^2.1.0
   font_awesome_flutter: ^10.8.0
+  http: ^1.2.2
+  dio: ^4.0.6
+  flutter_dotenv: ^5.2.1
+  # dio_cookie_manager: ^1.0.0
+  # cookie_jar: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +69,7 @@ flutter:
   assets:
     - assets/images/splash.png
     - assets/images/logo.png
+    - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
