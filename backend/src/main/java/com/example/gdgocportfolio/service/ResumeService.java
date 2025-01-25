@@ -104,7 +104,7 @@ public class ResumeService {
             resume.setCertificates(objectMapper.writeValueAsString(resumeDto.getCertificates()));
             resume.setLanguages(objectMapper.writeValueAsString(resumeDto.getLanguages()));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON 변환 오류", e);
+            throw new RuntimeException("JSON conversion error.", e);
         }
     }
 
@@ -145,7 +145,7 @@ public class ResumeService {
                     .languages(List.of(objectMapper.readValue(resume.getLanguages(), ResumeDto.Language[].class)))
                     .build();
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON 변환 오류", e);
+            throw new RuntimeException("JSON conversion error.", e);
         }
     }
 }
