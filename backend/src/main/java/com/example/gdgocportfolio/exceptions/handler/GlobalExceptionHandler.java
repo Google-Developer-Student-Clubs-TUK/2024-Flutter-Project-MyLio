@@ -1,6 +1,7 @@
 package com.example.gdgocportfolio.exceptions.handler;
 
 import com.example.gdgocportfolio.exceptions.*;
+import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -99,11 +100,12 @@ public class GlobalExceptionHandler {
      *    - 예: UserNotExistsException, CoverLetterNotExistsException 등
      */
     @ExceptionHandler({
-            UserNotExistsException.class,
-            CoverLetterNotExistsException.class,
-            QuestionAnswerNotExistsException.class,
-            ResumeNotExistsException.class,
-            PrimaryResumeNotExistsException.class
+            CoverLetterException.class,
+            JwtExpireException.class,
+            JwtException.class,
+            UserException.class,
+            ResumeException.class,
+            UnauthorizedException.class
     })
     public ResponseEntity<ErrorResponse> handleCustomExceptions(RuntimeException ex) {
         log.warn("Custom Exception: {}", ex.getClass().getSimpleName(), ex);
