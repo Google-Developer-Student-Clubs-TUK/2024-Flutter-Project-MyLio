@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now().toString(),
                 HttpStatus.BAD_REQUEST.value(),
                 "Validation Failed",
-                "요청 데이터 검증에 실패했습니다.",
+                "The request data validation has failed.",
                 fieldErrors
         );
 
@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now().toString(),
                 HttpStatus.BAD_REQUEST.value(),
                 "BindException Occurred",
-                "데이터 바인딩에 실패했습니다.",
+                "Data binding has failed.",
                 fieldErrors
         );
 
