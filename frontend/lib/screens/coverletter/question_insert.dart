@@ -21,40 +21,28 @@ class _QuestionInsertState extends State<QuestionInsert> {
   ];
 
 
-  // Future<void> saveResumeWithToken(String accessToken) async {
-  //   final String? baseUrl = dotenv.env['API_BASE_URL'];
-  //   if (baseUrl == null) {
-  //     print("Base URL is null. Check .env file.");
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text('환경 변수를 확인해주세요.'),
-  //         backgroundColor: Colors.red,
-  //       ),
-  //     );
-  //     return;
-  //   }
 
   bool _isLoading = false;
 
   final userId = "1";
-  final String? baseUrl = dotenv.env['API_BASE_URL'];
+  final baseUrl = dotenv.env['API_BASE_URL'];
+  final accessToken = dotenv.env['ACCESS_TOKEN'];
 
 
   // **변경된 GPT API 호출 (토큰 추가)**
   Future<List<String>> _fetchAnswers(String title, List<String> questions) async {
     final url = Uri.parse('$baseUrl/api/v1/coverLetters/gen/$userId');
-    final String? accessToken = ""; // 토큰 로드
 
-    if (accessToken == null || accessToken.isEmpty) {
-      throw Exception('ACCESS_TOKEN이 설정되지 않았습니다.');
-    }
+    // if (accessToken == null || accessToken.isEmpty) {
+    //   throw Exception('ACCESS_TOKEN이 설정되지 않았습니다.');
+    // }
 
     try {
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken', // **토큰 추가**
+          'Authorization': '$accessToken', // **토큰 추가**
         },
         body: jsonEncode({
           "userId": userId,

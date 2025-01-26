@@ -1,7 +1,7 @@
 
 
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/theme/app_colors.dart';
@@ -30,10 +30,14 @@ class QuestionResult extends StatefulWidget {
 
 class _QuestionResultState extends State<QuestionResult> {
   int _selectedQuestion = 0; // 첫 번째 질문을 선택
+  final baseUrl = dotenv.env['API_BASE_URL'];
+  final accessToken = dotenv.env['ACCESS_TOKEN'];
 
   late List<TextEditingController> _answerControllers;
   late List<int> _currentTextLengths;
   late List<String> savedAnswers;
+
+
 
   @override
   void initState(){
@@ -332,7 +336,7 @@ class _QuestionResultState extends State<QuestionResult> {
                           Uri.parse('**수정한 자소서 최종 저장할 api 필요함**'),
                           headers: {
                             'Content-Type': 'application/json',
-                            'Authorization': 'YOUR_ACCESS_TOKEN',
+                            'Authorization': '$accessToken',
                           },
                           body: jsonEncode(introduction),
                         );

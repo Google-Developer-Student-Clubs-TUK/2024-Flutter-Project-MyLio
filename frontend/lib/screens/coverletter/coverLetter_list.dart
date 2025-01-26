@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:frontend/screens/components/coverLetter_PopupMenu_Btn.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../theme/app_colors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -24,6 +24,8 @@ class _CoverLetterListState extends State<CoverLetterList> {
   bool _isLoading = true;
   String? _errorMessage;
   final userId = "1";
+  final baseUrl = dotenv.env['API_BASE_URL'];
+  final accessToken = dotenv.env['ACCESS_TOKEN'];
 
   get updatedIntroduction => null;
 
@@ -46,9 +48,9 @@ class _CoverLetterListState extends State<CoverLetterList> {
   // 서버에서 데이터 가져오기
   Future<void> _fetchIntroductions() async {
     try {
-      final url = Uri.parse('');
+      final url = Uri.parse('$baseUrl/api/v1/coverLetters/$userId');
       final response = await http.get(url, headers: {
-        'Authorization': '',
+        'Authorization': '$accessToken',
         'Content-Type': 'application/json',
       });
 
@@ -226,7 +228,7 @@ class _CoverLetterListState extends State<CoverLetterList> {
         context,
         MaterialPageRoute(
           builder: (context) => ModifyCoverletter(
-              // introduction: introduction
+              introduction: introduction
           ),
         )
     );
