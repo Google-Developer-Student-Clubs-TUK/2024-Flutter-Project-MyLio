@@ -13,7 +13,7 @@ import 'resume/job_duty.dart';
 import 'resume/activity_experience.dart';
 
 class Edit extends StatefulWidget {
-  const Edit({Key? key}) : super(key: key);
+  const Edit({Key? key, required resumeId}) : super(key: key);
 
   @override
   State<Edit> createState() => Edit_State();

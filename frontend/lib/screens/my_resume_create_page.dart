@@ -49,6 +49,7 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
     const userId = "1";
     final url = Uri.parse('$baseUrl/api/v1/resume/create/$userId');
 
+    // 데이터 포맷팅 로직
     final List<Map<String, String>> formattedActivityExperience =
         activityExperience.map((experience) {
       return {
@@ -62,10 +63,10 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
 
     final List<Map<String, String>> formattedAwards = awards.map((award) {
       return {
-        "title": award["title"] ?? "",
+        "name": award["name"] ?? "",
         "organization": award["organization"] ?? "",
         "date": award["date"] ?? "",
-        "details": award["details"] ?? "",
+        "description": award["description"] ?? "",
       };
     }).toList();
 
@@ -82,13 +83,14 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
         languages.map((language) {
       return {
         "language": language["language"] ?? "",
-        "exam": language["exam"] ?? "",
+        "examName": language["examName"] ?? "",
         "score": language["score"] ?? "",
         "date": language["date"] ?? "",
       };
     }).toList();
 
-    final requestBody = {
+    // 요청 본문
+    final Map<String, dynamic> requestBody = {
       "resumeTitle": resumeTitle,
       if (industryGroups.isNotEmpty) "industryGroups": industryGroups,
       if (jobDuty.isNotEmpty) "jobDuty": jobDuty,
@@ -102,6 +104,9 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
       if (capabilities.isNotEmpty) "capabilities": capabilities,
     };
 
+    // 디버깅을 위한 요청 본문 출력
+    print("Request body: ${jsonEncode(requestBody)}");
+
     try {
       final response = await http
           .post(
@@ -114,6 +119,7 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
           )
           .timeout(const Duration(seconds: 30));
 
+      // 서버 응답 처리
       if (response.statusCode == 200) {
         print("이력서 저장 성공!");
         ScaffoldMessenger.of(context).showSnackBar(
@@ -130,7 +136,10 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
                   )),
         );
       } else {
-        print("이력서 저장 실패: ${response.body}");
+        // 서버에서 반환한 에러 내용 출력
+        print("이력서 저장 실패: ${response.statusCode}");
+        print("Response body: ${response.body}");
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('이력서 저장 실패: ${response.body}'),
@@ -139,6 +148,7 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
         );
       }
     } catch (e) {
+      // 네트워크 오류 및 기타 예외 처리
       print('오류 발생: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
