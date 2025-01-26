@@ -72,7 +72,7 @@ public class UserAuthenticationController {
 	@ResponseStatus(HttpStatus.OK)
 	public void delete(@RequestHeader("user_id") Long userId, UserAccessTokenInfoDto accessToken) {
 		if (!Long.valueOf(accessToken.getUserId()).equals(userId)) throw new UnauthorizedException("User id is difference (" + userId + ", " + accessToken.getUserId() + ")");
-		userAuthenticationService.
+		userAuthenticationService.deleteUser(userId);
 	}
 
 	@PatchMapping
