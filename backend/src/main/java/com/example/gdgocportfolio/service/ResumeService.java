@@ -131,21 +131,33 @@ public class ResumeService {
 
     // Entity -> DTO
     private ResumeDto mapResumeToDto(Resume resume) {
+        return ResumeDto.builder()
+                .resumeTitle(resume.getResumeTitle())
+                .industryGroups(resume.getIndustryGroups())
+                .jobDuty(resume.getJobDuty())
+                .strengths(resume.getStrengths())
+                .weaknesses(resume.getWeaknesses())
+                .capabilities(resume.getCapabilities())
+                // 안전하게 변환
+                .activityExperience(safeList(resume.getActivityExperience(), ResumeDto.Activity[].class))
+                .awards(safeList(resume.getAwards(), ResumeDto.Award[].class))
+                .certificates(safeList(resume.getCertificates(), ResumeDto.Certificate[].class))
+                .languages(safeList(resume.getLanguages(), ResumeDto.Language[].class))
+                .build();
+    }
+
+    private <T> List<T> safeList(String json, Class<T[]> clazz) {
+        // JSON이 null 또는 비어 있는 경우 빈 리스트 반환
+        if (json == null || json.isBlank()) {
+            return new ArrayList<>();
+        }
         try {
-            return ResumeDto.builder()
-                    .resumeTitle(resume.getResumeTitle())
-                    .industryGroups(resume.getIndustryGroups())
-                    .jobDuty(resume.getJobDuty())
-                    .strengths(resume.getStrengths())
-                    .weaknesses(resume.getWeaknesses())
-                    .capabilities(resume.getCapabilities())
-                    .activityExperience(List.of(objectMapper.readValue(resume.getActivityExperience(), ResumeDto.Activity[].class)))
-                    .awards(List.of(objectMapper.readValue(resume.getAwards(), ResumeDto.Award[].class)))
-                    .certificates(List.of(objectMapper.readValue(resume.getCertificates(), ResumeDto.Certificate[].class)))
-                    .languages(List.of(objectMapper.readValue(resume.getLanguages(), ResumeDto.Language[].class)))
-                    .build();
+            T[] arr = objectMapper.readValue(json, clazz);
+            return arr == null ? new ArrayList<>() : new ArrayList<>(List.of(arr));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON conversion error.", e);
+            // 로깅 추가
+            System.err.println("Error parsing JSON: " + e.getMessage());
+            return new ArrayList<>();
         }
     }
 }
