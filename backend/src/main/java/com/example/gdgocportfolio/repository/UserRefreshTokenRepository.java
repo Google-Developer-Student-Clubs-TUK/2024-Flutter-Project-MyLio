@@ -9,5 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface UserRefreshTokenRepository extends JpaRepository<RefreshTokenEntity, UUID> {
+	public List<RefreshTokenEntity> findAllByUserId(Long userId);
 	public List<RefreshTokenEntity> findAllByExpireLessThan(Long expire);
 }
