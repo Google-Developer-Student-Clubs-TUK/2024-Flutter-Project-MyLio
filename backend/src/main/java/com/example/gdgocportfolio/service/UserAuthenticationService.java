@@ -2,16 +2,9 @@ package com.example.gdgocportfolio.service;
 
 import com.example.gdgocportfolio.authorization.AuthorizationManager;
 import com.example.gdgocportfolio.dto.*;
-import com.example.gdgocportfolio.entity.RefreshTokenEntity;
-import com.example.gdgocportfolio.entity.User;
-import com.example.gdgocportfolio.entity.UserAuthentication;
-import com.example.gdgocportfolio.exceptions.IncorrectPasswordException;
-import com.example.gdgocportfolio.exceptions.InvalidJwtException;
-import com.example.gdgocportfolio.exceptions.UserExistsException;
-import com.example.gdgocportfolio.exceptions.UserExistsWithPhoneNumberException;
-import com.example.gdgocportfolio.repository.UserAuthenticationRepository;
-import com.example.gdgocportfolio.repository.UserRefreshTokenRepository;
-import com.example.gdgocportfolio.repository.UserRepository;
+import com.example.gdgocportfolio.entity.*;
+import com.example.gdgocportfolio.exceptions.*;
+import com.example.gdgocportfolio.repository.*;
 import com.example.gdgocportfolio.util.HashConvertor;
 import com.example.gdgocportfolio.util.JwtProvider;
 import org.json.JSONArray;
@@ -29,15 +22,20 @@ public class UserAuthenticationService {
 	private final UserRepository userRepository;
 	private final UserRefreshTokenRepository userRefreshTokenRepository;
 	private final UserAuthenticationRepository userAuthenticationRepository;
+	private final ResumeRepository resumeRepository;
+	private final CoverLetterRepository coverLetterRepository;
+
 	private final AuthorizationManager authorizationManager;
 	private final HashConvertor hashConvertor;
 	private final JwtProvider jwtProvider;
 	private final long expireTime;
 
-	public UserAuthenticationService(UserRepository userRepository, UserRefreshTokenRepository userRefreshTokenRepository, UserAuthenticationRepository userAuthenticationRepository, AuthorizationManager authorizationManager, HashConvertor hashConvertor, JwtProvider jwtProvider) {
+	public UserAuthenticationService(UserRepository userRepository, UserRefreshTokenRepository userRefreshTokenRepository, UserAuthenticationRepository userAuthenticationRepository, ResumeRepository resumeRepository, CoverLetterRepository coverLetterRepository, AuthorizationManager authorizationManager, HashConvertor hashConvertor, JwtProvider jwtProvider) {
 		this.userRepository = userRepository;
 		this.userRefreshTokenRepository = userRefreshTokenRepository;
 		this.userAuthenticationRepository = userAuthenticationRepository;
+		this.resumeRepository = resumeRepository;
+		this.coverLetterRepository = coverLetterRepository;
 		this.authorizationManager = authorizationManager;
 		this.hashConvertor = hashConvertor;
 		this.jwtProvider = jwtProvider;
@@ -152,5 +150,26 @@ public class UserAuthenticationService {
 		userAuthentication.setEnabled(true);
 		userAuthentication.setPermissions(Set.of("user.resume", "user.coverletter", "user.user"));
 		userAuthenticationRepository.save(userAuthentication);
+	}
+
+	@Transactional
+	public void deleteUser(final Long userId) {
+		UserAuthentication userAuthentication = userAuthenticationRepository.findById(userId).orElseThrow(() -> new UserNotExistsException("Fail to find authentication information"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotExistsException("Fail to find user information"));
+		List<RefreshTokenEntity> allByUserId = userRefreshTokenRepository.findAllByUserId(userId);
+		List<Resume> resumes = resumeRepository.findByUserUserId(userId);
+		List<CoverLetter> coverLetters = coverLetterRepository.findAllByUserUserId(userId);
+
+		userAuthenticationRepository.delete(userAuthentication);
+		userRepository.delete(user);
+		userRefreshTokenRepository.deleteAll(allByUserId);
+		resumeRepository.deleteAll(resumes);
+		coverLetterRepository.deleteAll(coverLetters);
+	}
+
+	@Transactional
+	public void editPassword(final UserEditPasswordDto dto) {
+		UserAuthentication userAuthentication = userAuthenticationRepository.findById(dto.getUserId()).orElseThrow(() -> new UserNotExistsException("Cannot find user"));
+		userAuthentication.setPassword(hashConvertor.convertToHash(dto.getPassword()));
 	}
 }

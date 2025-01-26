@@ -20,7 +20,7 @@ class _LanguagePageState extends State<LanguagePage> {
     // 초기 데이터 복사
     languages = List.from(widget.initialLanguages);
     if (languages.isEmpty) {
-      languages.add({"language": "", "exam": "", "score": "", "date": ""});
+      languages.add({"language": "", "examName": "", "score": "", "date": ""});
     }
   }
 
@@ -84,7 +84,7 @@ class _LanguagePageState extends State<LanguagePage> {
                       setState(() {
                         languages.add({
                           "language": "",
-                          "exam": "",
+                          "examName": "",
                           "score": "",
                           "date": ""
                         });
@@ -185,10 +185,10 @@ class _LanguagePageState extends State<LanguagePage> {
         const SizedBox(height: 16),
         TextField(
           onChanged: (value) {
-            languages[index]["exam"] = value;
+            languages[index]["examName"] = value;
           },
           controller: TextEditingController(
-            text: languages[index]["exam"],
+            text: languages[index]["examName"],
           ),
           decoration: InputDecoration(
             hintText: '시험명',

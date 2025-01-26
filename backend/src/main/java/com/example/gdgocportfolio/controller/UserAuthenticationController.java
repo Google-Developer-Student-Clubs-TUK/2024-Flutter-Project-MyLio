@@ -1,11 +1,7 @@
 package com.example.gdgocportfolio.controller;
 
-import com.example.gdgocportfolio.dto.UserJwtDto;
-import com.example.gdgocportfolio.dto.UserLoginRequestDto;
-import com.example.gdgocportfolio.dto.UserRegisterRequestDto;
-import com.example.gdgocportfolio.exceptions.IncorrectPasswordException;
-import com.example.gdgocportfolio.exceptions.UserExistsException;
-import com.example.gdgocportfolio.exceptions.UserExistsWithPhoneNumberException;
+import com.example.gdgocportfolio.dto.*;
+import com.example.gdgocportfolio.exceptions.*;
 import com.example.gdgocportfolio.service.UserAuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -70,6 +66,19 @@ public class UserAuthenticationController {
 
 		res.addHeader("Set-Cookie", "ACCESS_TOKEN=" + userJwtDto.getAccessToken());
 		res.addHeader("Set-Cookie", "REFRESH_TOKEN=" + userJwtDto.getRefreshToken());
+	}
+
+	@DeleteMapping
+	@ResponseStatus(HttpStatus.OK)
+	public void delete(@RequestHeader("user_id") Long userId, UserAccessTokenInfoDto accessToken) {
+		if (!Long.valueOf(accessToken.getUserId()).equals(userId)) throw new UnauthorizedException("User id is difference (" + userId + ", " + accessToken.getUserId() + ")");
+		userAuthenticationService.deleteUser(userId);
+	}
+
+	@PatchMapping
+	public void editPassword(@RequestBody @Valid UserEditPasswordDto userEditPasswordDto, UserAccessTokenInfoDto accessToken) {
+		if (!Long.valueOf(accessToken.getUserId()).equals(userEditPasswordDto.getUserId())) throw new UnauthorizedException("User id is difference (" + userEditPasswordDto.getUserId() + ", " + accessToken.getUserId() + ")");
+		userAuthenticationService.editPassword(userEditPasswordDto);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
