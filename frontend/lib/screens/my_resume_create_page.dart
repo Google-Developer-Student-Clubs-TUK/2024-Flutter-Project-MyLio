@@ -62,10 +62,10 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
 
     final List<Map<String, String>> formattedAwards = awards.map((award) {
       return {
-        "title": award["title"] ?? "",
+        "name": award["name"] ?? "",
         "organization": award["organization"] ?? "",
         "date": award["date"] ?? "",
-        "details": award["details"] ?? "",
+        "description": award["description"] ?? "",
       };
     }).toList();
 
