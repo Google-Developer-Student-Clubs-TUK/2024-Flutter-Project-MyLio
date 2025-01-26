@@ -19,7 +19,8 @@ class _AwardPageState extends State<AwardPage> {
     // 초기 데이터 복사
     awards = List.from(widget.initialAwards);
     if (awards.isEmpty) {
-      awards.add({"title": "", "organization": "", "date": "", "details": ""});
+      awards
+          .add({"name": "", "organization": "", "date": "", "description": ""});
     }
   }
 
@@ -84,10 +85,10 @@ class _AwardPageState extends State<AwardPage> {
                     onPressed: () {
                       setState(() {
                         awards.add({
-                          "title": "",
+                          "name": "",
                           "organization": "",
                           "date": "",
-                          "details": ""
+                          "description": ""
                         });
                       });
                     },
@@ -157,13 +158,13 @@ class _AwardPageState extends State<AwardPage> {
             Expanded(
               child: TextField(
                 onChanged: (value) {
-                  awards[index]["title"] = value;
+                  awards[index]["name"] = value;
                 },
                 controller: TextEditingController.fromValue(
                   TextEditingValue(
-                    text: awards[index]["title"]!,
+                    text: awards[index]["name"]!,
                     selection: TextSelection.collapsed(
-                        offset: awards[index]["title"]!.length),
+                        offset: awards[index]["name"]!.length),
                   ),
                 ),
                 decoration: InputDecoration(
@@ -280,13 +281,13 @@ class _AwardPageState extends State<AwardPage> {
         const SizedBox(height: 16),
         TextField(
           onChanged: (value) {
-            awards[index]["details"] = value;
+            awards[index]["description"] = value;
           },
           controller: TextEditingController.fromValue(
             TextEditingValue(
-              text: awards[index]["details"]!,
+              text: awards[index]["description"]!,
               selection: TextSelection.collapsed(
-                  offset: awards[index]["details"]!.length),
+                  offset: awards[index]["description"]!.length),
             ),
           ),
           maxLines: 3,
