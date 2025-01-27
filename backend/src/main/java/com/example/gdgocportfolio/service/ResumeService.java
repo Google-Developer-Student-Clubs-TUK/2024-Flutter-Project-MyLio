@@ -1,6 +1,7 @@
 package com.example.gdgocportfolio.service;
 
-import com.example.gdgocportfolio.dto.ResumeDto;
+import com.example.gdgocportfolio.dto.ResumeCreateRequestDto;
+import com.example.gdgocportfolio.dto.ResumeResponseDto;
 import com.example.gdgocportfolio.entity.Resume;
 import com.example.gdgocportfolio.entity.User;
 import com.example.gdgocportfolio.exceptions.ResumeNotExistsException;
@@ -30,38 +31,38 @@ public class ResumeService {
     }
 
     // 이력서 저장
-    public void saveResume(Long userId, ResumeDto resumeDto) {
+    public void saveResume(Long userId, ResumeCreateRequestDto resumeCreateRequestDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotExistsException::new);
 
         Resume resume = new Resume();
-        mapDtoToResume(resumeDto, resume);
+        mapDtoToResume(resumeCreateRequestDto, resume);
         resume.setUser(user); // 사용자 연결
         resumeRepository.save(resume);
     }
 
     // 이력서 조회 (단건)
-    public ResumeDto getResume(Long userId, Long resumeId) {
+    public ResumeResponseDto getResume(Long userId, Long resumeId) {
         Resume resume = resumeRepository.findByResumeIdAndUserUserId(resumeId, userId)
                 .orElseThrow(ResumeNotExistsException::new);
         return mapResumeToDto(resume);
     }
 
     // 사용자별 이력서 전체 조회
-    public List<ResumeDto> getResumesByUser(Long userId) {
+    public List<ResumeResponseDto> getResumesByUser(Long userId) {
         List<Resume> resumes = resumeRepository.findByUserUserId(userId);
         return resumes.stream().map(this::mapResumeToDto).collect(Collectors.toList());
     }
 
     // 이력서 업데이트
-    public void updateResume(Long userId, Long resumeId, ResumeDto resumeDto) {
+    public void updateResume(Long userId, Long resumeId, ResumeCreateRequestDto resumeCreateRequestDto) {
         Resume resume = resumeRepository.findByResumeIdAndUserUserId(resumeId, userId)
                 .orElseThrow(ResumeNotExistsException::new);
 
         // 이력서 내용 업데이트
-        resume.setResumeTitle(resumeDto.getResumeTitle());
-        resume.setJobDuty(resumeDto.getJobDuty());
-        resume.setCapabilities(resumeDto.getCapabilities());
+        resume.setResumeTitle(resumeCreateRequestDto.getResumeTitle());
+        resume.setJobDuty(resumeCreateRequestDto.getJobDuty());
+        resume.setCapabilities(resumeCreateRequestDto.getCapabilities());
         resumeRepository.save(resume);
     }
 
@@ -90,19 +91,19 @@ public class ResumeService {
     }
 
     // DTO -> Entity
-    private void mapDtoToResume(ResumeDto resumeDto, Resume resume) {
-        resume.setResumeTitle(resumeDto.getResumeTitle());
-        resume.setIndustryGroups(resumeDto.getIndustryGroups());
-        resume.setJobDuty(resumeDto.getJobDuty());
-        resume.setStrengths(resumeDto.getStrengths());
-        resume.setWeaknesses(resumeDto.getWeaknesses());
-        resume.setCapabilities(resumeDto.getCapabilities());
+    private void mapDtoToResume(ResumeCreateRequestDto resumeCreateRequestDto, Resume resume) {
+        resume.setResumeTitle(resumeCreateRequestDto.getResumeTitle());
+        resume.setIndustryGroups(resumeCreateRequestDto.getIndustryGroups());
+        resume.setJobDuty(resumeCreateRequestDto.getJobDuty());
+        resume.setStrengths(resumeCreateRequestDto.getStrengths());
+        resume.setWeaknesses(resumeCreateRequestDto.getWeaknesses());
+        resume.setCapabilities(resumeCreateRequestDto.getCapabilities());
 
         try {
-            resume.setActivityExperience(objectMapper.writeValueAsString(resumeDto.getActivityExperience()));
-            resume.setAwards(objectMapper.writeValueAsString(resumeDto.getAwards()));
-            resume.setCertificates(objectMapper.writeValueAsString(resumeDto.getCertificates()));
-            resume.setLanguages(objectMapper.writeValueAsString(resumeDto.getLanguages()));
+            resume.setActivityExperience(objectMapper.writeValueAsString(resumeCreateRequestDto.getActivityExperience()));
+            resume.setAwards(objectMapper.writeValueAsString(resumeCreateRequestDto.getAwards()));
+            resume.setCertificates(objectMapper.writeValueAsString(resumeCreateRequestDto.getCertificates()));
+            resume.setLanguages(objectMapper.writeValueAsString(resumeCreateRequestDto.getLanguages()));
         } catch (JsonProcessingException e) {
             throw new RuntimeException("JSON conversion error.", e);
         }
@@ -130,8 +131,9 @@ public class ResumeService {
     }
 
     // Entity -> DTO
-    private ResumeDto mapResumeToDto(Resume resume) {
-        return ResumeDto.builder()
+    private ResumeResponseDto mapResumeToDto(Resume resume) {
+        return ResumeResponseDto.builder()
+                .resumeId(resume.getResumeId())
                 .resumeTitle(resume.getResumeTitle())
                 .industryGroups(resume.getIndustryGroups())
                 .jobDuty(resume.getJobDuty())
@@ -139,10 +141,10 @@ public class ResumeService {
                 .weaknesses(resume.getWeaknesses())
                 .capabilities(resume.getCapabilities())
                 // 안전하게 변환
-                .activityExperience(safeList(resume.getActivityExperience(), ResumeDto.Activity[].class))
-                .awards(safeList(resume.getAwards(), ResumeDto.Award[].class))
-                .certificates(safeList(resume.getCertificates(), ResumeDto.Certificate[].class))
-                .languages(safeList(resume.getLanguages(), ResumeDto.Language[].class))
+                .activityExperience(safeList(resume.getActivityExperience(), ResumeResponseDto.Activity[].class))
+                .awards(safeList(resume.getAwards(), ResumeResponseDto.Award[].class))
+                .certificates(safeList(resume.getCertificates(), ResumeResponseDto.Certificate[].class))
+                .languages(safeList(resume.getLanguages(), ResumeResponseDto.Language[].class))
                 .build();
     }
 
