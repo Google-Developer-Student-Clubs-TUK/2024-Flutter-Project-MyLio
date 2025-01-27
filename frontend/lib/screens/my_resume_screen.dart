@@ -34,8 +34,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     final url = Uri.parse('$baseUrl/api/v1/resume/user/$userId');
 
     try {
-      final accessToken =
-          dotenv.env['ACCESS_TOKEN']; // .env에서 ACCESS_TOKEN 가져오기
+      final accessToken = dotenv.env['ACCESS_TOKEN'];
 
       final response = await http.get(
         url,
@@ -48,12 +47,13 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
       if (response.statusCode == 200) {
         // UTF-8로 수동 디코딩
         final decodedBody = utf8.decode(response.bodyBytes);
+        print('Response body: $decodedBody');
         final List<dynamic> data = jsonDecode(decodedBody);
 
         setState(() {
           resumes = data
               .map((resume) => {
-                    'resume_id': resume['resume_id'] ?? '',
+                    'resume_id': resume['resumeId'] ?? '',
                     'title': resume['resumeTitle'] ?? 'Untitled',
                     'industries':
                         List<String>.from(resume['industryGroups'] ?? []),
@@ -73,11 +73,58 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                   })
               .toList();
         });
+        print('매핑된 resumes 리스트: $resumes');
       } else {
         print('Failed to load resumes: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching resumes: $e');
+    }
+  }
+
+  // 대표 이력서 설정 API 호출
+  Future<void> setPrimaryResume(String userId, String resumeId) async {
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final url =
+        Uri.parse('$baseUrl/api/v1/resume/set-primary/$userId/$resumeId');
+
+    print('대표 이력서 설정 요청 URL: $url');
+
+    try {
+      final accessToken = dotenv.env['ACCESS_TOKEN'];
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('대표 이력서 설정 성공: $resumeId');
+
+        // 서버에서 최신 데이터를 다시 가져오기
+        await fetchUserResumes();
+
+        setState(() {
+          final selectedResume = resumes.firstWhere(
+            (resume) => resume['resume_id'].toString() == resumeId,
+            orElse: () => <String, dynamic>{}, // 빈 맵을 기본값으로 반환
+          );
+          if (selectedResume.isNotEmpty) {
+            // 빈 맵인지 확인
+            resumes.remove(selectedResume);
+            resumes.insert(0, selectedResume); // 대표 이력서를 리스트의 첫 번째로 이동
+          } else {
+            print('대표 이력서를 찾을 수 없습니다. resume_id: $resumeId');
+          }
+        });
+      } else {
+        print('대표 이력서 설정 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('대표 이력서 설정 중 오류 발생: $e');
     }
   }
 
@@ -217,10 +264,16 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                           const Spacer(),
                           ResumePopupMenuBtn(
                             onSetRepresentative: () {
-                              setState(() {
-                                final selectedResume = resumes.removeAt(index);
-                                resumes.insert(0, selectedResume);
-                              });
+                              final resumeId = resume['resume_id'];
+                              print('resume_id: $resumeId'); // resume_id 출력
+                              if (resumeId != null &&
+                                  resumeId.toString().isNotEmpty) {
+                                // Null 및 빈 문자열 확인
+                                setPrimaryResume('1',
+                                    resumeId.toString()); // userId와 resumeId 전달
+                              } else {
+                                print('대표 이력서 설정 실패: resumeId가 유효하지 않습니다.');
+                              }
                             },
                             onEdit: () {
                               Get.to(() => MyResumeCreatePage());
