@@ -1,38 +1,157 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-void main() {
-  runApp(ActivityExperience());
-}
 
 class ActivityExperience extends StatefulWidget {
+  final List<Map<String, String>> initialActivities;
+
+  const ActivityExperience({Key? key, required this.initialActivities})
+      : super(key: key);
+
   @override
-  State<StatefulWidget> createState() {
-    return ActivityExperienceState();
-  }
+  State<StatefulWidget> createState() => _ActivityExperienceState();
 }
 
-class ActivityExperienceState extends State<ActivityExperience> {
-  int num = 1;
-  List<int> fieldKeys = [];
-  Map<int, Map<String, String>> activityData = {}; // 활동 데이터 저장
+class _ActivityExperienceState extends State<ActivityExperience> {
+  late List<Map<String, String>> activities;
 
   @override
   void initState() {
     super.initState();
-    fieldKeys.add(num);
-    activityData[num] = {
-      "name": "",
-      "organization": "",
-      "startDate": "",
-      "endDate": "",
-      "description": ""
-    };
+    // 초기 데이터 복사
+    activities = List.from(widget.initialActivities);
+    if (activities.isEmpty) {
+      activities.add({
+        "name": "",
+        "organization": "",
+        "startDate": "",
+        "endDate": "",
+        "description": ""
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          '활동/경험',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.black,
+          ),
+          onPressed: () {
+            _saveAndPop();
+          },
+        ),
+      ),
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              children: [
+                const Center(
+                  child: Text(
+                    '활동/경험은 최대 5개까지 입력이 가능합니다.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: activities.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 40),
+                      child: buildActivityField(index),
+                    );
+                  },
+                ),
+                if (activities.length < 5)
+                  TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        activities.add({
+                          "name": "",
+                          "organization": "",
+                          "startDate": "",
+                          "endDate": "",
+                          "description": ""
+                        });
+                      });
+                    },
+                    icon: const Icon(
+                      Icons.add,
+                      color: Color(0xFF908CFF),
+                    ),
+                    label: const Text(
+                      '활동/경험 추가',
+                      style: TextStyle(
+                        color: Color(0xFF908CFF),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      side: const BorderSide(
+                        color: Color(0xFF908CFF),
+                        width: 1,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: _saveAndPop,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF908CFF),
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                '입력완료',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // DatePicker 호출 함수
   Future<void> _selectDate(
-      BuildContext context, int fieldKey, String dateKey) async {
+      BuildContext context, int index, String dateKey) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -41,338 +160,159 @@ class ActivityExperienceState extends State<ActivityExperience> {
     );
     if (picked != null) {
       setState(() {
-        activityData[fieldKey]?[dateKey] =
+        activities[index][dateKey] =
             "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
       });
     }
   }
 
-  // 활동 필드 생성 함수
-  Widget buildActivityField(int number) {
+  Widget buildActivityField(int index) {
     return Column(
-      key: ValueKey(number),
-      crossAxisAlignment: CrossAxisAlignment.center,
+      key: ValueKey(index),
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 40),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 300,
-              height: 47,
-              child: TextFormField(
+            Expanded(
+              child: TextField(
                 onChanged: (value) {
-                  activityData[number]?['name'] = value;
+                  activities[index]["name"] = value;
                 },
+                controller: TextEditingController(
+                  text: activities[index]["name"],
+                ),
                 decoration: InputDecoration(
-                  hintText: "활동명",
-                  hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
+                  hintText: '활동명',
+                  hintStyle: const TextStyle(color: Colors.black38),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   border: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        const BorderSide(color: Color(0xFF908CFF), width: 1.0),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.grey),
                   ),
                 ),
               ),
             ),
+            const SizedBox(width: 8),
             IconButton(
-                onPressed: () {
-                  setState(() {
-                    fieldKeys.remove(number);
-                    activityData.remove(number);
-                  });
-                },
-                icon: FaIcon(
-                  FontAwesomeIcons.xmark,
-                  color: Color(0xFFCCCCCC),
-                ))
+              onPressed: () {
+                setState(() {
+                  activities.removeAt(index);
+                });
+              },
+              icon: const Icon(Icons.close, color: Colors.black38),
+            ),
           ],
         ),
-        SizedBox(height: 20),
-        SizedBox(
-          width: 352,
-          height: 47,
-          child: TextFormField(
-            onChanged: (value) {
-              activityData[number]?['organization'] = value;
-            },
-            decoration: InputDecoration(
-              hintText: "기관/장소",
-              hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide:
-                    const BorderSide(color: Color(0xFF908CFF), width: 1.0),
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
-                borderRadius: BorderRadius.circular(12.0),
-              ),
+        const SizedBox(height: 16),
+        TextField(
+          onChanged: (value) {
+            activities[index]["organization"] = value;
+          },
+          controller: TextEditingController(
+            text: activities[index]["organization"],
+          ),
+          decoration: InputDecoration(
+            hintText: '기관/장소',
+            hintStyle: const TextStyle(color: Colors.black38),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.grey),
             ),
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 16),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: () => _selectDate(context, number, 'startDate'),
-              child: Container(
-                width: 168,
-                height: 47,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Color(0xFFCCCCCC), width: 1.0),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      activityData[number]?['startDate']?.isNotEmpty == true
-                          ? activityData[number]!['startDate']!
-                          : "시작 날짜",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: activityData[number]?['startDate']?.isNotEmpty ==
-                                true
-                            ? Colors.black
-                            : Color(0xFFCCCCCC),
-                      ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _selectDate(context, index, 'startDate'),
+                child: Container(
+                  height: 47,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                  ),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    activities[index]['startDate']?.isNotEmpty == true
+                        ? activities[index]['startDate']!
+                        : "시작 날짜",
+                    style: TextStyle(
+                      color: activities[index]['startDate']?.isNotEmpty == true
+                          ? Colors.black
+                          : Colors.black38,
                     ),
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      color: Color(0xFFCCCCCC),
-                      size: 20,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-            SizedBox(width: 5),
+            const SizedBox(width: 8),
             Text("~"),
-            SizedBox(width: 5),
-            GestureDetector(
-              onTap: () => _selectDate(context, number, 'endDate'),
-              child: Container(
-                width: 168,
-                height: 47,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Color(0xFFCCCCCC), width: 1.0),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      activityData[number]?['endDate']?.isNotEmpty == true
-                          ? activityData[number]!['endDate']!
-                          : "종료 날짜",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color:
-                            activityData[number]?['endDate']?.isNotEmpty == true
-                                ? Colors.black
-                                : Color(0xFFCCCCCC),
-                      ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => _selectDate(context, index, 'endDate'),
+                child: Container(
+                  height: 47,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black38),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                  ),
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    activities[index]['endDate']?.isNotEmpty == true
+                        ? activities[index]['endDate']!
+                        : "종료 날짜",
+                    style: TextStyle(
+                      color: activities[index]['endDate']?.isNotEmpty == true
+                          ? Colors.black
+                          : Colors.black38,
                     ),
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      color: Color(0xFFCCCCCC),
-                      size: 20,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ],
         ),
-        SizedBox(
-          height: 20,
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: TextField(
-            onChanged: (value) {
-              activityData[number]?['description'] = value;
-            },
-            controller: TextEditingController.fromValue(
-              TextEditingValue(
-                text: activityData[number]?['description'] ?? "",
-                selection: TextSelection.collapsed(
-                    offset: activityData[number]?['description']?.length ?? 0),
-              ),
-            ),
-            maxLines: 3, // 최대 3줄 입력 가능
-            decoration: InputDecoration(
-              hintText: '활동 내용을 입력해주세요.',
-              hintStyle: const TextStyle(color: Color(0xFFCCCCCC)),
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide:
-                    const BorderSide(color: Color(0xFF908CFF), width: 1.0),
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: Color(0xFFCCCCCC), width: 1.0),
-              ),
+        const SizedBox(height: 16),
+        TextField(
+          onChanged: (value) {
+            activities[index]["description"] = value;
+          },
+          controller: TextEditingController(
+            text: activities[index]["description"],
+          ),
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: '활동 내용을 입력해주세요.',
+            hintStyle: const TextStyle(color: Colors.black38),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.grey),
             ),
           ),
         ),
+        const SizedBox(height: 24),
       ],
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          '활동/경험',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-        ),
-        centerTitle: true,
-      ),
-      body: Stack(
-        children: [
-          SizedBox.expand(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 50),
-                  Center(
-                    child: Text(
-                      '활동/경험을 입력해주세요.',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                    ),
-                  ),
-                  Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ...fieldKeys
-                            .map((key) => buildActivityField(key))
-                            .toList(),
-                        SizedBox(height: 20),
-                        SizedBox(
-                          width: 352,
-                          height: 47,
-                          child: TextButton.icon(
-                            onPressed: () {
-                              if (fieldKeys.length < 5) {
-                                setState(() {
-                                  num++;
-                                  fieldKeys.add(num);
-                                  activityData[num] = {
-                                    "name": "",
-                                    "organization": "",
-                                    "startDate": "",
-                                    "endDate": "",
-                                    "description": ""
-                                  };
-                                });
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("경험 최대 5개까지만 추가할 수 있습니다."),
-                                    duration: Duration(seconds: 2),
-                                  ),
-                                );
-                              }
-                            },
-                            icon: const Icon(
-                              Icons.add,
-                              color: Color(0xFF908CFF),
-                            ),
-                            label: const Text(
-                              '경험 추가',
-                              style: TextStyle(
-                                color: Color(0xFF908CFF),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            style: TextButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              side: const BorderSide(
-                                color: Color(0xFF908CFF),
-                                width: 1,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 80),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 25,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: TextButton(
-                onPressed: () {
-                  Navigator.pop(context, activityData.values.toList());
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFF878CEF),
-                  minimumSize: Size(352, 47),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  "입력완료",
-                  style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  void _saveAndPop() {
+    Navigator.pop(context, activities);
   }
 }

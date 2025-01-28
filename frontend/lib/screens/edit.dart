@@ -82,7 +82,9 @@ class Edit_State extends State<Edit> {
             GestureDetector(
               child: _buildInputField('활동/경험'),
               onTap: () {
-                Get.to(() => ActivityExperience());
+                Get.to(() => ActivityExperience(
+                      initialActivities: [],
+                    ));
               },
             ),
             const SizedBox(height: 16),
