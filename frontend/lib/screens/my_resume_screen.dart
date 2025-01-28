@@ -82,6 +82,34 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     }
   }
 
+  // 이력서 삭제 API 호출
+  Future<void> deleteResume(String userId, String resumeId) async {
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final url = Uri.parse('$baseUrl/api/v1/resume/delete/$userId/$resumeId');
+
+    try {
+      final accessToken = dotenv.env['ACCESS_TOKEN'];
+
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('이력서 삭제 성공: $resumeId');
+
+        // 삭제 후 서버에서 최신 데이터를 다시 가져오기
+        await fetchUserResumes();
+      } else {
+        print('이력서 삭제 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('이력서 삭제 중 오류 발생: $e');
+    }
+  }
+
   // 대표 이력서 설정 API 호출
   Future<void> setPrimaryResume(String userId, String resumeId) async {
     final baseUrl = dotenv.env['API_BASE_URL'];
@@ -184,6 +212,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
         ),
       ),
       backgroundColor: Colors.white,
+
       // 이력서가 없을 때 화면
       body: resumes.isEmpty
           ? MyResumeEmptyWidget(
@@ -268,20 +297,19 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                               print('resume_id: $resumeId'); // resume_id 출력
                               if (resumeId != null &&
                                   resumeId.toString().isNotEmpty) {
-                                // Null 및 빈 문자열 확인
                                 setPrimaryResume('1',
                                     resumeId.toString()); // userId와 resumeId 전달
-                              } else {
-                                print('대표 이력서 설정 실패: resumeId가 유효하지 않습니다.');
                               }
                             },
                             onEdit: () {
                               Get.to(() => MyResumeCreatePage());
                             },
-                            onDelete: () {
-                              setState(() {
-                                resumes.removeAt(index);
-                              });
+                            onDelete: () async {
+                              final resumeId = resume['resume_id'];
+                              if (resumeId != null &&
+                                  resumeId.toString().isNotEmpty) {
+                                await deleteResume('1', resumeId.toString());
+                              }
                             },
                             onDuplicate: () {
                               setState(() {
@@ -324,6 +352,83 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                         const SizedBox(height: 5),
                         Text(
                           '직무: ${resume['jobDuty']}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                      if (resume['capabilities'] != null &&
+                          resume['capabilities'].isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Text(
+                          '역량: ${resume['capabilities'].join(', ')}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                      if (resume['strengths'] != null &&
+                          resume['strengths'].isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Text(
+                          '강점: ${resume['strengths'].join(', ')}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                      if (resume['weaknesses'] != null &&
+                          resume['weaknesses'].isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Text(
+                          '약점: ${resume['weaknesses'].join(', ')}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                      if (resume['activityExperience'] != null &&
+                          resume['activityExperience'].isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Text(
+                          '활동/경험: ${resume['activityExperience'].map((activity) => activity['activityName']).join(', ')}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                      if (resume['awards'] != null &&
+                          resume['awards'].isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Text(
+                          '수상경력: ${resume['awards'].map((award) => award['title']).join(', ')}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                      if (resume['certificates'] != null &&
+                          resume['certificates'].isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Text(
+                          '자격증: ${resume['certificates'].map((certificate) => certificate['name']).join(', ')}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                      if (resume['languages'] != null &&
+                          resume['languages'].isNotEmpty) ...[
+                        const SizedBox(height: 5),
+                        Text(
+                          '어학: ${resume['languages'].map((language) => language['language']).join(', ')}',
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
