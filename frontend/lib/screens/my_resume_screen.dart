@@ -395,7 +395,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                           resume['activityExperience'].isNotEmpty) ...[
                         const SizedBox(height: 5),
                         Text(
-                          '활동/경험: ${resume['activityExperience'].map((activity) => activity['activityName']).join(', ')}',
+                          '활동/경험: ${resume['activityExperience'].map((activity) => activity['name']).join(', ')}',
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -406,7 +406,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                           resume['awards'].isNotEmpty) ...[
                         const SizedBox(height: 5),
                         Text(
-                          '수상경력: ${resume['awards'].map((award) => award['title']).join(', ')}',
+                          '수상경력: ${resume['awards'].map((award) => award['name']).join(', ')}',
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
