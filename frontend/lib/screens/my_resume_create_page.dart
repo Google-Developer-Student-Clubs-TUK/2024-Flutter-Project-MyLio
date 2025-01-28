@@ -82,7 +82,7 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
         languages.map((language) {
       return {
         "language": language["language"] ?? "",
-        "exam": language["exam"] ?? "",
+        "examName": language["examName"] ?? "",
         "score": language["score"] ?? "",
         "date": language["date"] ?? "",
       };
@@ -247,7 +247,9 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
                 final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ActivityExperience(),
+                    builder: (context) => ActivityExperience(
+                      initialActivities: activityExperience,
+                    ),
                   ),
                 );
                 if (result != null && result is List<Map<String, String>>) {
