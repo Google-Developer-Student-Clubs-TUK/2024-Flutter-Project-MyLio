@@ -5,10 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // dotenv 패키지 추가
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Secure Storage 추가
 import 'dart:convert';
 
 void main() async {
-  await dotenv.load(fileName: ".env"); // .env 파일 로드
+  await dotenv.load(fileName: ".env");
   runApp(Login());
 }
 
@@ -21,6 +22,7 @@ class Login extends StatefulWidget {
 
 class LoginState extends State<Login> {
   final _formkey = GlobalKey<FormState>();
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage(); // Secure Storage 인스턴스 생성
   late SharedPreferences sharedPreferences;
   bool logincheck = false;
   bool _isPasswordVisible = false;
@@ -29,7 +31,6 @@ class LoginState extends State<Login> {
   late String password = ''; // 비밀번호 초기화
 
   Future<void> login() async {
-    // 환경 변수에서 API_BASE_URL 가져오기
     final baseUrl = dotenv.env['API_BASE_URL'];
     if (baseUrl == null) {
       Get.snackbar(
@@ -40,7 +41,6 @@ class LoginState extends State<Login> {
       return;
     }
 
-    // URL 생성
     final url = Uri.parse("$baseUrl/api/v1/auth/user");
 
     try {
@@ -56,11 +56,25 @@ class LoginState extends State<Login> {
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        Get.snackbar("로그인 성공", "홈 화면으로 이동합니다.",
+        final cookies = response.headers['set-cookie'];
+        if (cookies != null) {
+          String? jwtToken = _extractJwtFromCookie(cookies);
+
+          if (jwtToken != null) {
+            // JWT 토큰을 flutter_secure_storage에 저장
+            await secureStorage.write(key: "jwt_token", value: jwtToken);
+            print("JWT 저장 완료: $jwtToken");
+
+            Get.snackbar("로그인 성공", "홈 화면으로 이동합니다.",
+                snackPosition: SnackPosition.TOP);
+            Get.to(() => HomeScreen());
+            return;
+          }
+        }
+
+        Get.snackbar("로그인 실패", "JWT 토큰을 찾을 수 없습니다.",
             snackPosition: SnackPosition.TOP);
-        Get.to(() => HomeScreen());
       } else {
-        // 서버 에러 처리
         Get.snackbar(
           "로그인 실패",
           '로그인에 실패하였습니다: ${response.body}',
@@ -69,7 +83,6 @@ class LoginState extends State<Login> {
         print("서버와 통신 실패 (${response.statusCode})");
       }
     } catch (e) {
-      // 네트워크 에러 처리
       Get.snackbar(
         "네트워크 에러",
         "서버와 연결할 수 없습니다.",
@@ -77,6 +90,17 @@ class LoginState extends State<Login> {
       );
       print('문제 : $e');
     }
+  }
+
+  /// 🔹 쿠키에서 JWT 토큰 추출하는 함수
+  String? _extractJwtFromCookie(String cookie) {
+    List<String> cookies = cookie.split("; ");
+    for (String c in cookies) {
+      if (c.startsWith("ACCESS_TOKEN=")) { // 기존 jwt= 에서 ACCESS_TOKEN=으로 변경
+        return c.split("=")[1]; // JWT 토큰 값 추출
+      }
+    }
+    return null;
   }
 
   @override
@@ -112,7 +136,7 @@ class LoginState extends State<Login> {
                             ),
                           ),
                           onChanged: (value) {
-                            email = value; // 이메일 값 저장
+                            email = value;
                           },
                         ),
                       ),
@@ -140,7 +164,7 @@ class LoginState extends State<Login> {
                                     color: Color(0xFFC1C7D0),
                                   ))),
                           onChanged: (value) {
-                            password = value; // 비밀번호 값 저장
+                            password = value;
                           },
                         ),
                       ),
@@ -148,7 +172,7 @@ class LoginState extends State<Login> {
                       TextButton(
                         onPressed: () {
                           if (_formkey.currentState!.validate()) {
-                            login(); // 로그인 함수 호출
+                            login();
                           }
                         },
                         style: TextButton.styleFrom(
@@ -167,61 +191,12 @@ class LoginState extends State<Login> {
                         ),
                       ),
                       SizedBox(height: 15),
-                      GestureDetector(
-                        child: Text(
-                          '비밀번호를 잊어버리셨나요?',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF888888),
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ],
             ),
             Spacer(),
-            Center(
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '아직 계정이 없으신가요? ',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFFAAAAAA),
-                          ),
-                        ),
-                        GestureDetector(
-                          child: Text(
-                            '회원가입',
-                            style:
-                            TextStyle(color: Color(0xFF878CEF), fontSize: 14),
-                          ),
-                          onTap: () {
-                            Get.to(() => Signup());
-                          },
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    GestureDetector(
-                      child: Text(
-                        '건너뛰기',
-                        style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC)),
-                      ),
-                      onTap: () {
-                        Get.to(() => HomeScreen());
-                      },
-                    )
-                  ],
-                )),
           ],
         ),
       ),
