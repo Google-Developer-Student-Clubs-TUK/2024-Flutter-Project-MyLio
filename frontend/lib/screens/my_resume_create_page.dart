@@ -157,7 +157,7 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          '이력서 정보 입력',
+          '이력서 등록',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18,
