@@ -14,6 +14,7 @@ import 'resume/certificate_page.dart';
 import 'resume/language_page.dart';
 import 'my_resume_screen.dart'; // 추가된 import
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend/utils/http_interceptor.dart';
 
 class MyResumeCreatePage extends StatefulWidget {
   const MyResumeCreatePage({Key? key}) : super(key: key);
@@ -46,13 +47,6 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
     // 수정 요망
     const userId = "1";
     final url = Uri.parse('$baseUrl/api/v1/resume/create/$userId');
-
-    String? accessToken = await secureStorage.read(key: "jwt_token");
-    print("🔑 불러온 ACCESS_TOKEN: $accessToken");  // 🚀 이 값이 null 또는 빈 문자열인지 확인
-    if (accessToken == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('토큰이 없습니다. 다시 로그인해주세요.'), backgroundColor: Colors.red));
-      return;
-    }
 
     final List<Map<String, String>> formattedActivityExperience =
         activityExperience.map((experience) {
@@ -108,23 +102,25 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
     };
 
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cookie': 'ACCESS_TOKEN=$accessToken; Path=/',
-        },
-        body: jsonEncode(requestBody),
-      );
+      final response = await HttpInterceptor().post(url, body: requestBody);
 
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이력서가 성공적으로 저장되었습니다!'), backgroundColor: Colors.green));
-        Navigator.push(context, MaterialPageRoute(builder: (context) => MyResumeScreen(resumeTitle: resumeTitle)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('이력서가 성공적으로 저장되었습니다!'), backgroundColor: Colors.green,
+        ));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyResumeScreen(resumeTitle: resumeTitle)),
+        );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('이력서 저장 실패: ${response.body}'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('이력서 저장 실패: ${response.body}'), backgroundColor: Colors.red,
+        ));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('오류 발생: $e'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('오류 발생: $e'), backgroundColor: Colors.red,
+      ));
     }
   }
 

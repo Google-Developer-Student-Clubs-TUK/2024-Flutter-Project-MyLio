@@ -9,6 +9,8 @@ import 'my_resume_create_page.dart';
 import 'widgets/my_resume_empty_widget.dart';
 import 'components/resume_PopupMenu_Btn.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:frontend/utils/http_interceptor.dart';
+
 
 class MyResumeScreen extends StatefulWidget {
   const MyResumeScreen({Key? key, required this.resumeTitle}) : super(key: key);
