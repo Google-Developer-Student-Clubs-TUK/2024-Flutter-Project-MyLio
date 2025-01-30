@@ -194,18 +194,34 @@ class _EditState extends State<Edit> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CertificatePage(
-                      initialCertificates: List<Map<String, String>>.from(
-                          resumeData['certificates'] ?? []),
+                      initialCertificates: resumeData['certificates'] != null
+                          ? List<Map<String, String>>.from(
+                              (resumeData['certificates'] as List).map(
+                                (certificate) =>
+                                    (certificate as Map<String, dynamic>).map(
+                                  (key, value) => MapEntry(
+                                    key.toString(),
+                                    value != null
+                                        ? value.toString()
+                                        : '', // null 방지
+                                  ),
+                                ),
+                              ),
+                            )
+                          : [], // 데이터가 없을 경우 빈 리스트 전달
                     ),
                   ),
                 );
               },
               child: _buildInputField(
-                  '자격증',
-                  resumeData['certificates']
-                          ?.map((certificate) => certificate['name'])
-                          .join(', ') ??
-                      ''),
+                '자격증',
+                resumeData['certificates'] != null &&
+                        resumeData['certificates'].isNotEmpty
+                    ? resumeData['certificates']
+                        .map((certificate) => certificate['name'])
+                        .join(', ')
+                    : '등록된 자격증 없음', // 데이터가 없을 경우 기본 텍스트 표시
+              ),
             ),
             const SizedBox(height: 16),
             GestureDetector(
