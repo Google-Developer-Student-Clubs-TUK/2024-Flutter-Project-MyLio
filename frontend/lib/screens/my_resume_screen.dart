@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:frontend/screens/edit.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -302,7 +303,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                               }
                             },
                             onEdit: () {
-                              Get.to(() => MyResumeCreatePage());
+                              Get.to(() => Edit(resumeData: resume));
                             },
                             onDelete: () async {
                               final resumeId = resume['resume_id'];
