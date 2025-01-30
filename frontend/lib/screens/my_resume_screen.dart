@@ -37,14 +37,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     final url = Uri.parse('$baseUrl/api/v1/resume/user/$userId');
 
     try {
-      final accessToken = dotenv.env['ACCESS_TOKEN'];
-
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
+      final response = await HttpInterceptor().get(url);
 
       print('Response status code: ${response.statusCode}');
       if (response.statusCode == 200) {
@@ -91,14 +84,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     final url = Uri.parse('$baseUrl/api/v1/resume/delete/$userId/$resumeId');
 
     try {
-      final accessToken = dotenv.env['ACCESS_TOKEN'];
-
-      final response = await http.delete(
-        url,
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
+      final response = await HttpInterceptor().delete(url);
 
       if (response.statusCode == 200) {
         print('이력서 삭제 성공: $resumeId');
@@ -122,15 +108,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     print('대표 이력서 설정 요청 URL: $url');
 
     try {
-      final accessToken = dotenv.env['ACCESS_TOKEN'];
-
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Content-Type': 'application/json',
-        },
-      );
+      final response = await HttpInterceptor().post(url);
 
       if (response.statusCode == 200) {
         print('대표 이력서 설정 성공: $resumeId');
