@@ -18,10 +18,10 @@ class Edit extends StatefulWidget {
   const Edit({Key? key, required this.resumeData}) : super(key: key);
 
   @override
-  State<Edit> createState() => Edit_State();
+  State<Edit> createState() => _EditState();
 }
 
-class Edit_State extends State<Edit> {
+class _EditState extends State<Edit> {
   late Map<String, dynamic> resumeData;
 
   @override
@@ -100,8 +100,17 @@ class Edit_State extends State<Edit> {
                       ''),
               onTap: () {
                 Get.to(() => ActivityExperience(
-                      initialActivities: List<Map<String, String>>.from(
-                          resumeData['activityExperience'] ?? []),
+                      initialActivities:
+                          resumeData['activityExperience'] != null
+                              ? List<Map<String, String>>.from(
+                                  (resumeData['activityExperience'] as List)
+                                      .map((activity) => (activity as Map).map(
+                                          (key, value) => MapEntry(
+                                              key.toString(),
+                                              value != null
+                                                  ? value.toString()
+                                                  : ''))))
+                              : [],
                     ));
               },
             ),
@@ -128,8 +137,13 @@ class Edit_State extends State<Edit> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => AwardPage(
-                      initialAwards: List<Map<String, String>>.from(
-                          resumeData['awards'] ?? []),
+                      initialAwards: resumeData['awards'] != null
+                          ? List<Map<String, String>>.from(
+                              (resumeData['awards'] as List).map((award) =>
+                                  (award as Map).map((key, value) => MapEntry(
+                                      key.toString(),
+                                      value != null ? value.toString() : ''))))
+                          : [],
                     ),
                   ),
                 );
@@ -193,7 +207,66 @@ class Edit_State extends State<Edit> {
                           .join(', ') ??
                       ''),
             ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LanguagePage(
+                      initialLanguages: resumeData['languages'] != null
+                          ? List<Map<String, String>>.from(
+                              (resumeData['languages'] as List).map(
+                                (language) =>
+                                    (language as Map<String, dynamic>).map(
+                                  (key, value) => MapEntry(
+                                      key.toString(),
+                                      value != null
+                                          ? value.toString()
+                                          : ''), // null 방지
+                                ),
+                              ),
+                            )
+                          : [], // 데이터가 없을 경우 빈 리스트 전달
+                    ),
+                  ),
+                );
+              },
+              child: _buildInputField(
+                '어학',
+                resumeData['languages'] != null &&
+                        resumeData['languages'].isNotEmpty
+                    ? resumeData['languages']
+                        .map((language) => language['language'])
+                        .join(', ')
+                    : '등록된 어학 정보 없음', // 데이터가 없을 경우 기본 텍스트 표시
+              ),
+            ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ElevatedButton(
+          onPressed: () {
+            print('이력서 수정 완료');
+            Navigator.pop(context, resumeData); // 수정된 데이터 반환
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF908CFF),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: const Text(
+            '저장하기',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ),
     );
@@ -204,21 +277,18 @@ class Edit_State extends State<Edit> {
       height: 70,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(
-          color: Colors.grey[300]!,
-          width: 1.0,
-        ),
+        border: Border.all(color: Colors.grey[300]!, width: 1.0),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            '$label: $value',
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
+          Expanded(
+            child: Text(
+              '$label: $value',
+              style: const TextStyle(fontSize: 16, color: Colors.black54),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const Icon(Icons.chevron_right, color: Colors.grey),
