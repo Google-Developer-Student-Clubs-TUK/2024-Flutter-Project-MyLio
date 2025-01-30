@@ -13,13 +13,23 @@ import 'resume/job_duty.dart';
 import 'resume/activity_experience.dart';
 
 class Edit extends StatefulWidget {
-  const Edit({Key? key}) : super(key: key);
+  final Map<String, dynamic> resumeData;
+
+  const Edit({Key? key, required this.resumeData}) : super(key: key);
 
   @override
-  State<Edit> createState() => Edit_State();
+  State<Edit> createState() => _EditState();
 }
 
-class Edit_State extends State<Edit> {
+class _EditState extends State<Edit> {
+  late Map<String, dynamic> resumeData;
+
+  @override
+  void initState() {
+    super.initState();
+    resumeData = widget.resumeData;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +38,7 @@ class Edit_State extends State<Edit> {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          '수정',
+          '이력서 수정',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18,
@@ -52,38 +62,55 @@ class Edit_State extends State<Edit> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GestureDetector(
-              child: _buildInputField('이력서 제목 *'),
+              child: _buildInputField('이력서 제목 *', resumeData['title'] ?? ''),
               onTap: () {
                 Get.to(() => Resume_Title(
-                      initialTitle: '',
-                      title: '',
+                      initialTitle: resumeData['title'] ?? '',
+                      title: resumeData['title'] ?? '',
                     ));
               },
             ),
             const SizedBox(height: 16),
             GestureDetector(
-              child: _buildInputField('산업군 *'),
+              child: _buildInputField(
+                  '산업군 *', resumeData['industries']?.join(', ') ?? ''),
               onTap: () {
                 Get.to(Industrial_Group(
-                  initialIndustries: [],
+                  initialIndustries:
+                      List<String>.from(resumeData['industries'] ?? []),
                 ));
               },
             ),
             const SizedBox(height: 16),
             GestureDetector(
-              child: _buildInputField('직무 *'),
+              child: _buildInputField('직무 *', resumeData['jobDuty'] ?? ''),
               onTap: () {
                 Get.to(Job_Duty(
-                  initialJobDuty: '',
+                  initialJobDuty: resumeData['jobDuty'] ?? '',
                 ));
               },
             ),
             const SizedBox(height: 16),
             GestureDetector(
-              child: _buildInputField('활동/경험'),
+              child: _buildInputField(
+                  '활동/경험',
+                  resumeData['activityExperience']
+                          ?.map((activity) => activity['name'])
+                          .join(', ') ??
+                      ''),
               onTap: () {
                 Get.to(() => ActivityExperience(
-                      initialActivities: [],
+                      initialActivities:
+                          resumeData['activityExperience'] != null
+                              ? List<Map<String, String>>.from(
+                                  (resumeData['activityExperience'] as List)
+                                      .map((activity) => (activity as Map).map(
+                                          (key, value) => MapEntry(
+                                              key.toString(),
+                                              value != null
+                                                  ? value.toString()
+                                                  : ''))))
+                              : [],
                     ));
               },
             ),
@@ -93,13 +120,15 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CapabilityPage(
-                      initialCapabilities: [],
+                    builder: (context) => CapabilityPage(
+                      initialCapabilities:
+                          List<String>.from(resumeData['capabilities'] ?? []),
                     ),
                   ),
                 );
               },
-              child: _buildInputField('역량'), // 역량 필드
+              child: _buildInputField(
+                  '역량', resumeData['capabilities']?.join(', ') ?? ''),
             ),
             const SizedBox(height: 16),
             GestureDetector(
@@ -107,13 +136,24 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AwardPage(
-                      initialAwards: [],
+                    builder: (context) => AwardPage(
+                      initialAwards: resumeData['awards'] != null
+                          ? List<Map<String, String>>.from(
+                              (resumeData['awards'] as List).map((award) =>
+                                  (award as Map).map((key, value) => MapEntry(
+                                      key.toString(),
+                                      value != null ? value.toString() : ''))))
+                          : [],
                     ),
                   ),
                 );
               },
-              child: _buildInputField('수상경력'), // 수상경력 필드
+              child: _buildInputField(
+                  '수상경력',
+                  resumeData['awards']
+                          ?.map((award) => award['name'])
+                          .join(', ') ??
+                      ''),
             ),
             const SizedBox(height: 16),
             GestureDetector(
@@ -121,13 +161,15 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const StrengthPage(
-                      initialStrengths: [],
+                    builder: (context) => StrengthPage(
+                      initialStrengths:
+                          List<String>.from(resumeData['strengths'] ?? []),
                     ),
                   ),
                 );
               },
-              child: _buildInputField('강점'), // 강점 필드
+              child: _buildInputField(
+                  '강점', resumeData['strengths']?.join(', ') ?? ''),
             ),
             const SizedBox(height: 16),
             GestureDetector(
@@ -135,13 +177,15 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const WeaknessPage(
-                      initialWeaknesses: [],
+                    builder: (context) => WeaknessPage(
+                      initialWeaknesses:
+                          List<String>.from(resumeData['weaknesses'] ?? []),
                     ),
                   ),
                 );
               },
-              child: _buildInputField('약점'), // 약점 필드
+              child: _buildInputField(
+                  '약점', resumeData['weaknesses']?.join(', ') ?? ''),
             ),
             const SizedBox(height: 16),
             GestureDetector(
@@ -149,13 +193,35 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const CertificatePage(
-                      initialCertificates: [],
+                    builder: (context) => CertificatePage(
+                      initialCertificates: resumeData['certificates'] != null
+                          ? List<Map<String, String>>.from(
+                              (resumeData['certificates'] as List).map(
+                                (certificate) =>
+                                    (certificate as Map<String, dynamic>).map(
+                                  (key, value) => MapEntry(
+                                    key.toString(),
+                                    value != null
+                                        ? value.toString()
+                                        : '', // null 방지
+                                  ),
+                                ),
+                              ),
+                            )
+                          : [], // 데이터가 없을 경우 빈 리스트 전달
                     ),
                   ),
                 );
               },
-              child: _buildInputField('자격증'), // 자격증 필드
+              child: _buildInputField(
+                '자격증',
+                resumeData['certificates'] != null &&
+                        resumeData['certificates'].isNotEmpty
+                    ? resumeData['certificates']
+                        .map((certificate) => certificate['name'])
+                        .join(', ')
+                    : '등록된 자격증 없음', // 데이터가 없을 경우 기본 텍스트 표시
+              ),
             ),
             const SizedBox(height: 16),
             GestureDetector(
@@ -163,15 +229,35 @@ class Edit_State extends State<Edit> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const LanguagePage(
-                      initialLanguages: [],
+                    builder: (context) => LanguagePage(
+                      initialLanguages: resumeData['languages'] != null
+                          ? List<Map<String, String>>.from(
+                              (resumeData['languages'] as List).map(
+                                (language) =>
+                                    (language as Map<String, dynamic>).map(
+                                  (key, value) => MapEntry(
+                                      key.toString(),
+                                      value != null
+                                          ? value.toString()
+                                          : ''), // null 방지
+                                ),
+                              ),
+                            )
+                          : [], // 데이터가 없을 경우 빈 리스트 전달
                     ),
                   ),
                 );
               },
-              child: _buildInputField('어학'), // 어학 필드
+              child: _buildInputField(
+                '어학',
+                resumeData['languages'] != null &&
+                        resumeData['languages'].isNotEmpty
+                    ? resumeData['languages']
+                        .map((language) => language['language'])
+                        .join(', ')
+                    : '등록된 어학 정보 없음', // 데이터가 없을 경우 기본 텍스트 표시
+              ),
             ),
-            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -179,8 +265,8 @@ class Edit_State extends State<Edit> {
         padding: const EdgeInsets.all(16),
         child: ElevatedButton(
           onPressed: () {
-            print('저장하기 버튼 클릭');
-            Get.to(Add_Resume());
+            print('이력서 수정 완료');
+            Navigator.pop(context, resumeData); // 수정된 데이터 반환
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF908CFF),
@@ -202,32 +288,26 @@ class Edit_State extends State<Edit> {
     );
   }
 
-  Widget _buildInputField(String label) {
+  Widget _buildInputField(String label, String value) {
     return Container(
-      height: 70, // 상자 높이
+      height: 70,
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(
-          color: Colors.grey[300]!,
-          width: 1.0,
-        ),
+        border: Border.all(color: Colors.grey[300]!, width: 1.0),
         borderRadius: BorderRadius.circular(12),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
+          Expanded(
+            child: Text(
+              '$label: $value',
+              style: const TextStyle(fontSize: 16, color: Colors.black54),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Icon(
-            Icons.chevron_right,
-            color: Colors.grey,
-          ),
+          const Icon(Icons.chevron_right, color: Colors.grey),
         ],
       ),
     );

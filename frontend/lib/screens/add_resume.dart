@@ -95,7 +95,9 @@ class Add_Resume_State extends State<Add_Resume> {
                                           fontWeight: FontWeight.w400)),
                                 ),
                                 onTap: () {
-                                  Get.to(Edit());
+                                  Get.to(Edit(
+                                    resumeData: {},
+                                  ));
                                 },
                               ),
                               const PopupMenuDivider(
