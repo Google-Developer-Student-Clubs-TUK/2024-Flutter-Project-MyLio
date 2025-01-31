@@ -55,10 +55,21 @@ class LoginState extends State<Login> {
         final cookies = response.headers['set-cookie'];
         if (cookies != null) {
           String? jwtToken = _extractJwtFromCookie(cookies);
+          String? refreshToken = _extractRefreshTokenFromCookie(cookies);
+          String? userId = _extractUserIdFromCookie(cookies);
 
-          if (jwtToken != null) {
+          print(jwtToken);
+          print(refreshToken);
+          print(userId);
+
+          if (jwtToken != null && refreshToken != null && userId != null) {
             await secureStorage.write(key: "jwt_token", value: jwtToken);
-            print("JWT 저장 완료: $jwtToken");
+            await secureStorage.write(key: "refresh_token", value: refreshToken);
+            await secureStorage.write(key: "user_id", value: userId);
+
+            print("✅ JWT 저장 완료: $jwtToken");
+            print("✅ REFRESH_TOKEN 저장 완료: $refreshToken");
+            print("✅ USER_ID 저장 완료: $userId");
 
             Get.snackbar("로그인 성공", "홈 화면으로 이동합니다.", snackPosition: SnackPosition.TOP);
             Get.to(() => HomeScreen());
@@ -66,7 +77,7 @@ class LoginState extends State<Login> {
           }
         }
 
-        Get.snackbar("로그인 실패", "JWT 토큰을 찾을 수 없습니다.", snackPosition: SnackPosition.TOP);
+        Get.snackbar("로그인 실패", "JWT 토큰, USER_ID 또는 REFRESH_TOKEN을 찾을 수 없습니다.", snackPosition: SnackPosition.TOP);
       } else {
         Get.snackbar("로그인 실패", '로그인에 실패하였습니다: ${response.body}', snackPosition: SnackPosition.TOP);
       }
@@ -76,18 +87,27 @@ class LoginState extends State<Login> {
     }
   }
 
-  String? _extractJwtFromCookie(String cookie) {
-    List<String> cookies = cookie.split("; ");
-    for (String c in cookies) {
-      if (c.startsWith("ACCESS_TOKEN=")) {
-        String token = c.split("=")[1]; // JWT + REFRESH_TOKEN 포함 가능
-        if (token.contains(",")) {
-          token = token.split(",")[0]; // ✅ 첫 번째 값(JWT)만 저장
-        }
-        return token;
+  String? _extractCookieValue(String cookies, String key) {
+    List<String> cookieList = cookies.split(RegExp(r',\s*')); // 쉼표+공백으로 쿠키 나누기
+    for (String cookie in cookieList) {
+      List<String> keyValue = cookie.split("="); // 쿠키를 '=' 기준으로 나누기
+      if (keyValue.length >= 2 && keyValue[0].trim() == key) {
+        return keyValue.sublist(1).join("=").split(";")[0].trim(); // `;` 이후 값 제거
       }
     }
     return null;
+  }
+
+  String? _extractJwtFromCookie(String cookies) {
+    return _extractCookieValue(cookies, "ACCESS_TOKEN");
+  }
+
+  String? _extractRefreshTokenFromCookie(String cookies) {
+    return _extractCookieValue(cookies, "REFRESH_TOKEN");
+  }
+
+  String? _extractUserIdFromCookie(String cookies) {
+    return _extractCookieValue(cookies, "USER_ID");
   }
 
   @override
