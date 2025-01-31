@@ -6,4 +6,5 @@ import lombok.Data;
 public class UserJwtDto {
 	private final String accessToken;
 	private final String refreshToken;
+	private final Long userId;
 }
