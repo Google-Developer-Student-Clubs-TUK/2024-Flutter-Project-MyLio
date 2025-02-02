@@ -68,43 +68,7 @@ class Industrial_Group_State extends State<Industrial_Group> {
                 const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           ),
         ),
-        // 버튼과 필드 사이 간격 추가
-        if (index == controllers.length - 1 && controllers.length < 3)
-          const SizedBox(height: 40), // 필드와 버튼 사이 간격
-        if (index == controllers.length - 1 && controllers.length < 3)
-          Center(
-            child: TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  controllers.add(TextEditingController());
-                });
-              },
-              icon: const Icon(
-                Icons.add,
-                color: Color(0xFF908CFF),
-              ),
-              label: const Text(
-                '산업군 추가',
-                style: TextStyle(
-                  color: Color(0xFF908CFF),
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              style: TextButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                side: const BorderSide(
-                  color: Color(0xFF908CFF),
-                  width: 1,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        const SizedBox(height: 20), // 아래 간격
+        const SizedBox(height: 20),
       ],
     );
   }
@@ -124,7 +88,12 @@ class Industrial_Group_State extends State<Industrial_Group> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context, controllers.map((e) => e.text).toList());
+            Navigator.pop(
+                context,
+                controllers
+                    .map((e) => e.text)
+                    .where((text) => text.trim().isNotEmpty)
+                    .toList());
           },
         ),
       ),
@@ -152,12 +121,52 @@ class Industrial_Group_State extends State<Industrial_Group> {
                 },
               ),
             ),
+            if (controllers.length < 3)
+              Center(
+                child: TextButton.icon(
+                  onPressed: () {
+                    if (controllers.length < 3) {
+                      setState(() {
+                        controllers.add(TextEditingController());
+                      });
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.add,
+                    color: Color(0xFF908CFF),
+                  ),
+                  label: const Text(
+                    '산업군 추가',
+                    style: TextStyle(
+                      color: Color(0xFF908CFF),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    side: const BorderSide(
+                      color: Color(0xFF908CFF),
+                      width: 1,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
             const SizedBox(height: 20),
             Center(
               child: TextButton(
                 onPressed: () {
-                  Navigator.pop(
-                      context, controllers.map((e) => e.text).toList());
+                  List<String> selectedIndustries = controllers
+                      .map((e) => e.text.trim())
+                      .where((text) => text.isNotEmpty)
+                      .toSet() // 중복 제거
+                      .toList();
+
+                  Navigator.pop(context, selectedIndustries);
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF878CEF),

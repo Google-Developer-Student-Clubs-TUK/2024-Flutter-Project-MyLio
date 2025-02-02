@@ -83,128 +83,166 @@ class _EditState extends State<Edit> {
               GestureDetector(
                 child: _buildInputField(
                     '산업군 *', resumeData['industries']?.join(', ') ?? ''),
-                onTap: () {
-                  Get.to(Industrial_Group(
-                    initialIndustries:
-                        List<String>.from(resumeData['industries'] ?? []),
-                  ));
+                onTap: () async {
+                  final updatedIndustries = await Get.to(() => Industrial_Group(
+                        initialIndustries:
+                            List<String>.from(resumeData['industries'] ?? []),
+                      ));
+
+                  if (updatedIndustries != null &&
+                      updatedIndustries is List<String>) {
+                    setState(() {
+                      resumeData['industries'] = updatedIndustries;
+                    });
+                  }
                 },
               ),
               const SizedBox(height: 16),
               GestureDetector(
                 child: _buildInputField('직무 *', resumeData['jobDuty'] ?? ''),
-                onTap: () {
-                  Get.to(Job_Duty(
-                    initialJobDuty: resumeData['jobDuty'] ?? '',
-                  ));
+                onTap: () async {
+                  final updatedJobDuty = await Get.to(() => Job_Duty(
+                        initialJobDuty: resumeData['jobDuty'] ?? '',
+                      ));
+
+                  if (updatedJobDuty != null && updatedJobDuty is String) {
+                    setState(() {
+                      resumeData['jobDuty'] = updatedJobDuty;
+                    });
+                  }
                 },
               ),
               const SizedBox(height: 16),
               GestureDetector(
                 child: _buildInputField(
-                    '활동/경험',
-                    resumeData['activityExperience']
-                            ?.map((activity) => activity['name'])
-                            .join(', ') ??
-                        ''),
-                onTap: () {
-                  Get.to(() => ActivityExperience(
-                        initialActivities:
-                            resumeData['activityExperience'] != null
-                                ? List<Map<String, String>>.from(
-                                    (resumeData['activityExperience'] as List)
-                                        .map((activity) => (activity as Map)
-                                            .map((key, value) => MapEntry(
-                                                key.toString(),
-                                                value != null
-                                                    ? value.toString()
-                                                    : ''))))
-                                : [],
-                      ));
+                  '활동/경험',
+                  resumeData['activityExperience']
+                          ?.map((activity) => activity['name'])
+                          .join(', ') ??
+                      '',
+                ),
+                onTap: () async {
+                  final updatedActivities =
+                      await Get.to(() => ActivityExperience(
+                            initialActivities:
+                                resumeData['activityExperience'] != null
+                                    ? List<Map<String, String>>.from(
+                                        (resumeData['activityExperience']
+                                                as List)
+                                            .map(
+                                          (activity) => (activity as Map)
+                                              .map((key, value) => MapEntry(
+                                                    key.toString(),
+                                                    value != null
+                                                        ? value.toString()
+                                                        : '',
+                                                  )),
+                                        ),
+                                      )
+                                    : [],
+                          ));
+
+                  if (updatedActivities != null &&
+                      updatedActivities is List<Map<String, dynamic>>) {
+                    setState(() {
+                      resumeData['activityExperience'] = updatedActivities;
+                    });
+                  }
                 },
               ),
               const SizedBox(height: 16),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CapabilityPage(
+                onTap: () async {
+                  final updatedCapabilities = await Get.to(() => CapabilityPage(
                         initialCapabilities:
                             List<String>.from(resumeData['capabilities'] ?? []),
-                      ),
-                    ),
-                  );
+                      ));
+
+                  if (updatedCapabilities != null &&
+                      updatedCapabilities is List<String>) {
+                    setState(() {
+                      resumeData['capabilities'] = updatedCapabilities;
+                    });
+                  }
                 },
                 child: _buildInputField(
                     '역량', resumeData['capabilities']?.join(', ') ?? ''),
               ),
               const SizedBox(height: 16),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AwardPage(
+                onTap: () async {
+                  final updatedAwards = await Get.to(() => AwardPage(
                         initialAwards: resumeData['awards'] != null
                             ? List<Map<String, String>>.from(
-                                (resumeData['awards'] as List).map((award) =>
-                                    (award as Map).map((key, value) => MapEntry(
-                                        key.toString(),
-                                        value != null
-                                            ? value.toString()
-                                            : ''))))
+                                (resumeData['awards'] as List).map(
+                                  (award) =>
+                                      (award as Map<String, dynamic>).map(
+                                    (key, value) => MapEntry(
+                                      key.toString(),
+                                      value != null ? value.toString() : '',
+                                    ),
+                                  ),
+                                ),
+                              )
                             : [],
-                      ),
-                    ),
-                  );
+                      ));
+
+                  if (updatedAwards != null &&
+                      updatedAwards is List<Map<String, dynamic>>) {
+                    setState(() {
+                      resumeData['awards'] = updatedAwards;
+                    });
+                  }
                 },
                 child: _buildInputField(
-                    '수상경력',
-                    resumeData['awards']
-                            ?.map((award) => award['name'])
-                            .join(', ') ??
-                        ''),
+                  '수상경력',
+                  resumeData['awards']
+                          ?.map((award) => award['name'])
+                          .join(', ') ??
+                      '',
+                ),
               ),
               const SizedBox(height: 16),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StrengthPage(
+                onTap: () async {
+                  final updatedStrengths = await Get.to(() => StrengthPage(
                         initialStrengths:
                             List<String>.from(resumeData['strengths'] ?? []),
-                      ),
-                    ),
-                  );
+                      ));
+
+                  if (updatedStrengths != null &&
+                      updatedStrengths is List<String>) {
+                    setState(() {
+                      resumeData['strengths'] = updatedStrengths;
+                    });
+                  }
                 },
                 child: _buildInputField(
                     '강점', resumeData['strengths']?.join(', ') ?? ''),
               ),
               const SizedBox(height: 16),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => WeaknessPage(
+                onTap: () async {
+                  final updatedWeaknesses = await Get.to(() => WeaknessPage(
                         initialWeaknesses:
                             List<String>.from(resumeData['weaknesses'] ?? []),
-                      ),
-                    ),
-                  );
+                      ));
+
+                  if (updatedWeaknesses != null &&
+                      updatedWeaknesses is List<String>) {
+                    setState(() {
+                      resumeData['weaknesses'] = updatedWeaknesses;
+                    });
+                  }
                 },
                 child: _buildInputField(
                     '약점', resumeData['weaknesses']?.join(', ') ?? ''),
               ),
               const SizedBox(height: 16),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CertificatePage(
+                onTap: () async {
+                  final updatedCertificates = await Get.to(() =>
+                      CertificatePage(
                         initialCertificates: resumeData['certificates'] != null
                             ? List<Map<String, String>>.from(
                                 (resumeData['certificates'] as List).map(
@@ -212,17 +250,20 @@ class _EditState extends State<Edit> {
                                       (certificate as Map<String, dynamic>).map(
                                     (key, value) => MapEntry(
                                       key.toString(),
-                                      value != null
-                                          ? value.toString()
-                                          : '', // null 방지
+                                      value != null ? value.toString() : '',
                                     ),
                                   ),
                                 ),
                               )
-                            : [], // 데이터가 없을 경우 빈 리스트 전달
-                      ),
-                    ),
-                  );
+                            : [],
+                      ));
+
+                  if (updatedCertificates != null &&
+                      updatedCertificates is List<Map<String, dynamic>>) {
+                    setState(() {
+                      resumeData['certificates'] = updatedCertificates;
+                    });
+                  }
                 },
                 child: _buildInputField(
                   '자격증',
@@ -231,33 +272,34 @@ class _EditState extends State<Edit> {
                       ? resumeData['certificates']
                           .map((certificate) => certificate['name'])
                           .join(', ')
-                      : '등록된 자격증 없음', // 데이터가 없을 경우 기본 텍스트 표시
+                      : '등록된 자격증 없음',
                 ),
               ),
               const SizedBox(height: 16),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LanguagePage(
+                onTap: () async {
+                  final updatedLanguages = await Get.to(() => LanguagePage(
                         initialLanguages: resumeData['languages'] != null
                             ? List<Map<String, String>>.from(
                                 (resumeData['languages'] as List).map(
                                   (language) =>
                                       (language as Map<String, dynamic>).map(
                                     (key, value) => MapEntry(
-                                        key.toString(),
-                                        value != null
-                                            ? value.toString()
-                                            : ''), // null 방지
+                                      key.toString(),
+                                      value != null ? value.toString() : '',
+                                    ),
                                   ),
                                 ),
                               )
-                            : [], // 데이터가 없을 경우 빈 리스트 전달
-                      ),
-                    ),
-                  );
+                            : [],
+                      ));
+
+                  if (updatedLanguages != null &&
+                      updatedLanguages is List<Map<String, dynamic>>) {
+                    setState(() {
+                      resumeData['languages'] = updatedLanguages;
+                    });
+                  }
                 },
                 child: _buildInputField(
                   '어학',
@@ -266,7 +308,7 @@ class _EditState extends State<Edit> {
                       ? resumeData['languages']
                           .map((language) => language['language'])
                           .join(', ')
-                      : '등록된 어학 정보 없음', // 데이터가 없을 경우 기본 텍스트 표시
+                      : '등록된 어학 정보 없음',
                 ),
               ),
             ],
