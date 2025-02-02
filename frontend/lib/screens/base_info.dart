@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
+import 'package:frontend/utils/http_interceptor.dart'; // ✅ HttpInterceptor 추가
 
 class Base_Info extends StatefulWidget {
   @override
@@ -13,13 +13,13 @@ class Base_Info extends StatefulWidget {
 
 class Base_Info_State extends State<Base_Info> {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  String nameHint = "이름을 입력하세요"; // 기본 힌트 텍스트
-  String phoneHint = "전화번호를 입력하세요"; // 기본 힌트 텍스트
-  String emailHint = "이메일을 입력하세요"; // 기본 힌트 텍스트
-  final TextEditingController passwordController = TextEditingController(); // 비밀번호 입력 필드
-  final TextEditingController confirmPasswordController = TextEditingController(); // 비밀번호 확인 입력 필드
+  String nameHint = "이름을 입력하세요";
+  String phoneHint = "전화번호를 입력하세요";
+  String emailHint = "이메일을 입력하세요";
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
-  bool _isPasswordVisible = false; // 비밀번호 표시 여부
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
@@ -27,51 +27,41 @@ class Base_Info_State extends State<Base_Info> {
     _loadUserInfo();
   }
 
+  /// ✅ 사용자 정보를 불러오는 API 요청 (HttpInterceptor 사용)
   Future<void> _loadUserInfo() async {
     final baseUrl = dotenv.env['API_BASE_URL'];
     if (baseUrl == null) {
-      print("API_BASE_URL 환경 변수가 설정되지 않았습니다.");
+      print("🚨 API_BASE_URL 환경 변수가 설정되지 않았습니다.");
       return;
     }
 
-    // SecureStorage에서 USER_ID와 ACCESS_TOKEN 가져오기
     String? userId = await secureStorage.read(key: "user_id");
-    String? accessToken = await secureStorage.read(key: "jwt_token");
 
-    if (userId == null || accessToken == null) {
-      print("USER_ID 또는 ACCESS_TOKEN이 없습니다.");
+    if (userId == null) {
+      print("🚨 USER_ID가 없습니다.");
       return;
-    } else {
-      print(userId);
-      print(accessToken);
     }
 
     final url = Uri.parse("$baseUrl/api/v1/user/$userId");
 
     try {
-      print(url);
-      final response = await http.get(
-        url,
-        headers: {
-          "userId": userId,
-          "accessToken": accessToken,
-        },
-      );
+      print("🔗 요청 URL: $url");
+      final response = await HttpInterceptor().get(url); // ✅ 변경된 부분 (HttpInterceptor 사용)
       print(response);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          nameHint = data['name'] ?? nameHint; // 서버에서 가져온 이름
-          phoneHint = data['phoneNumber'] ?? phoneHint; // 서버에서 가져온 전화번호
-          emailHint = data['email'] ?? emailHint; // 서버에서 가져온 이메일
+          nameHint = data['name'] ?? nameHint;
+          phoneHint = data['phoneNumber'] ?? phoneHint;
+          emailHint = data['email'] ?? emailHint;
         });
       } else {
-        print('사용자 정보 로드 실패: ${response.body}');
+        print('🚨 사용자 정보 로드 실패: ${response.body}');
         print(response.statusCode);
       }
     } catch (e) {
-      print('오류 발생: $e');
+      print('⚠️ 오류 발생: $e');
     }
   }
 
@@ -98,166 +88,126 @@ class Base_Info_State extends State<Base_Info> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 이름
-                  Text(
-                    '이름',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: 352,
-                    height: 47,
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        hintText: nameHint,
-                        hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildInputField("이름", nameHint),
                   SizedBox(height: 20),
-
-                  // 전화번호
-                  Text(
-                    '전화번호',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: 352,
-                    height: 47,
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        hintText: phoneHint,
-                        hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildInputField("전화번호", phoneHint),
                   SizedBox(height: 20),
-
-                  // 이메일
-                  Text(
-                    '이메일',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: 352,
-                    height: 47,
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        hintText: emailHint,
-                        hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildInputField("이메일", emailHint),
                   SizedBox(height: 20),
-
-                  // 비밀번호
-                  Text(
-                    '비밀번호',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: 352,
-                    height: 47,
-                    child: TextFormField(
-                      controller: passwordController,
-                      obscureText: !_isPasswordVisible,
-                      decoration: InputDecoration(
-                        hintText: "****",
-                        hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isPasswordVisible = !_isPasswordVisible;
-                            });
-                          },
-                          icon: Icon(
-                            _isPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                            color: Color(0xFFCCCCCC),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildPasswordField("비밀번호", passwordController),
                   SizedBox(height: 20),
-
-                  // 비밀번호 확인
-                  Text(
-                    '비밀번호 확인',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: 352,
-                    height: 47,
-                    child: TextFormField(
-                      controller: confirmPasswordController,
-                      obscureText: !_isPasswordVisible,
-                      decoration: InputDecoration(
-                        hintText: "****",
-                        hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildPasswordField("비밀번호 확인", confirmPasswordController),
                   SizedBox(height: 20),
                 ],
               ),
             ),
             Spacer(),
-            // 수정 완료 버튼
-            Center(
-              child: TextButton(
+            _buildSubmitButton(),
+            SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 🔹 **입력 필드 위젯 생성 함수 (이름, 전화번호, 이메일)**
+  Widget _buildInputField(String label, String hint) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 10),
+        SizedBox(
+          width: 352,
+          height: 47,
+          child: TextFormField(
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 🔹 **비밀번호 입력 필드 위젯 생성 함수**
+  Widget _buildPasswordField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 10),
+        SizedBox(
+          width: 352,
+          height: 47,
+          child: TextFormField(
+            controller: controller,
+            obscureText: !_isPasswordVisible,
+            decoration: InputDecoration(
+              hintText: "****",
+              hintStyle: TextStyle(fontSize: 14, color: Color(0xFFCCCCCC)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              suffixIcon: IconButton(
                 onPressed: () {
-                  // 비밀번호와 비밀번호 확인이 일치하는지 검증
-                  if (passwordController.text != confirmPasswordController.text) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("비밀번호와 비밀번호 확인이 일치하지 않습니다."),
-                      ),
-                    );
-                    return;
-                  }
-                  print("수정 완료 버튼 클릭");
-                  // 여기서 추가로 서버에 수정 요청 등을 진행할 수 있습니다.
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
                 },
-                style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFF878CEF),
-                  minimumSize: Size(352, 47),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  "수정완료",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
+                icon: Icon(
+                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Color(0xFFCCCCCC),
                 ),
               ),
             ),
-            SizedBox(height: 10),
-          ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 🔹 **수정 완료 버튼 위젯**
+  Widget _buildSubmitButton() {
+    return Center(
+      child: TextButton(
+        onPressed: () {
+          // 비밀번호와 비밀번호 확인이 일치하는지 검증
+          if (passwordController.text != confirmPasswordController.text) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("🚨 비밀번호와 비밀번호 확인이 일치하지 않습니다."),
+              ),
+            );
+            return;
+          }
+          print("✅ 수정 완료 버튼 클릭");
+          // TODO: 서버에 수정 요청 추가
+        },
+        style: TextButton.styleFrom(
+          backgroundColor: Color(0xFF878CEF),
+          minimumSize: Size(352, 47),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          "수정완료",
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
     );
