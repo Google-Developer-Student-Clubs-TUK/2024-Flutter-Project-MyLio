@@ -67,7 +67,7 @@ public class CoverLetterService {
 
     @Transactional
     public CoverLetter copyCoverLetter(Long coverLetterId) {
-        CoverLetter coverLetter = coverLetterRepository.findById(coverLetterId).orElseThrow();
+        CoverLetter coverLetter = coverLetterRepository.findById(coverLetterId).orElseThrow(() -> new CoverLetterNotExistsException());
         CoverLetter newCoverLetter = CoverLetter.builder()
                 .questionAnswers(coverLetter.getQuestionAnswers())
                 .title(coverLetter.getTitle())
