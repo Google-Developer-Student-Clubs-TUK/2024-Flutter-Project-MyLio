@@ -9,6 +9,7 @@ import com.example.gdgocportfolio.exceptions.UserNotExistsException;
 import com.example.gdgocportfolio.repository.CoverLetterRepository;
 import com.example.gdgocportfolio.repository.QuestionAnswerRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,6 +63,17 @@ public class CoverLetterService {
 
         coverLetter.setQuestionAnswers(qaList);
         return coverLetterRepository.save(coverLetter);
+    }
+
+    @Transactional
+    public CoverLetter copyCoverLetter(Long coverLetterId) {
+        CoverLetter coverLetter = coverLetterRepository.findById(coverLetterId).orElseThrow(() -> new CoverLetterNotExistsException());
+        CoverLetter newCoverLetter = CoverLetter.builder()
+                .questionAnswers(coverLetter.getQuestionAnswers())
+                .title(coverLetter.getTitle())
+                .user(coverLetter.getUser())
+                .build();
+        return coverLetterRepository.save(newCoverLetter);
     }
 
     // QuestionAnswer 생성

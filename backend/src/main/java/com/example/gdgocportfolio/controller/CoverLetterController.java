@@ -100,6 +100,12 @@ public class CoverLetterController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/copy/{userId}/{coverLetterId}")
+    public String copyCoverLetter(@PathVariable Long userId, @PathVariable Long coverLetterId) {
+        CoverLetter coverLetter = coverLetterService.copyCoverLetter(coverLetterId);
+        return "{" + "\"cover_letter_id\":" + coverLetter.getCoverLetterId() + "}";
+    }
+
     // ------------------------------------------------------
     // 2) QuestionAnswer CRUD
     // ------------------------------------------------------
