@@ -13,6 +13,8 @@ import 'resume/award_page.dart';
 import 'resume/certificate_page.dart';
 import 'resume/language_page.dart';
 import 'my_resume_screen.dart'; // 추가된 import
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend/utils/http_interceptor.dart';
 
 class MyResumeCreatePage extends StatefulWidget {
   const MyResumeCreatePage({Key? key}) : super(key: key);
@@ -22,6 +24,8 @@ class MyResumeCreatePage extends StatefulWidget {
 }
 
 class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+
   String resumeTitle = "";
   List<String> industryGroups = [];
   String jobDuty = "";
@@ -33,19 +37,14 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
   List<Map<String, String>> certificates = [];
   List<Map<String, String>> languages = [];
 
-  Future<void> saveResumeWithToken(String accessToken) async {
+  Future<void> saveResume() async {
     final String? baseUrl = dotenv.env['API_BASE_URL'];
     if (baseUrl == null) {
-      print("Base URL is null. Check .env file.");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('환경 변수를 확인해주세요.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('환경 변수를 확인해주세요.'), backgroundColor: Colors.red));
       return;
     }
 
+    // 수정 요망
     const userId = "1";
     final url = Uri.parse('$baseUrl/api/v1/resume/create/$userId');
 
@@ -103,51 +102,28 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
     };
 
     try {
-      final response = await http
-          .post(
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-              'Cookie': 'ACCESS_TOKEN=$accessToken; Path=/api/v1/auth',
-            },
-            body: jsonEncode(requestBody),
-          )
-          .timeout(const Duration(seconds: 30));
+      final response = await HttpInterceptor().post(url, body: requestBody);
 
       if (response.statusCode == 200) {
-        print("이력서 저장 성공!");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('이력서가 성공적으로 저장되었습니다!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('이력서가 성공적으로 저장되었습니다!'), backgroundColor: Colors.green,
+        ));
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (context) => const MyResumeScreen(
-                    resumeTitle: '',
-                  )),
+          MaterialPageRoute(builder: (context) => MyResumeScreen(resumeTitle: resumeTitle)),
         );
       } else {
-        print("이력서 저장 실패: ${response.body}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('이력서 저장 실패: ${response.body}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('이력서 저장 실패: ${response.body}'), backgroundColor: Colors.red,
+        ));
       }
     } catch (e) {
-      print('오류 발생: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('오류 발생: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('오류 발생: $e'), backgroundColor: Colors.red,
+      ));
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -395,9 +371,10 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
                 ),
               );
             } else {
-              final String? accessToken = dotenv.env['ACCESS_TOKEN'];
+              final String? accessToken = await secureStorage.read(key: "jwt_token");
+              print("🔑 불러온 ACCESS_TOKEN: $accessToken");  // 🚀 정상적으로 불러오는지 확인
               if (accessToken != null && accessToken.isNotEmpty) {
-                await saveResumeWithToken(accessToken);
+                await saveResume();
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
