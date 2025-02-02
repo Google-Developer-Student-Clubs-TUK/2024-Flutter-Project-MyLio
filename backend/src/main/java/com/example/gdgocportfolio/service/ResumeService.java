@@ -51,7 +51,13 @@ public class ResumeService {
     // 사용자별 이력서 전체 조회
     public List<ResumeResponseDto> getResumesByUser(Long userId) {
         List<Resume> resumes = resumeRepository.findByUserUserId(userId);
-        return resumes.stream().map(this::mapResumeToDto).collect(Collectors.toList());
+
+        // 대표 이력서를 최상단으로 정렬
+        resumes.sort((r1, r2) -> Boolean.compare(r2.isPrimary(), r1.isPrimary()));
+
+        return resumes.stream()
+                .map(this::mapResumeToDto)
+                .collect(Collectors.toList());
     }
 
     // 이력서 업데이트
