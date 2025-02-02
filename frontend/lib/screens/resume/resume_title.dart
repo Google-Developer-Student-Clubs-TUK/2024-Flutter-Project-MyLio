@@ -97,7 +97,9 @@ class Resume_Title_State extends State<Resume_Title> {
             Center(
               child: TextButton(
                 onPressed: () {
-                  Navigator.pop(context, _titleController.text); // 데이터 반환
+                  if (_titleController.text.isNotEmpty) {
+                    Navigator.pop(context, _titleController.text); // 입력값 반환
+                  }
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF878CEF),

@@ -116,7 +116,7 @@ public class UserAuthenticationService {
 		));
 		RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity(uuid, userId, refreshToken.getExpire());
 		userRefreshTokenRepository.save(refreshTokenEntity);
-		return new UserJwtDto(accessToken.getToken(), refreshToken.getToken());
+		return new UserJwtDto(accessToken.getToken(), refreshToken.getToken(), userId);
 	}
 
 	@Transactional

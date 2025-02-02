@@ -59,10 +59,24 @@ public class ResumeService {
         Resume resume = resumeRepository.findByResumeIdAndUserUserId(resumeId, userId)
                 .orElseThrow(ResumeNotExistsException::new);
 
-        // 이력서 내용 업데이트
+        // 이력서 내용 업데이트 (모든 필드)
         resume.setResumeTitle(resumeCreateRequestDto.getResumeTitle());
+        resume.setIndustryGroups(resumeCreateRequestDto.getIndustryGroups());
         resume.setJobDuty(resumeCreateRequestDto.getJobDuty());
+        resume.setStrengths(resumeCreateRequestDto.getStrengths());
+        resume.setWeaknesses(resumeCreateRequestDto.getWeaknesses());
         resume.setCapabilities(resumeCreateRequestDto.getCapabilities());
+
+        // JSON 변환 후 저장 (활동 경험, 수상 경력 등)
+        try {
+            resume.setActivityExperience(objectMapper.writeValueAsString(resumeCreateRequestDto.getActivityExperience()));
+            resume.setAwards(objectMapper.writeValueAsString(resumeCreateRequestDto.getAwards()));
+            resume.setCertificates(objectMapper.writeValueAsString(resumeCreateRequestDto.getCertificates()));
+            resume.setLanguages(objectMapper.writeValueAsString(resumeCreateRequestDto.getLanguages()));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON 변환 오류 발생.", e);
+        }
+
         resumeRepository.save(resume);
     }
 
@@ -90,25 +104,6 @@ public class ResumeService {
         resumeRepository.saveAll(resumes);
     }
 
-    // DTO -> Entity
-    private void mapDtoToResume(ResumeCreateRequestDto resumeCreateRequestDto, Resume resume) {
-        resume.setResumeTitle(resumeCreateRequestDto.getResumeTitle());
-        resume.setIndustryGroups(resumeCreateRequestDto.getIndustryGroups());
-        resume.setJobDuty(resumeCreateRequestDto.getJobDuty());
-        resume.setStrengths(resumeCreateRequestDto.getStrengths());
-        resume.setWeaknesses(resumeCreateRequestDto.getWeaknesses());
-        resume.setCapabilities(resumeCreateRequestDto.getCapabilities());
-
-        try {
-            resume.setActivityExperience(objectMapper.writeValueAsString(resumeCreateRequestDto.getActivityExperience()));
-            resume.setAwards(objectMapper.writeValueAsString(resumeCreateRequestDto.getAwards()));
-            resume.setCertificates(objectMapper.writeValueAsString(resumeCreateRequestDto.getCertificates()));
-            resume.setLanguages(objectMapper.writeValueAsString(resumeCreateRequestDto.getLanguages()));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON conversion error.", e);
-        }
-    }
-
     @Transactional
     public Resume copyResume(Long resumeId) {
         Resume resume = resumeRepository.findById(resumeId).orElseThrow(ResumeNotExistsException::new);
@@ -128,6 +123,25 @@ public class ResumeService {
                 resume.getCreateTime(),
                 resume.getLastUpdateTime());
         return resumeRepository.save(newResume);
+    }
+
+    // DTO -> Entity
+    private void mapDtoToResume(ResumeCreateRequestDto resumeCreateRequestDto, Resume resume) {
+        resume.setResumeTitle(resumeCreateRequestDto.getResumeTitle());
+        resume.setIndustryGroups(resumeCreateRequestDto.getIndustryGroups());
+        resume.setJobDuty(resumeCreateRequestDto.getJobDuty());
+        resume.setStrengths(resumeCreateRequestDto.getStrengths());
+        resume.setWeaknesses(resumeCreateRequestDto.getWeaknesses());
+        resume.setCapabilities(resumeCreateRequestDto.getCapabilities());
+
+        try {
+            resume.setActivityExperience(objectMapper.writeValueAsString(resumeCreateRequestDto.getActivityExperience()));
+            resume.setAwards(objectMapper.writeValueAsString(resumeCreateRequestDto.getAwards()));
+            resume.setCertificates(objectMapper.writeValueAsString(resumeCreateRequestDto.getCertificates()));
+            resume.setLanguages(objectMapper.writeValueAsString(resumeCreateRequestDto.getLanguages()));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("JSON conversion error.", e);
+        }
     }
 
     // Entity -> DTO

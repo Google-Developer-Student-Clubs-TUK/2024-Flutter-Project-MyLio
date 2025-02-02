@@ -64,8 +64,11 @@ public class UserAuthenticationController {
 
 		UserJwtDto userJwtDto = userAuthenticationService.generateUserJwtToken(userLoginRequestDto);
 
-		res.addHeader("Set-Cookie", "ACCESS_TOKEN=" + userJwtDto.getAccessToken());
-		res.addHeader("Set-Cookie", "REFRESH_TOKEN=" + userJwtDto.getRefreshToken());
+		res.addHeader("Set-Cookie", "ACCESS_TOKEN=" + userJwtDto.getAccessToken() + "; Path=/; HttpOnly; Secure; SameSite=None");
+		res.addHeader("Set-Cookie", "REFRESH_TOKEN=" + userJwtDto.getRefreshToken() + "; Path=/; HttpOnly; Secure; SameSite=None");
+		res.addHeader("Set-Cookie", "USER_ID=" + userJwtDto.getUserId() + "; Path=/; Secure; SameSite=None");
+
+		System.out.println("✅ 로그인 성공: userId=" + userJwtDto.getUserId());
 	}
 
 	@DeleteMapping
