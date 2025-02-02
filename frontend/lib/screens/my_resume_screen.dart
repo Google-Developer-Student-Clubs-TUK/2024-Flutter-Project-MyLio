@@ -11,7 +11,6 @@ import 'components/resume_PopupMenu_Btn.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/utils/http_interceptor.dart';
 
-
 class MyResumeScreen extends StatefulWidget {
   const MyResumeScreen({Key? key, required this.resumeTitle}) : super(key: key);
 
@@ -282,8 +281,22 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                                     resumeId.toString()); // userId와 resumeId 전달
                               }
                             },
-                            onEdit: () {
-                              Get.to(() => Edit(resumeData: resume));
+                            onEdit: () async {
+                              final updatedResume =
+                                  await Get.to(() => Edit(resumeData: resume));
+
+                              if (updatedResume != null &&
+                                  updatedResume is Map<String, dynamic>) {
+                                setState(() {
+                                  final index = resumes.indexWhere((r) =>
+                                      r['resume_id'].toString() ==
+                                      updatedResume['resume_id'].toString());
+                                  if (index != -1) {
+                                    resumes[index] =
+                                        updatedResume; // 기존 데이터를 업데이트
+                                  }
+                                });
+                              }
                             },
                             onDelete: () async {
                               final resumeId = resume['resume_id'];
