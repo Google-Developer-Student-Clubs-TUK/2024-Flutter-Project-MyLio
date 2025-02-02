@@ -239,18 +239,6 @@ class LoginState extends State<Login> {
                         )
                       ],
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    GestureDetector(
-                      child: Text(
-                        '건너뛰기',
-                        style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC)),
-                      ),
-                      onTap: () {
-                        Get.to(() => HomeScreen());
-                      },
-                    )
                   ],
                 )),
           ],

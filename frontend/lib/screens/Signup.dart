@@ -264,18 +264,6 @@ class SignupState extends State<Signup> {
                         )
                       ],
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(HomeScreen());
-                      },
-                      child: Text(
-                        '건너뛰기',
-                        style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC)),
-                      ),
-                    )
                   ],
                 )),
           ],
