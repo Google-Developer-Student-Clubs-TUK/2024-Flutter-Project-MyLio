@@ -136,6 +136,68 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     }
   }
 
+  // 이력서 복사 API 호출
+  Future<void> duplicateResume(String userId, String resumeId) async {
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final url = Uri.parse('$baseUrl/api/v1/resume/copy/$userId/$resumeId');
+
+    print('이력서 복사 요청 (PUT) URL: $url');
+
+    try {
+      final response = await HttpInterceptor().put(url);
+
+      print('이력서 복사 응답 코드: ${response.statusCode}');
+      print('이력서 복사 응답 본문: ${response.body}');
+
+      if (response.statusCode == 200) {
+        print('이력서 복사 성공: $resumeId');
+
+        // 응답 본문이 비어 있는 경우, 리스트 전체를 다시 로드
+        if (response.body.isEmpty) {
+          print('⚠ 서버 응답이 비어 있음. 이력서 목록을 다시 불러옵니다.');
+          await fetchUserResumes(); // 서버에서 전체 이력서를 다시 가져옴
+          return;
+        }
+
+        try {
+          final decodedBody = utf8.decode(response.bodyBytes);
+          final Map<String, dynamic> newResume = jsonDecode(decodedBody);
+
+          setState(() {
+            resumes.insert(0, {
+              'resume_id': newResume['resumeId'] ?? '',
+              'title': newResume['resumeTitle'] ?? 'Untitled',
+              'isPrimary': newResume['isPrimary'] ?? false,
+              'industries':
+                  List<String>.from(newResume['industryGroups'] ?? []),
+              'jobDuty': newResume['jobDuty'] ?? '',
+              'capabilities':
+                  List<String>.from(newResume['capabilities'] ?? []),
+              'strengths': List<String>.from(newResume['strengths'] ?? []),
+              'weaknesses': List<String>.from(newResume['weaknesses'] ?? []),
+              'activityExperience': List<Map<String, dynamic>>.from(
+                  newResume['activityExperience'] ?? []),
+              'awards':
+                  List<Map<String, dynamic>>.from(newResume['awards'] ?? []),
+              'certificates': List<Map<String, dynamic>>.from(
+                  newResume['certificates'] ?? []),
+              'languages':
+                  List<Map<String, dynamic>>.from(newResume['languages'] ?? []),
+            });
+          });
+        } catch (e) {
+          print('⚠ JSON 파싱 중 오류 발생: $e');
+          print('⚠ 서버에서 반환된 데이터가 올바른 JSON 형식인지 확인 필요.');
+          await fetchUserResumes(); // 오류 발생 시 최신 리스트 다시 불러오기
+        }
+      } else {
+        print('❌ 이력서 복사 실패: ${response.body}');
+      }
+    } catch (e) {
+      print('❌ 이력서 복사 중 오류 발생: $e');
+    }
+  }
+
   // 새로운 이력서를 추가하는 메서드
   void addResume(
     String newResumeTitle,
@@ -305,11 +367,12 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                                 await deleteResume('1', resumeId.toString());
                               }
                             },
-                            onDuplicate: () {
-                              setState(() {
-                                resumes.insert(
-                                    index + 1, Map.from(resumes[index]));
-                              });
+                            onDuplicate: () async {
+                              final resumeId = resume['resume_id'];
+                              if (resumeId != null &&
+                                  resumeId.toString().isNotEmpty) {
+                                await duplicateResume('1', resumeId.toString());
+                              }
                             },
                           ),
                         ],
