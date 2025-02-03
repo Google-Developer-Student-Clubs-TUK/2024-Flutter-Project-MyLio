@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CapabilityPage extends StatefulWidget {
-  final List<String> initialCapabilities;
+  final List<String> initialCapabilities; // 초기 역량 리스트 전달
 
   const CapabilityPage({Key? key, required this.initialCapabilities})
       : super(key: key);
@@ -11,17 +11,36 @@ class CapabilityPage extends StatefulWidget {
 }
 
 class _CapabilityPageState extends State<CapabilityPage> {
-  late List<String> capabilities;
+  late List<TextEditingController> controllers; // 역량 입력 컨트롤러 리스트
 
   @override
   void initState() {
     super.initState();
-    // 초기 데이터 복사
-    capabilities = List.from(widget.initialCapabilities);
-    // 기본 3개의 필드가 없으면 추가
-    while (capabilities.length < 3) {
-      capabilities.add("");
+    controllers = widget.initialCapabilities
+        .map((capability) => TextEditingController(text: capability))
+        .toList();
+
+    // 최소 3개 입력 필드 보장
+    while (controllers.length < 3) {
+      controllers.add(TextEditingController());
     }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _handleReturn() {
+    // 빈 문자열 제거 후 반환
+    final filteredCapabilities = controllers
+        .map((controller) => controller.text.trim())
+        .where((text) => text.isNotEmpty)
+        .toList();
+    Navigator.pop(context, filteredCapabilities); // 필터링된 역량 리스트 반환
   }
 
   @override
@@ -44,12 +63,7 @@ class _CapabilityPageState extends State<CapabilityPage> {
             Icons.arrow_back_ios_new,
             color: Colors.black,
           ),
-          onPressed: () {
-            // 빈 값 제거 후 데이터 반환
-            capabilities =
-                capabilities.where((cap) => cap.trim().isNotEmpty).toList();
-            Navigator.pop(context, capabilities);
-          },
+          onPressed: _handleReturn, // 뒤로가기 시 역량 리스트 반환
         ),
       ),
       backgroundColor: Colors.white,
@@ -73,7 +87,7 @@ class _CapabilityPageState extends State<CapabilityPage> {
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: capabilities.length,
+                  itemCount: controllers.length,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -82,14 +96,14 @@ class _CapabilityPageState extends State<CapabilityPage> {
                   },
                 ),
                 // 역량 추가 버튼
-                if (capabilities.length < 5)
+                if (controllers.length < 5)
                   Padding(
                     padding: const EdgeInsets.only(top: 24),
                     child: TextButton.icon(
                       onPressed: () {
-                        if (capabilities.length < 5) {
+                        if (controllers.length < 5) {
                           setState(() {
-                            capabilities.add(""); // 새로운 필드 추가
+                            controllers.add(TextEditingController());
                           });
                         }
                       },
@@ -123,12 +137,7 @@ class _CapabilityPageState extends State<CapabilityPage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
-              onPressed: () {
-                // 빈 필드를 제거하고 데이터 반환
-                capabilities =
-                    capabilities.where((cap) => cap.trim().isNotEmpty).toList();
-                Navigator.pop(context, capabilities);
-              },
+              onPressed: _handleReturn,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF908CFF),
                 minimumSize: const Size(double.infinity, 50),
@@ -165,10 +174,7 @@ class _CapabilityPageState extends State<CapabilityPage> {
         ),
         const SizedBox(height: 8),
         TextField(
-          controller: TextEditingController(text: capabilities[index]),
-          onChanged: (value) {
-            capabilities[index] = value; // 입력 값 업데이트
-          },
+          controller: controllers[index],
           decoration: InputDecoration(
             hintText: index == 0
                 ? 'ex) 사업 기획 능력'

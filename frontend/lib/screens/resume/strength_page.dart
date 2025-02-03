@@ -11,22 +11,33 @@ class StrengthPage extends StatefulWidget {
 }
 
 class _StrengthPageState extends State<StrengthPage> {
-  late List<String> strengths; // 강점 리스트
+  late List<TextEditingController> controllers; // 강점 입력 컨트롤러 리스트
 
   @override
   void initState() {
     super.initState();
-    strengths = List.from(widget.initialStrengths); // 전달받은 강점 리스트 복사
-    // 전달받은 리스트가 3개 미만이면 기본값 추가
-    while (strengths.length < 3) {
-      strengths.add("");
+    controllers = widget.initialStrengths
+        .map((strength) => TextEditingController(text: strength))
+        .toList();
+    while (controllers.length < 3) {
+      controllers.add(TextEditingController()); // 최소 3개 입력 필드 보장
     }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in controllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   void _handleReturn() {
     // 빈 문자열 제거 후 반환
-    final filteredStrengths =
-        strengths.where((strength) => strength.trim().isNotEmpty).toList();
+    final filteredStrengths = controllers
+        .map((controller) => controller.text.trim())
+        .where((text) => text.isNotEmpty)
+        .toList();
     Navigator.pop(context, filteredStrengths); // 필터링된 강점 리스트 반환
   }
 
@@ -74,7 +85,7 @@ class _StrengthPageState extends State<StrengthPage> {
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: strengths.length,
+                  itemCount: controllers.length,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -83,14 +94,14 @@ class _StrengthPageState extends State<StrengthPage> {
                   },
                 ),
                 // 강점 추가 버튼
-                if (strengths.length < 5)
+                if (controllers.length < 5)
                   Padding(
                     padding: const EdgeInsets.only(top: 24),
                     child: TextButton.icon(
                       onPressed: () {
-                        if (strengths.length < 5) {
+                        if (controllers.length < 5) {
                           setState(() {
-                            strengths.add(""); // 새 입력 필드 추가
+                            controllers.add(TextEditingController());
                           });
                         }
                       },
@@ -163,10 +174,7 @@ class _StrengthPageState extends State<StrengthPage> {
         ),
         const SizedBox(height: 8),
         TextField(
-          controller: TextEditingController(text: strengths[index]),
-          onChanged: (value) {
-            strengths[index] = value; // 입력 값 업데이트
-          },
+          controller: controllers[index],
           decoration: InputDecoration(
             hintText: index == 0
                 ? 'ex) 꼼꼼하다'

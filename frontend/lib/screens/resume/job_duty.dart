@@ -15,8 +15,9 @@ class _Job_DutyState extends State<Job_Duty> {
   @override
   void initState() {
     super.initState();
-    // 초기값 설정
-    _jobDutyController = TextEditingController(text: widget.initialJobDuty);
+    // 초기값이 null이면 빈 문자열로 처리하여 예외 방지
+    _jobDutyController =
+        TextEditingController(text: widget.initialJobDuty ?? '');
   }
 
   @override
@@ -96,8 +97,15 @@ class _Job_DutyState extends State<Job_Duty> {
             Center(
               child: TextButton(
                 onPressed: () {
-                  // 입력된 직무 데이터를 반환
-                  Navigator.pop(context, _jobDutyController.text.trim());
+                  // 빈 값이 아닌 경우에만 반환
+                  String updatedJobDuty = _jobDutyController.text.trim();
+                  if (updatedJobDuty.isNotEmpty) {
+                    Navigator.pop(context, updatedJobDuty);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('직무를 입력해주세요.')),
+                    );
+                  }
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF878CEF),

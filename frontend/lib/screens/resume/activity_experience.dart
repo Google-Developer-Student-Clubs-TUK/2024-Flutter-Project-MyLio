@@ -233,15 +233,17 @@ class _ActivityExperienceState extends State<ActivityExperience> {
             Expanded(
               child: GestureDetector(
                 onTap: () => _selectDate(context, index, 'startDate'),
-                child: Container(
-                  height: 47,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    hintText: "시작 날짜",
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
                   ),
-                  alignment: Alignment.centerLeft,
                   child: Text(
                     activities[index]['startDate']?.isNotEmpty == true
                         ? activities[index]['startDate']!
@@ -256,20 +258,22 @@ class _ActivityExperienceState extends State<ActivityExperience> {
               ),
             ),
             const SizedBox(width: 8),
-            Text("~"),
+            const Text("~"),
             const SizedBox(width: 8),
             Expanded(
               child: GestureDetector(
                 onTap: () => _selectDate(context, index, 'endDate'),
-                child: Container(
-                  height: 47,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black38),
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    hintText: "종료 날짜",
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.grey),
+                    ),
                   ),
-                  alignment: Alignment.centerLeft,
                   child: Text(
                     activities[index]['endDate']?.isNotEmpty == true
                         ? activities[index]['endDate']!

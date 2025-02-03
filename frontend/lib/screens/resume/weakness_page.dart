@@ -11,17 +11,36 @@ class WeaknessPage extends StatefulWidget {
 }
 
 class _WeaknessPageState extends State<WeaknessPage> {
-  late List<String> weaknesses; // 약점 리스트
+  late List<TextEditingController> controllers; // 약점 입력 컨트롤러 리스트
 
   @override
   void initState() {
     super.initState();
-    // 초기 데이터를 복사
-    weaknesses = List.from(widget.initialWeaknesses);
-    // 기본 3개의 필드가 없으면 추가
-    while (weaknesses.length < 3) {
-      weaknesses.add("");
+    controllers = widget.initialWeaknesses
+        .map((weakness) => TextEditingController(text: weakness))
+        .toList();
+
+    // 최소 3개 입력 필드 보장
+    while (controllers.length < 3) {
+      controllers.add(TextEditingController());
     }
+  }
+
+  @override
+  void dispose() {
+    for (var controller in controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _handleReturn() {
+    // 빈 문자열 제거 후 반환
+    final filteredWeaknesses = controllers
+        .map((controller) => controller.text.trim())
+        .where((text) => text.isNotEmpty)
+        .toList();
+    Navigator.pop(context, filteredWeaknesses); // 필터링된 약점 리스트 반환
   }
 
   @override
@@ -44,13 +63,7 @@ class _WeaknessPageState extends State<WeaknessPage> {
             Icons.arrow_back_ios_new,
             color: Colors.black,
           ),
-          onPressed: () {
-            // 빈 값 제거 후 데이터 반환
-            weaknesses = weaknesses
-                .where((weakness) => weakness.trim().isNotEmpty)
-                .toList();
-            Navigator.pop(context, weaknesses);
-          },
+          onPressed: _handleReturn, // 뒤로가기 시 약점 리스트 반환
         ),
       ),
       backgroundColor: Colors.white,
@@ -74,7 +87,7 @@ class _WeaknessPageState extends State<WeaknessPage> {
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: weaknesses.length,
+                  itemCount: controllers.length,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -83,14 +96,14 @@ class _WeaknessPageState extends State<WeaknessPage> {
                   },
                 ),
                 // 약점 추가 버튼
-                if (weaknesses.length < 5) // 최대 5개일 때 추가 버튼 숨기기
+                if (controllers.length < 5)
                   Padding(
                     padding: const EdgeInsets.only(top: 24),
                     child: TextButton.icon(
                       onPressed: () {
-                        if (weaknesses.length < 5) {
+                        if (controllers.length < 5) {
                           setState(() {
-                            weaknesses.add(""); // 새 입력 필드 추가
+                            controllers.add(TextEditingController());
                           });
                         }
                       },
@@ -126,13 +139,7 @@ class _WeaknessPageState extends State<WeaknessPage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
-              onPressed: () {
-                // 빈 필드를 제거하고 데이터 반환
-                weaknesses = weaknesses
-                    .where((weakness) => weakness.trim().isNotEmpty)
-                    .toList();
-                Navigator.pop(context, weaknesses);
-              },
+              onPressed: _handleReturn,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF908CFF),
                 minimumSize: const Size(double.infinity, 50),
@@ -169,10 +176,7 @@ class _WeaknessPageState extends State<WeaknessPage> {
         ),
         const SizedBox(height: 8),
         TextField(
-          controller: TextEditingController(text: weaknesses[index]),
-          onChanged: (value) {
-            weaknesses[index] = value; // 입력 값 업데이트
-          },
+          controller: controllers[index],
           decoration: InputDecoration(
             hintText: index == 0
                 ? 'ex) 집중력이 좀 떨어진다'
