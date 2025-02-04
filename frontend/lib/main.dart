@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:frontend/screens/Login.dart';
 import 'package:frontend/screens/home_screen.dart';
-import 'package:frontend/screens/splash_screen.dart';
+import 'package:frontend/screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Flutter 시스템 초기화
