@@ -78,6 +78,7 @@ class IntroductionList extends StatelessWidget {
                 // 📌 팝업 메뉴 버튼 사용
                 IntroductionListPopupMenuBtn(
                   resumeTitle: resumes[index],
+                  onModifyPressed: () {},
                 ),
               ],
             ),
