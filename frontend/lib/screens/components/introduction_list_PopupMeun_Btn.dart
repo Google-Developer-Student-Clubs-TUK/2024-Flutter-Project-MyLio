@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/coverletter_edit.dart';
 import '../theme/app_colors.dart';
 
 class IntroductionListPopupMenuBtn extends StatelessWidget {
@@ -7,6 +8,7 @@ class IntroductionListPopupMenuBtn extends StatelessWidget {
   const IntroductionListPopupMenuBtn({
     super.key,
     required this.resumeTitle,
+    required Null Function() onModifyPressed,
   });
 
   void _showPreviewDialog(BuildContext context) {
@@ -130,6 +132,17 @@ class IntroductionListPopupMenuBtn extends StatelessWidget {
           _showPreviewDialog(context);
         } else if (value == 'delete') {
           _showDeleteDialog(context);
+        } else if (value == 'modify') {
+          // "수정하기"를 클릭하면 coverletter_edit.dart로 이동
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CoverLetterEdit(
+                resumeTitle: resumeTitle,
+                questions: [],
+              ),
+            ),
+          );
         } else {
           print('Selected: $value for $resumeTitle');
         }
