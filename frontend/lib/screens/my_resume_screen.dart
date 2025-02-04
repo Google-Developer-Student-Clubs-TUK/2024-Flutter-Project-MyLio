@@ -10,6 +10,7 @@ import 'widgets/my_resume_empty_widget.dart';
 import 'components/resume_PopupMenu_Btn.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:frontend/utils/http_interceptor.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MyResumeScreen extends StatefulWidget {
   const MyResumeScreen({Key? key, required this.resumeTitle}) : super(key: key);
@@ -21,19 +22,48 @@ class MyResumeScreen extends StatefulWidget {
 }
 
 class _MyResumeScreenState extends State<MyResumeScreen> {
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+  String? _userId; // secureStorage에서 가져온 userId
   List<Map<String, dynamic>> resumes = []; // 이력서 데이터 리스트
 
   @override
   void initState() {
     super.initState();
-    fetchUserResumes(); // 이력서 데이터 가져오기
+    _loadUserInfo(); // secureStorage에서 userId 가져온 후 이력서 목록 로드
   }
 
-  // 서버에서 유저의 이력서 목록 가져오기
-  Future<void> fetchUserResumes() async {
-    const userId = '1';
+  /// secureStorage에서 user_id를 읽어온 후, 이력서 데이터를 로드합니다.
+  Future<void> _loadUserInfo() async {
     final baseUrl = dotenv.env['API_BASE_URL'];
-    final url = Uri.parse('$baseUrl/api/v1/resume/user/$userId');
+    if (baseUrl == null) {
+      print("🚨 API_BASE_URL 환경 변수가 설정되지 않았습니다.");
+      return;
+    }
+
+    String? userId = await secureStorage.read(key: "user_id");
+
+    if (userId == null) {
+      print("🚨 USER_ID가 없습니다.");
+      return;
+    }
+
+    setState(() {
+      _userId = userId;
+    });
+
+    // userId를 가져온 후 이력서 목록을 불러옵니다.
+    await fetchUserResumes();
+  }
+
+  /// 서버에서 secureStorage에 저장된 user_id에 해당하는 이력서 목록을 가져옵니다.
+  Future<void> fetchUserResumes() async {
+    if (_userId == null) {
+      print("🚨 userId가 아직 로드되지 않았습니다.");
+      return;
+    }
+
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    final url = Uri.parse('$baseUrl/api/v1/resume/user/$_userId');
 
     try {
       final response = await HttpInterceptor().get(url);
@@ -77,19 +107,19 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     }
   }
 
-  // 이력서 삭제 API 호출
-  Future<void> deleteResume(String userId, String resumeId) async {
+  /// 이력서 삭제 API 호출
+  Future<void> deleteResume(String resumeId) async {
+    if (_userId == null) return;
+
     final baseUrl = dotenv.env['API_BASE_URL'];
-    final url = Uri.parse('$baseUrl/api/v1/resume/delete/$userId/$resumeId');
+    final url = Uri.parse('$baseUrl/api/v1/resume/delete/$_userId/$resumeId');
 
     try {
       final response = await HttpInterceptor().delete(url);
 
       if (response.statusCode == 200) {
         print('이력서 삭제 성공: $resumeId');
-
-        // 삭제 후 서버에서 최신 데이터를 다시 가져오기
-        await fetchUserResumes();
+        await fetchUserResumes(); // 삭제 후 최신 데이터 로드
       } else {
         print('이력서 삭제 실패: ${response.body}');
       }
@@ -98,11 +128,13 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     }
   }
 
-  // 대표 이력서 설정 API 호출
-  Future<void> setPrimaryResume(String userId, String resumeId) async {
+  /// 대표 이력서 설정 API 호출
+  Future<void> setPrimaryResume(String resumeId) async {
+    if (_userId == null) return;
+
     final baseUrl = dotenv.env['API_BASE_URL'];
     final url =
-        Uri.parse('$baseUrl/api/v1/resume/set-primary/$userId/$resumeId');
+        Uri.parse('$baseUrl/api/v1/resume/set-primary/$_userId/$resumeId');
 
     print('대표 이력서 설정 요청 URL: $url');
 
@@ -111,19 +143,16 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
 
       if (response.statusCode == 200) {
         print('대표 이력서 설정 성공: $resumeId');
-
-        // 서버에서 최신 데이터를 다시 가져오기
-        await fetchUserResumes();
+        await fetchUserResumes(); // 서버에서 최신 데이터 로드
 
         setState(() {
           final selectedResume = resumes.firstWhere(
             (resume) => resume['resume_id'].toString() == resumeId,
-            orElse: () => <String, dynamic>{}, // 빈 맵을 기본값으로 반환
+            orElse: () => <String, dynamic>{}, // 빈 맵 반환
           );
           if (selectedResume.isNotEmpty) {
-            // 빈 맵인지 확인
             resumes.remove(selectedResume);
-            resumes.insert(0, selectedResume); // 대표 이력서를 리스트의 첫 번째로 이동
+            resumes.insert(0, selectedResume); // 대표 이력서를 리스트 맨 앞에 배치
           } else {
             print('대표 이력서를 찾을 수 없습니다. resume_id: $resumeId');
           }
@@ -136,10 +165,12 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     }
   }
 
-  // 이력서 복사 API 호출
-  Future<void> duplicateResume(String userId, String resumeId) async {
+  /// 이력서 복사 API 호출
+  Future<void> duplicateResume(String resumeId) async {
+    if (_userId == null) return;
+
     final baseUrl = dotenv.env['API_BASE_URL'];
-    final url = Uri.parse('$baseUrl/api/v1/resume/copy/$userId/$resumeId');
+    final url = Uri.parse('$baseUrl/api/v1/resume/copy/$_userId/$resumeId');
 
     print('이력서 복사 요청 (PUT) URL: $url');
 
@@ -152,10 +183,10 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
       if (response.statusCode == 200) {
         print('이력서 복사 성공: $resumeId');
 
-        // 응답 본문이 비어 있는 경우, 리스트 전체를 다시 로드
+        // 응답 본문이 비어 있으면 전체 목록 다시 로드
         if (response.body.isEmpty) {
           print('⚠ 서버 응답이 비어 있음. 이력서 목록을 다시 불러옵니다.');
-          await fetchUserResumes(); // 서버에서 전체 이력서를 다시 가져옴
+          await fetchUserResumes();
           return;
         }
 
@@ -188,7 +219,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
         } catch (e) {
           print('⚠ JSON 파싱 중 오류 발생: $e');
           print('⚠ 서버에서 반환된 데이터가 올바른 JSON 형식인지 확인 필요.');
-          await fetchUserResumes(); // 오류 발생 시 최신 리스트 다시 불러오기
+          await fetchUserResumes();
         }
       } else {
         print('❌ 이력서 복사 실패: ${response.body}');
@@ -198,7 +229,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     }
   }
 
-  // 새로운 이력서를 추가하는 메서드
+  /// 새로운 이력서를 추가하는 메서드 (임시로 로컬에 추가)
   void addResume(
     String newResumeTitle,
     List<String> industries,
@@ -255,7 +286,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
       ),
       backgroundColor: Colors.white,
 
-      // 이력서가 없을 때 화면
+      // 이력서가 없을 때 보여줄 위젯
       body: resumes.isEmpty
           ? MyResumeEmptyWidget(
               onResumeAdded: (
@@ -288,7 +319,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
     );
   }
 
-  // 이력서가 있을 때 화면
+  /// 이력서가 있을 때 보여줄 리스트
   Widget _buildResumeList(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(30),
@@ -336,11 +367,9 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                           ResumePopupMenuBtn(
                             onSetRepresentative: () {
                               final resumeId = resume['resume_id'];
-                              print('resume_id: $resumeId'); // resume_id 출력
                               if (resumeId != null &&
                                   resumeId.toString().isNotEmpty) {
-                                setPrimaryResume('1',
-                                    resumeId.toString()); // userId와 resumeId 전달
+                                setPrimaryResume(resumeId.toString());
                               }
                             },
                             onEdit: () async {
@@ -354,8 +383,7 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                                       r['resume_id'].toString() ==
                                       updatedResume['resume_id'].toString());
                                   if (index != -1) {
-                                    resumes[index] =
-                                        updatedResume; // 기존 데이터를 업데이트
+                                    resumes[index] = updatedResume;
                                   }
                                 });
                               }
@@ -364,14 +392,14 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
                               final resumeId = resume['resume_id'];
                               if (resumeId != null &&
                                   resumeId.toString().isNotEmpty) {
-                                await deleteResume('1', resumeId.toString());
+                                await deleteResume(resumeId.toString());
                               }
                             },
                             onDuplicate: () async {
                               final resumeId = resume['resume_id'];
                               if (resumeId != null &&
                                   resumeId.toString().isNotEmpty) {
-                                await duplicateResume('1', resumeId.toString());
+                                await duplicateResume(resumeId.toString());
                               }
                             },
                           ),
