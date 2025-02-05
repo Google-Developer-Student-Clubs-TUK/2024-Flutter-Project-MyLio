@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'introduction_list.dart';
+import 'package:frontend/screens/coverletter/coverLetter_list.dart';
 import 'theme/app_colors.dart';
-import 'question_insert.dart';
+import 'coverletter/question_insert.dart';
 import 'setting_screen.dart';
 import 'components/bottom_bar.dart';
 
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onGridPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const IntroductionList()),
+            MaterialPageRoute(builder: (context) => const CoverLetterList()),
           );
         },
         onSettingsPressed: () {
