@@ -9,6 +9,8 @@ class LoadingScreen extends StatefulWidget {
   final String companyName;
   final String jobTitle;
   final List<String> questions;
+  final List<String> answers;
+  final String coverLetterId;
 
   const LoadingScreen({
     super.key,
@@ -16,6 +18,8 @@ class LoadingScreen extends StatefulWidget {
     required this.companyName,
     required this.jobTitle,
     required this.questions,
+    required this.answers,
+    required this.coverLetterId
   });
 
   @override
@@ -42,7 +46,12 @@ class _LoadingScreenState extends State<LoadingScreen>
         context,
         MaterialPageRoute(
           builder: (context) => QuestionResult(
+            title: widget.title,
+            companyName: widget.companyName,
+            jobTitle: widget.jobTitle,
             questions: widget.questions,
+            answers: widget.answers,
+            coverLetterId: widget.coverLetterId,
           ),
         ),
       );
