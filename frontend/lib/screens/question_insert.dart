@@ -124,12 +124,13 @@ class _QuestionInsertState extends State<QuestionInsert> {
     try {
       final response = await _fetchAnswers(title, questions);
 
-      final coverLetterId = response["coverLetterId"];
+      final coverLetterId = response["coverLetterId"].toString();
       final answers = response["answers"];
 
-      if (coverLetterId.isEmpty || answers.isEmpty) {
+      if (coverLetterId.toString().isEmpty || answers.isEmpty) {
         throw Exception('서버에서 coverLetterId 또는 답변을 생성하지 못했습니다.');
       }
+
 
       Navigator.push(
         context,
