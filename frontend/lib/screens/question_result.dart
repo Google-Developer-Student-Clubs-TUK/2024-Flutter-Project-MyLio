@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/screens/theme/app_colors.dart';
 import 'package:http/http.dart' as http;
 import '../../utils/http_interceptor.dart';
+import 'coverLetter_list.dart';
 import 'introduction_list.dart';
 
 class QuestionResult extends StatefulWidget {
@@ -152,7 +153,7 @@ class _QuestionResultState extends State<QuestionResult> {
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => IntroductionList()),
+          MaterialPageRoute(builder: (context) => CoverLetterList()),
         );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('최종 저장 완료')),
