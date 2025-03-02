@@ -71,9 +71,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: const Text(
                 'MyLio는 이력서 기반으로 \n AI가 자기소개서를 생성해주는 서비스 입니다.\n'
-                '중앙에 있는 + 버튼을 누르면, 이력서를 생성해줍니다. \n '
-                '왼쪽 아이콘에서 자기소개서 목록을 확인할 수 있으며,  \n'
-                '오른쪽 아이콘에서는 이력서를 생성할 수 있습니다. ',
+                    '중앙에 있는 + 버튼을 누르면, 이력서를 생성해줍니다. \n '
+                    '왼쪽 아이콘에서 자기소개서 목록을 확인할 수 있으며,  \n'
+                    '오른쪽 아이콘에서는 이력서를 생성할 수 있습니다. ',
                 style: TextStyle(fontSize: 14, color: Colors.black),
                 textAlign: TextAlign.center,
               ),
@@ -121,7 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomBar(
-        onGridPressed: () {
+        isHomeScreen: true,
+        onLeftIconPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const IntroductionList()),

@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/theme/app_colors.dart';
 
 class BottomBar extends StatelessWidget {
-  final VoidCallback onGridPressed;
+  final VoidCallback onLeftIconPressed;
   final VoidCallback onSettingsPressed;
   final VoidCallback onFabPressed;
+  final bool isHomeScreen; // ✅ 현재 Home인지 여부
 
   const BottomBar({
     Key? key,
-    required this.onGridPressed,
+    required this.onLeftIconPressed,
     required this.onSettingsPressed,
     required this.onFabPressed,
+    required this.isHomeScreen, // ✅ Home인지 여부 추가
   }) : super(key: key);
 
   @override
@@ -26,8 +28,11 @@ class BottomBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               IconButton(
-                icon: const Icon(Icons.grid_view, size: 24),
-                onPressed: onGridPressed,
+                icon: Icon(
+                  isHomeScreen ? Icons.grid_view : Icons.home, // ✅ Home이면 grid, Setting이면 home
+                  size: 24,
+                ),
+                onPressed: onLeftIconPressed,
               ),
               const SizedBox(width: 48), // 중앙 FloatingActionButton 공간
               IconButton(
