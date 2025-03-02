@@ -30,7 +30,7 @@ class _LoadingScreenState extends State<LoadingScreen>
   void initState() {
     super.initState();
 
-    // AnimationController 초기화 (2초 동안 반복)
+    // AnimationController 초기화 (4초 동안 반복)
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
@@ -42,7 +42,12 @@ class _LoadingScreenState extends State<LoadingScreen>
         context,
         MaterialPageRoute(
           builder: (context) => QuestionResult(
+            title: widget.title,
+            companyName: widget.companyName,
+            jobTitle: widget.jobTitle,
             questions: widget.questions,
+            answers: [], // 실제 답변 리스트가 있다면 전달
+            coverLetterId: "0", // 실제 coverLetterId 값으로 변경
           ),
         ),
       );
@@ -84,9 +89,8 @@ class _LoadingScreenState extends State<LoadingScreen>
               shaderCallback: (Rect bounds) {
                 return const LinearGradient(
                   colors: [
-                    // Gradients.blue,
                     Gradients.purple,
-                    Gradients.pink
+                    Gradients.pink,
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
