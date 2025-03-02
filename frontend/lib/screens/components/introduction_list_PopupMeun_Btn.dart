@@ -359,7 +359,7 @@ class _IntroductionListPopupMenuBtnState
     }
 
     final url =
-        Uri.parse("$baseUrl/api/v1/coverLetter/copy/$userId/$coverLetterId");
+        Uri.parse("$baseUrl/api/v1/coverLetters/copy/$userId/$coverLetterId");
     print("복사 API 호출 URL: $url");
 
     try {
@@ -488,20 +488,20 @@ class _IntroductionListPopupMenuBtnState
               ),
             ),
           ),
-          const PopupMenuItem(
-            value: 'copy',
-            child: Center(
-              child: Text(
-                '복사하기',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.normal,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ),
+          // const PopupMenuItem(
+          //   value: 'copy',
+          //   child: Center(
+          //     child: Text(
+          //       '복사하기',
+          //       textAlign: TextAlign.center,
+          //       style: TextStyle(
+          //         color: Colors.black,
+          //         fontWeight: FontWeight.normal,
+          //         fontSize: 12,
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ];
       },
     );
