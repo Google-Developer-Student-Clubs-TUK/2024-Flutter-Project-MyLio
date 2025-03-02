@@ -196,7 +196,7 @@ class _CoverLetterEditState extends State<CoverLetterEdit> {
                       const TextStyle(fontSize: 14, color: Color(0xff888888)),
                   decoration: InputDecoration(
                     hintText:
-                        "여기에 ${_selectedQuestion + 1}번 질문에 대한 GPT 답변이 표시됩니다.",
+                        "여기에 ${_selectedQuestion + 1}번 질문에 대한 GPT 답변이 생성 중 입니다.",
                     border: InputBorder.none,
                   ),
                   onChanged: (value) {
