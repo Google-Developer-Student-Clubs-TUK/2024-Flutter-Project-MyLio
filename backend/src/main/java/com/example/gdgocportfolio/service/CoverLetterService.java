@@ -11,6 +11,7 @@ import com.example.gdgocportfolio.repository.QuestionAnswerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,10 +70,19 @@ public class CoverLetterService {
     public CoverLetter copyCoverLetter(Long coverLetterId) {
         CoverLetter coverLetter = coverLetterRepository.findById(coverLetterId).orElseThrow(() -> new CoverLetterNotExistsException());
         CoverLetter newCoverLetter = CoverLetter.builder()
-                .questionAnswers(coverLetter.getQuestionAnswers())
+                .questionAnswers(new ArrayList<>())
                 .title(coverLetter.getTitle())
                 .user(coverLetter.getUser())
                 .build();
+        List<QuestionAnswer> questionAnswers = new ArrayList<>();
+        coverLetter.getQuestionAnswers().stream().map(qa -> {
+            QuestionAnswer newQa = new QuestionAnswer();
+            newQa.setQuestion(qa.getQuestion());
+            newQa.setAnswer(qa.getAnswer());
+            newQa.setCoverLetter(newCoverLetter);
+            return newQa;
+        }).forEach(questionAnswers::add);
+        newCoverLetter.setQuestionAnswers(questionAnswers);
         return coverLetterRepository.save(newCoverLetter);
     }
 
