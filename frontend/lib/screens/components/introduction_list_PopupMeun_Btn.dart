@@ -28,42 +28,35 @@ class _IntroductionListPopupMenuBtnState
     extends State<IntroductionListPopupMenuBtn> {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
-  /// "미리보기" 다이얼로그 표시 함수
-  /// - 선택한 coverLetter 정보를 서버에서 받아와 표시
+  /// 자소서 미리보기
   Future<void> _showPreviewDialog(BuildContext context) async {
-    // 1) userId 읽기
     final String? userId = await secureStorage.read(key: "user_id");
     if (userId == null) {
       print("❌ 저장된 user_id를 찾을 수 없습니다.");
       return;
     }
 
-    // 2) 현재 resumeTitle과 일치하는 coverLetter 찾기
     final selectedCoverLetter = widget.coverLetters.firstWhere(
       (coverLetter) => coverLetter['title'] == widget.resumeTitle,
       orElse: () => null,
     );
     if (selectedCoverLetter == null) {
       print("❌ 해당 자기소개서를 찾을 수 없습니다. (resumeTitle=${widget.resumeTitle})");
-      print("coverLetters 전체: ${widget.coverLetters}");
       return;
     }
 
-    // 3) coverLetterId 추출
     final coverLetterId = selectedCoverLetter['coverLetterId'];
     if (coverLetterId == null) {
       print("❌ coverLetterId가 없습니다. selectedCoverLetter: $selectedCoverLetter");
       return;
     }
 
-    // 4) API_BASE_URL 가져오기
     final baseUrl = dotenv.env['API_BASE_URL'];
     if (baseUrl == null) {
       print("❌ API_BASE_URL 환경 변수가 설정되지 않았습니다.");
       return;
     }
 
-    // 5) GET 요청 보내기
     final url =
         Uri.parse("$baseUrl/api/v1/coverLetters/$userId/$coverLetterId");
     print("미리보기 API 호출 URL: $url");
@@ -73,7 +66,6 @@ class _IntroductionListPopupMenuBtnState
       final response = await http.get(url);
       print("미리보기 API 응답 statusCode: ${response.statusCode}");
 
-      // --- UTF-8 디코딩 추가 ---
       final decodedBody = utf8.decode(response.bodyBytes);
       print("미리보기 API 응답 body(디코딩 후): $decodedBody");
 
@@ -91,22 +83,14 @@ class _IntroductionListPopupMenuBtnState
       }
     } catch (e) {
       print("❌ 네트워크 오류(미리보기): $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('네트워크 오류: $e'),
-          duration: const Duration(seconds: 1),
-        ),
-      );
       return;
     }
 
-    // 데이터를 정상적으로 가져왔다면, 다이얼로그를 띄워서 내용 표시
     if (previewData == null) {
       print("❌ previewData가 null입니다.");
       return;
     }
 
-    // questionAnswers 가져오기
     final questionAnswers =
         previewData['questionAnswers'] as List<dynamic>? ?? [];
 
@@ -184,6 +168,76 @@ class _IntroductionListPopupMenuBtnState
     );
   }
 
+  /// 자소서 삭제하기 (실제 API 호출)
+  Future<void> _deleteCoverLetter(BuildContext context) async {
+    final String? userId = await secureStorage.read(key: "user_id");
+    if (userId == null) {
+      print("❌ 저장된 user_id를 찾을 수 없습니다.");
+      return;
+    }
+
+    final selectedCoverLetter = widget.coverLetters.firstWhere(
+      (coverLetter) => coverLetter['title'] == widget.resumeTitle,
+      orElse: () => null,
+    );
+    if (selectedCoverLetter == null) {
+      print("❌ 해당 자기소개서를 찾을 수 없습니다. (resumeTitle=${widget.resumeTitle})");
+      return;
+    }
+
+    final coverLetterId = selectedCoverLetter['coverLetterId'];
+    if (coverLetterId == null) {
+      print("❌ coverLetterId가 없습니다. selectedCoverLetter: $selectedCoverLetter");
+      return;
+    }
+
+    final baseUrl = dotenv.env['API_BASE_URL'];
+    if (baseUrl == null) {
+      print("❌ API_BASE_URL 환경 변수가 설정되지 않았습니다.");
+      return;
+    }
+
+    final url =
+        Uri.parse("$baseUrl/api/v1/coverLetters/$userId/$coverLetterId");
+    print("삭제 API 호출 URL: $url");
+
+    try {
+      final response = await http.delete(url);
+      final decodedBody = utf8.decode(response.bodyBytes);
+
+      print("삭제 API 응답 statusCode: ${response.statusCode}");
+      print("삭제 API 응답 body(디코딩 후): $decodedBody");
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        print("✅ 삭제 성공! 응답 본문: $decodedBody");
+        // UI 갱신, SnackBar 표시 등 필요한 로직 수행
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('삭제되었습니다.'),
+            duration: Duration(seconds: 1),
+          ),
+        );
+        Navigator.of(context).pop(); // 다이얼로그 닫기
+      } else {
+        print("❌ 삭제 실패! 상태 코드: ${response.statusCode}, 응답 본문: $decodedBody");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('삭제 실패: $decodedBody'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e) {
+      print("❌ 네트워크 오류(삭제): $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('네트워크 오류: $e'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
   /// "삭제하기" 다이얼로그
   void _showDeleteDialog(BuildContext context) {
     showDialog(
@@ -230,10 +284,9 @@ class _IntroductionListPopupMenuBtnState
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: () {
-                        print('Item Deleted');
-                        // TODO: 실제 삭제 API 연동 로직 추가
-                        Navigator.of(context).pop();
+                      onPressed: () async {
+                        // "예" 버튼 누르면 삭제 API 호출
+                        await _deleteCoverLetter(context);
                       },
                       child: const Text(
                         '예',
@@ -255,7 +308,7 @@ class _IntroductionListPopupMenuBtnState
                         ),
                       ),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop(); // 다이얼로그 닫기
                       },
                       child: const Text(
                         '아니요',
@@ -276,48 +329,41 @@ class _IntroductionListPopupMenuBtnState
     );
   }
 
-  /// "복사하기" API 호출 메서드
+  /// "복사하기" API 호출
   Future<void> _copyCoverLetter(BuildContext context) async {
-    // 1) userId 읽기
     final String? userId = await secureStorage.read(key: "user_id");
     if (userId == null) {
       print("❌ 저장된 user_id를 찾을 수 없습니다.");
       return;
     }
 
-    // 2) 현재 resumeTitle과 일치하는 coverLetter 찾기
     final selectedCoverLetter = widget.coverLetters.firstWhere(
       (coverLetter) => coverLetter['title'] == widget.resumeTitle,
       orElse: () => null,
     );
     if (selectedCoverLetter == null) {
       print("❌ 해당 자기소개서를 찾을 수 없습니다. (resumeTitle=${widget.resumeTitle})");
-      print("coverLetters 전체: ${widget.coverLetters}");
       return;
     }
 
-    // 3) coverLetterId 추출
     final coverLetterId = selectedCoverLetter['coverLetterId'];
     if (coverLetterId == null) {
       print("❌ coverLetterId가 없습니다. selectedCoverLetter: $selectedCoverLetter");
       return;
     }
 
-    // 4) API_BASE_URL 가져오기
     final baseUrl = dotenv.env['API_BASE_URL'];
     if (baseUrl == null) {
       print("❌ API_BASE_URL 환경 변수가 설정되지 않았습니다.");
       return;
     }
 
-    // 5) PUT 요청 보내기
     final url =
         Uri.parse("$baseUrl/api/v1/coverLetter/copy/$userId/$coverLetterId");
     print("복사 API 호출 URL: $url");
 
     try {
       final response = await http.put(url);
-      // --- UTF-8 디코딩 추가 ---
       final decodedBody = utf8.decode(response.bodyBytes);
 
       print("복사 API 응답 statusCode: ${response.statusCode}");
@@ -331,7 +377,7 @@ class _IntroductionListPopupMenuBtnState
             duration: Duration(seconds: 1),
           ),
         );
-        // TODO: 복사 후 필요한 추가 작업(목록 갱신 등)이 있다면 여기에 로직 추가
+        // 복사 후 필요한 추가 작업(목록 갱신 등)이 있다면 여기에 로직 추가
       } else {
         print("❌ 복사 실패! 상태 코드: ${response.statusCode}, 응답 본문: $decodedBody");
         ScaffoldMessenger.of(context).showSnackBar(
@@ -342,7 +388,7 @@ class _IntroductionListPopupMenuBtnState
         );
       }
     } catch (e) {
-      print("❌ 네트워크 오류: $e");
+      print("❌ 네트워크 오류(복사): $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('네트워크 오류: $e'),
@@ -362,21 +408,20 @@ class _IntroductionListPopupMenuBtnState
       icon: const Icon(Icons.more_vert, color: Colors.white),
       onSelected: (value) async {
         if (value == 'preview') {
-          // "미리보기" 선택 시 GET API 호출 → 다이얼로그 표시
+          // "미리보기"
           await _showPreviewDialog(context);
         } else if (value == 'delete') {
+          // "삭제하기"
           _showDeleteDialog(context);
         } else if (value == 'modify') {
-          // 만약 외부에서 콜백을 전달했다면 실행
+          // "수정하기"
           if (widget.onModifyPressed != null) {
             widget.onModifyPressed!();
           } else {
-            // 기본 수정 동작: resumeTitle에 해당하는 coverLetter 찾기
             final selectedCoverLetter = widget.coverLetters.firstWhere(
               (coverLetter) => coverLetter['title'] == widget.resumeTitle,
               orElse: () => null,
             );
-
             if (selectedCoverLetter != null) {
               List<dynamic> questions =
                   selectedCoverLetter['questionAnswers'] ?? [];
@@ -393,7 +438,7 @@ class _IntroductionListPopupMenuBtnState
             }
           }
         } else if (value == 'copy') {
-          // "복사하기" 선택 시 복사 API 호출
+          // "복사하기"
           await _copyCoverLetter(context);
         } else {
           print('Selected: $value for ${widget.resumeTitle}');
