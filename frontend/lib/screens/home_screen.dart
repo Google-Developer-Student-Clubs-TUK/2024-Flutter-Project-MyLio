@@ -32,22 +32,53 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       backgroundColor: Colors.white,
       body: Center(
-        child: ShaderMask(
-          shaderCallback: (bounds) => LinearGradient(
-            colors: [
-              Gradients.blue.withOpacity(0.5),
-              Gradients.purple.withOpacity(0.5),
-              Gradients.pink.withOpacity(0.5),
-            ],
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-          ).createShader(bounds),
-          child: Image.asset(
-            'assets/images/logo.png',
-            width: 154,
-            height: 154,
-            fit: BoxFit.cover,
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // 로고에 Gradient(ShaderMask) 적용
+            ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: [
+                  Gradients.blue.withOpacity(0.5),
+                  Gradients.purple.withOpacity(0.5),
+                  Gradients.pink.withOpacity(0.5),
+                ],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ).createShader(bounds),
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 154,
+                height: 154,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // 말풍선 모양 또는 안내 박스
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: const Text(
+                'MyLio는 이력서 기반으로 \n AI가 자기소개서를 생성해주는 서비스 입니다.\n'
+                '중앙에 있는 + 버튼을 누르면, 이력서를 생성해줍니다. \n '
+                '왼쪽 아이콘에서 자기소개서 목록을 확인할 수 있으며,  \n'
+                '오른쪽 아이콘에서는 이력서를 생성할 수 있습니다. ',
+                style: TextStyle(fontSize: 14, color: Colors.black),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: Container(
