@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../utils/http_interceptor.dart';
+import 'loading_screen.dart';
 import 'question_result.dart';
 import 'dart:convert';
 
@@ -80,9 +81,9 @@ class _QuestionInsertState extends State<QuestionInsert> {
 
         final coverLetterId = data['coverLetterId'] ?? '';
         final questionAnswers =
-            List<Map<String, dynamic>>.from(data['questionAnswers']);
+        List<Map<String, dynamic>>.from(data['questionAnswers']);
         final answers =
-            questionAnswers.map((qa) => qa['answer'].toString()).toList();
+        questionAnswers.map((qa) => qa['answer'].toString()).toList();
 
         return {
           "coverLetterId": coverLetterId,
@@ -101,6 +102,7 @@ class _QuestionInsertState extends State<QuestionInsert> {
     }
   }
 
+  /*
   /// ✅ 사용자가 문항 입력 후 제출
   void _handleSubmit() async {
     if (_userId == null) {
@@ -160,6 +162,45 @@ class _QuestionInsertState extends State<QuestionInsert> {
       setState(() => _isLoading = false);
     }
   }
+
+   */
+  /// ✅ 사용자가 문항 입력 후 제출
+  void _handleSubmit() async {
+    if (_userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('사용자 정보를 불러오지 못했습니다. 다시 시도해주세요.')),
+      );
+      return;
+    }
+
+    if (titleController.text.trim().isEmpty ||
+        questionControllers.any((controller) => controller.text.trim().isEmpty)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('모든 필드를 입력해주세요.')),
+      );
+      return;
+    }
+
+    final title = titleController.text.trim();
+    final companyName = companyNameController.text.trim();
+    final jobTitle = jobTitleController.text.trim();
+    final questions = questionControllers.map((controller) => controller.text.trim()).toList();
+
+    // ✅ 로딩 화면으로 이동
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LoadingScreen(
+          title: title,
+          companyName: companyName,
+          jobTitle: jobTitle,
+          questions: questions,
+          userId: _userId!,
+        ),
+      ),
+    );
+  }
+
 
 /*
   void _handleSubmit() async {
@@ -245,7 +286,7 @@ class _QuestionInsertState extends State<QuestionInsert> {
             filled: true,
             fillColor: Colors.white,
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Colors.grey),

@@ -1,14 +1,18 @@
+import 'dart:convert';
 import 'dart:math';
-import 'question_result.dart';
-import 'theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:frontend/screens/theme/app_colors.dart';
+import '../../../utils/http_interceptor.dart';
+import 'question_result.dart';
 
-// 로딩 화면
 class LoadingScreen extends StatefulWidget {
   final String title;
   final String companyName;
   final String jobTitle;
   final List<String> questions;
+  final String userId;
 
   const LoadingScreen({
     super.key,
@@ -16,6 +20,7 @@ class LoadingScreen extends StatefulWidget {
     required this.companyName,
     required this.jobTitle,
     required this.questions,
+    required this.userId,
   });
 
   @override
@@ -25,38 +30,87 @@ class LoadingScreen extends StatefulWidget {
 class _LoadingScreenState extends State<LoadingScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+  final HttpInterceptor httpInterceptor = HttpInterceptor();
+  final String baseUrl = dotenv.env['API_BASE_URL'] ?? "";
 
   @override
   void initState() {
     super.initState();
 
-    // AnimationController 초기화 (4초 동안 반복)
+    // 애니메이션 초기화
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 4),
-    )..repeat(); // 무한 반복
+    )..repeat();
 
-    // 2초 후 결과 화면으로 이동
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => QuestionResult(
-            title: widget.title,
-            companyName: widget.companyName,
-            jobTitle: widget.jobTitle,
-            questions: widget.questions,
-            answers: [], // 실제 답변 리스트가 있다면 전달
-            coverLetterId: "0", // 실제 coverLetterId 값으로 변경
-          ),
-        ),
+    // API 호출 후 결과 페이지로 이동
+    _fetchAnswers();
+  }
+
+  /// ✅ GPT API 호출
+  Future<void> _fetchAnswers() async {
+    final url = Uri.parse('$baseUrl/api/v1/coverLetters/gen/${widget.userId}');
+
+    try {
+      final response = await httpInterceptor.post(
+        url,
+        body: {
+          "userId": widget.userId,
+          "title": widget.title,
+          "questions": widget.questions,
+        },
       );
-    });
+
+      if (response.statusCode == 200) {
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final data = jsonDecode(decodedBody);
+
+        final coverLetterId = data['coverLetterId'].toString() ?? '';
+        final questionAnswers = List<Map<String, dynamic>>.from(data['questionAnswers']);
+        final answers = questionAnswers.map((qa) => qa['answer'].toString()).toList();
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => QuestionResult(
+                title: widget.title,
+                companyName: widget.companyName,
+                jobTitle: widget.jobTitle,
+                questions: widget.questions,
+                answers: answers,
+                coverLetterId: coverLetterId,
+              ),
+            ),
+          );
+        }
+      } else {
+        throw Exception('서버 응답 오류: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('API 요청 실패: $e');
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => QuestionResult(
+              title: widget.title,
+              companyName: widget.companyName,
+              jobTitle: widget.jobTitle,
+              questions: widget.questions,
+              answers: ['오류 발생: 답변을 가져올 수 없음'],
+              coverLetterId: '',
+            ),
+          ),
+        );
+      }
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose(); // 메모리 누수를 방지하기 위해 dispose 호출
+    _controller.dispose();
     super.dispose();
   }
 
