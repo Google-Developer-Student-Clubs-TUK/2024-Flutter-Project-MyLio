@@ -144,21 +144,6 @@ class _IntroductionListPopupMenuBtnState
                       ],
                     );
                   }).toList(),
-                  Align(
-                    alignment: Alignment.center,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColor.color2,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(100, 44),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('닫기'),
-                    ),
-                  ),
                 ],
               ),
             ),

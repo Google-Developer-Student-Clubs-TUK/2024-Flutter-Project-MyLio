@@ -13,6 +13,27 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('도움말'),
+        content: const Text(
+          'MyLio는 이력서 기반으로 AI가 \n 자기소개서를 생성해주는 서비스 입니다. \n\n'
+          '중앙에 + 버튼을 누르면, 자기소개서를 생성해줍니다. \n\n '
+          '왼쪽 아이콘에서 자기소개서 목록을 확인할 수 있으며, 오른쪽 아이콘에서는 이력서를 생성할 수 있습니다. ',
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,6 +50,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         leading: Container(), // 빈 컨테이너로 대체
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline, color: Colors.black),
+            onPressed: _showHelpDialog,
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
       body: Center(
@@ -54,30 +81,31 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(height: 16),
+
             // 말풍선 모양 또는 안내 박스
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: const Text(
-                'MyLio는 이력서 기반으로 \n AI가 자기소개서를 생성해주는 서비스 입니다.\n'
-                '중앙에 + 버튼을 누르면, 자기소개서를 생성해줍니다. \n '
-                '왼쪽 아이콘에서 자기소개서 목록을 확인할 수 있으며,  \n'
-                '오른쪽 아이콘에서는 이력서를 생성할 수 있습니다. ',
-                style: TextStyle(fontSize: 14, color: Colors.black),
-                textAlign: TextAlign.center,
-              ),
-            ),
+            // Container(
+            //   margin: const EdgeInsets.symmetric(horizontal: 16),
+            //   padding: const EdgeInsets.all(16),
+            //   decoration: BoxDecoration(
+            //     color: Colors.white,
+            //     borderRadius: BorderRadius.circular(8),
+            //     boxShadow: const [
+            //       BoxShadow(
+            //         color: Colors.black12,
+            //         blurRadius: 4,
+            //         offset: Offset(0, 2),
+            //       ),
+            //     ],
+            //   ),
+            //   child: const Text(
+            //     'MyLio는 이력서 기반으로 \n AI가 자기소개서를 생성해주는 서비스 입니다.\n'
+            //     '중앙에 + 버튼을 누르면, 자기소개서를 생성해줍니다. \n '
+            //     '왼쪽 아이콘에서 자기소개서 목록을 확인할 수 있으며,  \n'
+            //     '오른쪽 아이콘에서는 이력서를 생성할 수 있습니다. ',
+            //     style: TextStyle(fontSize: 14, color: Colors.black),
+            //     textAlign: TextAlign.center,
+            //   ),
+            // ),
           ],
         ),
       ),
