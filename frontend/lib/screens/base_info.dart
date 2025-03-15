@@ -50,7 +50,8 @@ class Base_Info_State extends State<Base_Info> {
       print(response);
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        // 응답을 UTF-8로 디코딩하여 한글 인코딩 문제 해결
+        final data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
           nameHint = data['name'] ?? nameHint;
           phoneHint = data['phoneNumber'] ?? phoneHint;
