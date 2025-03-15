@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'resume/resume_title.dart';
 import 'resume/industrial_group.dart';
 import 'resume/job_duty.dart';
@@ -40,7 +38,8 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
   Future<void> saveResume() async {
     final String? baseUrl = dotenv.env['API_BASE_URL'];
     if (baseUrl == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('환경 변수를 확인해주세요.'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('환경 변수를 확인해주세요.'), backgroundColor: Colors.red));
       return;
     }
 
@@ -106,24 +105,27 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('이력서가 성공적으로 저장되었습니다!'), backgroundColor: Colors.green,
+          content: Text('이력서가 성공적으로 저장되었습니다!'),
+          backgroundColor: Colors.green,
         ));
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyResumeScreen(resumeTitle: resumeTitle)),
+          MaterialPageRoute(
+              builder: (context) => MyResumeScreen(resumeTitle: resumeTitle)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('이력서 저장 실패: ${response.body}'), backgroundColor: Colors.red,
+          content: Text('이력서 저장 실패: ${response.body}'),
+          backgroundColor: Colors.red,
         ));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('오류 발생: $e'), backgroundColor: Colors.red,
+        content: Text('오류 발생: $e'),
+        backgroundColor: Colors.red,
       ));
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -371,8 +373,9 @@ class _MyResumeCreatePageState extends State<MyResumeCreatePage> {
                 ),
               );
             } else {
-              final String? accessToken = await secureStorage.read(key: "jwt_token");
-              print("🔑 불러온 ACCESS_TOKEN: $accessToken");  // 🚀 정상적으로 불러오는지 확인
+              final String? accessToken =
+                  await secureStorage.read(key: "jwt_token");
+              print("🔑 불러온 ACCESS_TOKEN: $accessToken"); // 🚀 정상적으로 불러오는지 확인
               if (accessToken != null && accessToken.isNotEmpty) {
                 await saveResume();
               } else {
