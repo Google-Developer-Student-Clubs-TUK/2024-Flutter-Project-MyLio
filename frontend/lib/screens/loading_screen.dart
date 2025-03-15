@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:frontend/screens/theme/app_colors.dart';
 import '../../../utils/http_interceptor.dart';
 import 'question_result.dart';
@@ -66,8 +65,10 @@ class _LoadingScreenState extends State<LoadingScreen>
         final data = jsonDecode(decodedBody);
 
         final coverLetterId = data['coverLetterId'].toString() ?? '';
-        final questionAnswers = List<Map<String, dynamic>>.from(data['questionAnswers']);
-        final answers = questionAnswers.map((qa) => qa['answer'].toString()).toList();
+        final questionAnswers =
+            List<Map<String, dynamic>>.from(data['questionAnswers']);
+        final answers =
+            questionAnswers.map((qa) => qa['answer'].toString()).toList();
 
         if (mounted) {
           Navigator.pushReplacement(
