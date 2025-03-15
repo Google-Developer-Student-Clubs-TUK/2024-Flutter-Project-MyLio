@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:frontend/screens/introduction_list.dart';
+import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/theme/app_colors.dart';
 import '../../../utils/http_interceptor.dart';
 
@@ -12,7 +12,7 @@ class QuestionResult extends StatefulWidget {
   final String jobTitle;
   final List<String> questions;
   final List<String> answers;
-  final String coverLetterId; // ✅ coverLetterId 추가 (API 호출에 필요)
+  final String coverLetterId;
 
   QuestionResult({
     super.key,
@@ -34,7 +34,7 @@ class _QuestionResultState extends State<QuestionResult> {
   final HttpInterceptor httpInterceptor = HttpInterceptor();
 
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  String? _userId; // ✅ secureStorage에서 가져올 userId
+  String? _userId; // secureStorage에서 가져올 userId
 
   late List<TextEditingController> _answerControllers;
   late List<int> _currentTextLengths;
@@ -43,7 +43,7 @@ class _QuestionResultState extends State<QuestionResult> {
   @override
   void initState() {
     super.initState();
-    _loadUserInfo(); // ✅ userId 가져오기
+    _loadUserInfo(); // userId 가져오기
     _answerControllers = List.generate(
       widget.questions.length,
       (index) => TextEditingController(text: widget.answers[index]),
@@ -60,7 +60,7 @@ class _QuestionResultState extends State<QuestionResult> {
     );
   }
 
-  /// ✅ `secureStorage`에서 userId 가져오기
+  /// `secureStorage`에서 userId 가져오기
   Future<void> _loadUserInfo() async {
     String? userId = await secureStorage.read(key: "user_id");
 
@@ -84,7 +84,7 @@ class _QuestionResultState extends State<QuestionResult> {
     super.dispose();
   }
 
-  /// ✅ 임시저장 API 호출 (PUT /copy/{userId}/{coverLetterId})
+  //임시저장 API 호출 (PUT /copy/{userId}/{coverLetterId})
   Future<void> _saveTempCoverLetter() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -117,7 +117,7 @@ class _QuestionResultState extends State<QuestionResult> {
     }
   }
 
-  /// ✅ 최종저장 API 호출 (PUT /{userId}/{coverLetterId})
+  // 최종저장 API 호출 (PUT /{userId}/{coverLetterId})
   Future<void> _saveCoverLetter() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -155,7 +155,7 @@ class _QuestionResultState extends State<QuestionResult> {
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => IntroductionList()),
+          MaterialPageRoute(builder: (context) => HomeScreen()),
         );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('최종 저장 완료')),
