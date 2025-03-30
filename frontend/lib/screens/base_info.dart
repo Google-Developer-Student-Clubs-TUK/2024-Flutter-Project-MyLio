@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import 'package:frontend/utils/http_interceptor.dart';
+import 'package:frontend/screens/login.dart';
 
 class Base_Info extends StatefulWidget {
   @override
@@ -50,7 +51,8 @@ class Base_Info_State extends State<Base_Info> {
       print(response);
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        // 응답을 UTF-8로 디코딩하여 한글 인코딩 문제 해결
+        final data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
           nameHint = data['name'] ?? nameHint;
           phoneHint = data['phoneNumber'] ?? phoneHint;
@@ -102,6 +104,9 @@ class Base_Info_State extends State<Base_Info> {
               ),
             ),
             Spacer(),
+            // 로그아웃 버튼을 수정완료 버튼 위에 배치
+            _buildLogoutButton(),
+            SizedBox(height: 40),
             _buildSubmitButton(),
             SizedBox(height: 10),
           ],
@@ -206,6 +211,60 @@ class Base_Info_State extends State<Base_Info> {
             fontSize: 14,
             color: Colors.white,
             fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 로그아웃 버튼 위젯 생성 함수 (수정완료 버튼 위에 배치)
+  Widget _buildLogoutButton() {
+    return Center(
+      child: TextButton(
+        onPressed: () {
+          // 로그아웃 확인 다이얼로그
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("로그아웃"),
+                content: Text("로그아웃을 정말 하시겠습니까?"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // 취소 시 다이얼로그 닫기
+                    },
+                    child: Text("취소"),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      // 확인 시 SecureStorage에 저장된 사용자 정보 삭제 후 Login 화면으로 이동
+                      await secureStorage.deleteAll();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => Login()),
+                      );
+                    },
+                    child: Text("확인"),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.grey[200], // 연한 회색 배경
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12), // 작게 줄임
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Text(
+          '로그아웃',
+          style: TextStyle(
+            fontSize: 14, // 폰트 크기 작게
+            color: Colors.grey, // 진한 회색 텍스트
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),

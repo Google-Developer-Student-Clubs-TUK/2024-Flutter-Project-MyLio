@@ -54,7 +54,7 @@ class _SettingScreenState extends State<SettingScreen> {
               },
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey[300]!),
                   borderRadius: BorderRadius.circular(16),
@@ -82,13 +82,13 @@ class _SettingScreenState extends State<SettingScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => const MyResumeScreen(
-                            resumeTitle: '', // 빈 문자열 전달
-                          )),
+                        resumeTitle: '', // 빈 문자열 전달
+                      )),
                 );
               },
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey[300]!),
                   borderRadius: BorderRadius.circular(16),
@@ -140,7 +140,8 @@ class _SettingScreenState extends State<SettingScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomBar(
-        onGridPressed: () {
+        isHomeScreen: false,
+        onLeftIconPressed: () {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => HomeScreen()),

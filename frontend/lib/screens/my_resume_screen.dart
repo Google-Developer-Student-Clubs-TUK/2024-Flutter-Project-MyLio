@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:frontend/screens/edit.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'my_resume_create_page.dart';
@@ -40,7 +39,9 @@ class _MyResumeScreenState extends State<MyResumeScreen> {
       return;
     }
 
+    // FlutterSecureStorage에서 user_id 가져오기
     String? userId = await secureStorage.read(key: "user_id");
+    print("🔍 저장된 user_id: $userId"); // ✅ 디버깅용 로그 추가
 
     if (userId == null) {
       print("🚨 USER_ID가 없습니다.");

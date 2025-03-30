@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // dotenv import
+import '../../../utils/http_interceptor.dart';
+import 'login.dart';
 
 void main() async {
   // 환경 변수 로드
@@ -29,58 +30,86 @@ class SignupState extends State<Signup> {
   late String email = '';
   late String password = '';
 
+  final HttpInterceptor httpInterceptor = HttpInterceptor();
+
   Future<void> signup() async {
-    // 환경 변수에서 API_BASE_URL과 ACCESS_TOKEN 가져오기
     final baseUrl = dotenv.env['API_BASE_URL'];
-    final accessToken = dotenv.env['ACCESS_TOKEN'];
 
-    if (baseUrl == null || accessToken == null) {
-      Get.snackbar("오류", "환경 변수를 확인해주세요.",
-          snackPosition: SnackPosition.TOP);
+    if (baseUrl == null) {
+      Get.snackbar(
+        "오류",
+        "환경 변수를 확인해주세요.",
+        snackPosition: SnackPosition.TOP,
+      );
       return;
     }
 
-    final url = Uri.parse("$baseUrl/api/v1/auth/user"); // 환경 변수 사용
-
+    // 약관 미동의 시 에러 처리
     if (!isChecked) {
-      Get.snackbar("오류", "이용 약관에 동의해주세요.",
-          snackPosition: SnackPosition.TOP);
+      Get.snackbar(
+        "오류",
+        "이용 약관에 동의해주세요.",
+        snackPosition: SnackPosition.TOP,
+      );
       return;
     }
+
+    // 필드가 하나라도 비어있으면 에러 처리
+    if (name.isEmpty || phone.isEmpty || email.isEmpty || password.isEmpty) {
+      Get.snackbar(
+        "오류",
+        "모든 필드를 입력해주세요.",
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    final url = Uri.parse("$baseUrl/api/v1/auth/user");
 
     try {
-      final response = await http.post(
+      final response = await httpInterceptor.post(
         url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $accessToken", // 토큰 추가
-        },
-        body: jsonEncode({
+        body: {
           "name": name,
           "phoneNumber": phone,
           "email": email,
           "password": password,
-        }),
+        },
       );
 
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        Get.snackbar("회원가입 성공", "로그인 화면으로 이동합니다.",
-            snackPosition: SnackPosition.TOP);
-        Get.back(); // 회원가입 성공 후 이전 화면으로 돌아가기
-      } else if (name.isEmpty || phone.isEmpty || email.isEmpty || password.isEmpty) {
-        Get.snackbar("오류", "모든 필드를 입력해주세요.", snackPosition: SnackPosition.TOP);
-        return;
+        // 회원가입 성공 시 스낵바를 띄우고 로그인 화면으로 이동
+        Get.snackbar(
+          "회원가입 성공",
+          "로그인 화면으로 이동합니다.",
+          snackPosition: SnackPosition.TOP,
+        );
+        Get.to(() => Login());
       } else {
-        final data = jsonDecode(response.body);
-        Get.snackbar("회원가입 실패", data['message'] ?? "알 수 없는 오류 발생",
-            snackPosition: SnackPosition.TOP);
+        try {
+          final data = jsonDecode(response.body);
+          Get.snackbar(
+            "회원가입 실패",
+            data['message'] ?? "알 수 없는 오류 발생",
+            snackPosition: SnackPosition.TOP,
+          );
+        } catch (e) {
+          Get.snackbar(
+            "회원가입 실패",
+            response.body,
+            snackPosition: SnackPosition.TOP,
+          );
+        }
       }
     } catch (e) {
-      Get.snackbar("네트워크 오류", "서버와 연결할 수 없습니다.",
-          snackPosition: SnackPosition.TOP);
+      Get.snackbar(
+        "네트워크 오류",
+        "서버와 연결할 수 없습니다.",
+        snackPosition: SnackPosition.TOP,
+      );
       print('문제 : $e');
     }
   }
@@ -154,23 +183,25 @@ class SignupState extends State<Signup> {
                         child: TextFormField(
                           obscureText: !_isPasswordVisible,
                           decoration: InputDecoration(
-                              hintText: "비밀번호",
-                              hintStyle: TextStyle(fontSize: 12),
-                              focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.grey),
+                            hintText: "비밀번호",
+                            hintStyle: TextStyle(fontSize: 12),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                            ),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordVisible = !_isPasswordVisible;
+                                });
+                              },
+                              icon: Icon(
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Color(0xFFC1C7D0),
                               ),
-                              suffixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _isPasswordVisible = !_isPasswordVisible;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    _isPasswordVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                    color: Color(0xFFC1C7D0),
-                                  ))),
+                            ),
+                          ),
                           onChanged: (value) => password = value,
                         ),
                       ),
@@ -181,26 +212,30 @@ class SignupState extends State<Signup> {
                           children: [
                             Checkbox(
                               shape: RoundedRectangleBorder(
-                                  side: BorderSide(
-                                    color: Colors.black,
-                                    width: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(50)),
+                                side: BorderSide(
+                                  color: Colors.black,
+                                  width: 0.1,
+                                ),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
                               value: isChecked,
                               onChanged: (bool? value) {
                                 setState(() {
-                                  isChecked = value!;
+                                  isChecked = value ?? false;
                                 });
                               },
                               activeColor: Colors.white,
                               checkColor: Color(0xFF878CEF),
                             ),
                             Expanded(
-                                child: Text(
-                                  '이용 약관, 개인정보 처리방침에 동의합니다.',
-                                  style: TextStyle(
-                                      fontSize: 12, fontWeight: FontWeight.w400),
-                                ))
+                              child: Text(
+                                '이용 약관, 개인정보 처리방침에 동의합니다.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -217,9 +252,10 @@ class SignupState extends State<Signup> {
                         child: Text(
                           "회원가입",
                           style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700),
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                       SizedBox(height: 15),
@@ -232,6 +268,9 @@ class SignupState extends State<Signup> {
                             decoration: TextDecoration.underline,
                           ),
                         ),
+                        onTap: () {
+                          // 비밀번호 찾기 로직 추가
+                        },
                       ),
                     ],
                   ),
@@ -240,44 +279,48 @@ class SignupState extends State<Signup> {
             ),
             Spacer(),
             Center(
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '이미 계정이 있나요? ',
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '이미 계정이 있나요? ',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFFAAAAAA),
+                        ),
+                      ),
+                      GestureDetector(
+                        child: Text(
+                          '로그인',
                           style: TextStyle(
+                            color: Color(0xFF878CEF),
                             fontSize: 14,
-                            color: Color(0xFFAAAAAA),
                           ),
                         ),
-                        GestureDetector(
-                          child: Text(
-                            '로그인',
-                            style:
-                            TextStyle(color: Color(0xFF878CEF), fontSize: 14),
-                          ),
-                          onTap: () {
-                            Get.back();
-                          },
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Get.to(HomeScreen());
-                      },
-                      child: Text(
-                        '건너뛰기',
-                        style: TextStyle(fontSize: 12, color: Color(0xFFCCCCCC)),
+                        onTap: () {
+                          Get.back();
+                        },
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: () {
+                      Get.to(HomeScreen());
+                    },
+                    child: Text(
+                      '건너뛰기',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFFCCCCCC),
                       ),
-                    )
-                  ],
-                )),
+                    ),
+                  )
+                ],
+              ),
+            ),
           ],
         ),
       ),

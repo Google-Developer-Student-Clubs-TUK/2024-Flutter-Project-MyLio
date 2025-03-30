@@ -31,6 +31,11 @@ class _CoverLetterEditState extends State<CoverLetterEdit> {
   @override
   void initState() {
     super.initState();
+    // 컨트롤러에 리스너 추가: 글자수 변화 감지
+    _answerController.addListener(() {
+      setState(() {});
+    });
+
     // 만약 외부에서 questions가 전달되었다면 API 호출 없이 그대로 사용
     if (widget.questions != null) {
       questions = widget.questions!;
@@ -242,10 +247,10 @@ class _CoverLetterEditState extends State<CoverLetterEdit> {
                   ),
                 ),
                 Expanded(child: Container()),
-                // "0/1000자" 표시 (추후 글자수 카운트로 변경 가능)
-                const Text(
-                  '0/1000자',
-                  style: TextStyle(
+                // 입력된 글자 수에 따른 카운트 표시
+                Text(
+                  "${_answerController.text.length}/1000자",
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xFF8978EB),
                     fontWeight: FontWeight.normal,
