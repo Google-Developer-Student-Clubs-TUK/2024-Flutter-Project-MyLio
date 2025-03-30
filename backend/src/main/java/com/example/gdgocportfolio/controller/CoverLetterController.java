@@ -1,10 +1,7 @@
 package com.example.gdgocportfolio.controller;
 
 
-import com.example.gdgocportfolio.dto.CoverLetterCreateRequestDto;
-import com.example.gdgocportfolio.dto.CoverLetterResponseDto;
-import com.example.gdgocportfolio.dto.QuestionAnswerDto;
-import com.example.gdgocportfolio.dto.QuestionAnswerUpdateRequestDto;
+import com.example.gdgocportfolio.dto.*;
 import com.example.gdgocportfolio.entity.CoverLetter;
 import com.example.gdgocportfolio.entity.QuestionAnswer;
 import com.example.gdgocportfolio.service.ChatGPTService;
@@ -39,24 +36,26 @@ public class CoverLetterController {
     // ------------------------------------------------------
 
     // 자소서 생성
-    @PostMapping("/gen/{userId}")
+    @PostMapping("/gen")
     @Operation(summary = "GPT 이용해 CoverLetter 새로 생성",
             description = "userId, title, questions(1~3개)를 받아 질문당 GPT 호출 → CoverLetter + QuestionAnswer 저장")
     public ResponseEntity<CoverLetterResponseDto> createCoverLetterWithGpt(
-            @PathVariable Long userId,
-            @Valid @RequestBody CoverLetterCreateRequestDto requestDto
+            @Valid @RequestBody CoverLetterCreateRequestDto requestDto,
+            UserAccessTokenInfoDto accessToken
     ) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         CoverLetter saved = coverLetterService.createCoverLetterWithGpt(userId, requestDto.getTitle(), requestDto.getQuestions());
         return ResponseEntity.ok(toResponseDto(saved));
     }
 
     // 자소서 상세 조회
-    @GetMapping("/{userId}/{coverLetterId}")
+    @GetMapping("/{coverLetterId}")
     @Operation(summary = "자소서 상세 조회")
     public ResponseEntity<CoverLetterResponseDto> getCoverLetter(
-            @PathVariable Long userId,
-            @PathVariable Long coverLetterId
+            @PathVariable Long coverLetterId,
+            UserAccessTokenInfoDto accessToken
     ) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         return coverLetterService.getCoverLetterByIdAndUserId(coverLetterId, userId)
                 .map(this::toResponseDto)
                 .map(ResponseEntity::ok)
@@ -64,24 +63,26 @@ public class CoverLetterController {
     }
 
     // 특정 유저의 전체 자소서 조회
-    @GetMapping("/user/{userId}")
+    @GetMapping("/my")
     @Operation(summary = "특정 유저의 모든 CoverLetter")
     public ResponseEntity<List<CoverLetterResponseDto>> getCoverLettersByUser(
-            @PathVariable Long userId
+            UserAccessTokenInfoDto accessToken
     ) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         List<CoverLetter> list = coverLetterService.getAllCoverLettersByUserId(userId);
         List<CoverLetterResponseDto> dtos = list.stream().map(this::toResponseDto).toList();
         return ResponseEntity.ok(dtos);
     }
 
     // 자소서 수정 (제목 변경)
-    @PutMapping("/{userId}/{coverLetterId}")
+    @PutMapping("/{coverLetterId}")
     @Operation(summary = "자소서 수정")
     public ResponseEntity<CoverLetterResponseDto> updateCoverLetter(
-            @PathVariable Long userId,
             @PathVariable Long coverLetterId,
-            @RequestBody CoverLetterCreateRequestDto dto
+            @RequestBody CoverLetterCreateRequestDto dto,
+            UserAccessTokenInfoDto accessToken
     ) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         CoverLetter newData = new CoverLetter();
         newData.setTitle(dto.getTitle());
 
@@ -90,18 +91,20 @@ public class CoverLetterController {
     }
 
     // 자소서 삭제
-    @DeleteMapping("/{userId}/{coverLetterId}")
+    @DeleteMapping("/{coverLetterId}")
     @Operation(summary = "자소서 삭제")
     public ResponseEntity<Void> deleteCoverLetter(
-            @PathVariable Long userId,
-            @PathVariable Long coverLetterId
+            @PathVariable Long coverLetterId,
+            UserAccessTokenInfoDto accessToken
     ) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         coverLetterService.deleteCoverLetter(coverLetterId, userId);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/copy/{userId}/{coverLetterId}")
-    public String copyCoverLetter(@PathVariable Long userId, @PathVariable Long coverLetterId) {
+    @PutMapping("/copy/{coverLetterId}")
+    public String copyCoverLetter(@PathVariable Long coverLetterId, UserAccessTokenInfoDto accessToken) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         CoverLetter coverLetter = coverLetterService.copyCoverLetter(coverLetterId);
         return "{" + "\"cover_letter_id\":" + coverLetter.getCoverLetterId() + "}";
     }
@@ -124,15 +127,16 @@ public class CoverLetterController {
 //        return ResponseEntity.ok(toQaDto(qa));
 //    }
 
-    @PostMapping("/{userId}/{coverLetterId}/question-answer/{qaId}/regen")
+    @PostMapping("/{coverLetterId}/question-answer/{qaId}/regen")
     @Operation(summary = "GPT 이용, 특정 Q/A 재생성 (답변 재요청)",
             description = "coverLetterId, userId, qaId로 특정 Q/A를 찾아, 기존 question을 다시 GPT에 보내고, 새 answer를 반환 (저장은 x; " +
                     "사용자가 임시저장하면 저장 (put)")
     public ResponseEntity<QuestionAnswerDto> regenQuestionAnswer(
-            @PathVariable Long userId,
             @PathVariable Long coverLetterId,
-            @PathVariable Long qaId
+            @PathVariable Long qaId,
+            UserAccessTokenInfoDto accessToken
     ) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         String regeneratedAnswer = coverLetterService.regenQuestionAnswer(userId, coverLetterId, qaId);
         QuestionAnswerDto dto = new QuestionAnswerDto();
         dto.setQuestionAnswerId(qaId);
@@ -142,13 +146,14 @@ public class CoverLetterController {
 
 
     // QuestionAnswer 조회 (coverLetter 범위 내)
-    @GetMapping("/{userId}/{coverLetterId}/question-answer/{qaId}")
+    @GetMapping("/{coverLetterId}/question-answer/{qaId}")
     @Operation(summary = "개별 Q/A 조회")
     public ResponseEntity<QuestionAnswerDto> getQuestionAnswer(
-            @PathVariable Long userId,
             @PathVariable Long coverLetterId,
-            @PathVariable Long qaId
+            @PathVariable Long qaId,
+            UserAccessTokenInfoDto accessToken
     ) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         return coverLetterService.getQuestionAnswer(coverLetterId, qaId)
                 .map(this::toQaDto)
                 .map(ResponseEntity::ok)
@@ -156,14 +161,15 @@ public class CoverLetterController {
     }
 
     // QuestionAnswer 수정
-    @PatchMapping("/{userId}/{coverLetterId}/question-answer/{qaId}")
+    @PatchMapping("/{coverLetterId}/question-answer/{qaId}")
     @Operation(summary = "개별 Q/A 수정 (해당 coverLetterId 범위에서)")
     public ResponseEntity<QuestionAnswerDto> updateQuestionAnswer(
-            @PathVariable Long userId,
             @PathVariable Long coverLetterId,
             @PathVariable Long qaId,
-            @RequestBody QuestionAnswerUpdateRequestDto requestDto
+            @RequestBody QuestionAnswerUpdateRequestDto requestDto,
+            UserAccessTokenInfoDto accessToken
     ) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         QuestionAnswer updatedQa = questionAnswerService.updateQuestionAnswer(coverLetterId, userId, qaId, requestDto);
         return ResponseEntity.ok(toQaDto(updatedQa));
     }
