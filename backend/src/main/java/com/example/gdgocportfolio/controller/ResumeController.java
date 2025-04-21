@@ -25,55 +25,63 @@ public class ResumeController {
     }
 
     // 이력서 생성
-    @PostMapping("/create/{userId}")
+    @PostMapping("/create")
     @Operation(summary = "이력서 생성", description = "이력서를 생성합니다.")
-    public ResponseEntity<String> createResume(@PathVariable Long userId, @Valid @RequestBody ResumeCreateRequestDto resumeCreateRequestDto) {
+    public ResponseEntity<String> createResume(@Valid @RequestBody ResumeCreateRequestDto resumeCreateRequestDto, UserAccessTokenInfoDto accessToken) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         resumeService.saveResume(userId, resumeCreateRequestDto);
         return ResponseEntity.ok("이력서 저장 완료");
     }
 
     // 이력서 조회 (단건)
-    @GetMapping("/{userId}/{resumeId}")
+    @GetMapping("/{resumeId}")
     @Operation(summary = "이력서 조회(단건)", description = "이력서 단건을 조회합니다.")
-    public ResponseEntity<ResumeResponseDto> getResume(@PathVariable Long userId, @PathVariable Long resumeId) {
+    public ResponseEntity<ResumeResponseDto> getResume(@PathVariable Long resumeId, UserAccessTokenInfoDto accessToken) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         ResumeResponseDto resumeResponseDto = resumeService.getResume(userId, resumeId);
         return ResponseEntity.ok(resumeResponseDto);
     }
 
     // 이력서 조회 (사용자별 전체)
-    @GetMapping("/user/{userId}")
+    @GetMapping("/my")
     @Operation(summary = "이력서 조회 (사용자별 전체)", description = "사용자의 이력서 전체를 조회합니다.")
-    public ResponseEntity<List<ResumeResponseDto>> getResumesByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<ResumeResponseDto>> getResumesByUser(UserAccessTokenInfoDto accessToken) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         List<ResumeResponseDto> resumes = resumeService.getResumesByUser(userId);
         return ResponseEntity.ok(resumes);
     }
 
     // 이력서 업데이트
-    @PutMapping("/update/{userId}/{resumeId}")
+    @PutMapping("/update/{resumeId}")
     @Operation(summary = "이력서 업데이트", description = "이력서를 업데이트합니다.")
-    public ResponseEntity<String> updateResume(@PathVariable Long userId, @PathVariable Long resumeId, @RequestBody ResumeCreateRequestDto resumeCreateRequestDto) {
+    public ResponseEntity<String> updateResume(@PathVariable Long resumeId, @RequestBody ResumeCreateRequestDto resumeCreateRequestDto, UserAccessTokenInfoDto accessToken) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         resumeService.updateResume(userId, resumeId, resumeCreateRequestDto);
         return ResponseEntity.ok("이력서 업데이트 완료");
     }
 
     // 이력서 삭제
-    @DeleteMapping("/delete/{userId}/{resumeId}")
+    @DeleteMapping("/delete/{resumeId}")
     @Operation(summary = "이력서 삭제", description = "이력서를 삭제합니다.")
-    public ResponseEntity<String> deleteResume(@PathVariable Long userId, @PathVariable Long resumeId) {
+    public ResponseEntity<String> deleteResume(@PathVariable Long resumeId, UserAccessTokenInfoDto accessToken) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         resumeService.deleteResume(userId, resumeId);
         return ResponseEntity.ok("이력서 삭제 완료");
     }
 
     // 대표 이력서 설정
-    @PostMapping("/set-primary/{userId}/{resumeId}")
-    public ResponseEntity<String> setPrimaryResume(@PathVariable Long userId, @PathVariable Long resumeId) {
+    @PostMapping("/set-primary/{resumeId}")
+    public ResponseEntity<String> setPrimaryResume(@PathVariable Long resumeId, UserAccessTokenInfoDto accessToken) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         resumeService.setPrimaryResume(userId, resumeId);
         return ResponseEntity.ok("대표 이력서 설정 완료");
     }
 
-    @PutMapping("/copy/{userId}/{resumeId}")
+    // 이력서 복사
+    @PutMapping("/copy/{resumeId}")
     @ResponseStatus(HttpStatus.OK)
-    public void copyResume(@PathVariable("userId") Long userId, @PathVariable("resumeId") Long resumeId, UserAccessTokenInfoDto accessToken) {
+    public void copyResume(@PathVariable("resumeId") Long resumeId, UserAccessTokenInfoDto accessToken) {
+        Long userId = Long.valueOf(accessToken.getUserId());
         if (!Long.valueOf(accessToken.getUserId()).equals(userId)) throw new UnauthorizedException("User id is difference (" + userId + ", " + accessToken.getUserId() + ")");
         resumeService.copyResume(resumeId);
     }

@@ -6,6 +6,6 @@ import com.example.gdgocportfolio.authorization.AuthorizationAbstract;
 @Authentication
 public class UserCoverLetterAuthorization extends AuthorizationAbstract {
 	public UserCoverLetterAuthorization() {
-		super("user.coverletter", "/api/v1/coverletter/*");
+		super("user.coverletter", "/api/v1/coverLetters/*");
 	}
 }
