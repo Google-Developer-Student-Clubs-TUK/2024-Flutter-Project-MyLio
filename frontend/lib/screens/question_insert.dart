@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as _storage;
+import 'package:http/http.dart' as _api;
 import '../../../utils/http_interceptor.dart';
 import 'loading_screen.dart';
 import 'question_result.dart';
@@ -8,257 +10,95 @@ import 'dart:convert';
 
 class QuestionInsert extends StatefulWidget {
   const QuestionInsert({Key? key}) : super(key: key);
-
   @override
   State<QuestionInsert> createState() => _QuestionInsertState();
 }
 
 class _QuestionInsertState extends State<QuestionInsert> {
-  final TextEditingController titleController = TextEditingController();
-  final TextEditingController companyNameController = TextEditingController();
-  final TextEditingController jobTitleController = TextEditingController();
-  final List<TextEditingController> questionControllers = [
-    TextEditingController()
-  ];
+  final titleController = TextEditingController();
+  final companyController = TextEditingController();
+  final jobController = TextEditingController();
+  final questionControllers = <TextEditingController>[TextEditingController()];
 
-  bool _isLoading = false;
-  String? _userId; // ✅ secureStorage에서 가져올 userId
-
-  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  final String baseUrl = dotenv.env['API_BASE_URL'] ?? "";
-
-  /// ✅ 인터셉터 사용
-  final HttpInterceptor httpInterceptor = HttpInterceptor();
+  String? _userId;
+  final _storage = const FlutterSecureStorage();
+  final _api = HttpInterceptor();
 
   @override
   void initState() {
     super.initState();
-    _loadUserInfo(); // ✅ userId를 secureStorage에서 가져옴
+    _loadUserId();
   }
 
-  /// ✅ secureStorage에서 userId 가져오기
-  Future<void> _loadUserInfo() async {
-    String? userId = await secureStorage.read(key: "user_id");
-
-    if (userId == null) {
-      print("🚨 USER_ID가 없습니다.");
-      return;
-    }
-
-    setState(() {
-      _userId = userId;
-    });
-
-    print("✅ User ID: $_userId");
+  Future<void> _loadUserId() async {
+    // key 매개변수 사용 원본 유지
+    final id = await _storage.read(key: 'user_id');
+    if (id != null) setState(() => _userId = id);
   }
 
-  /// ✅ GPT API 호출 (coverLetterId 포함)
+  Future<Uri> _makeUri(String path) async {
+    final base = dotenv.env['API_BASE_URL'];
+    if (base == null) throw Exception('API_BASE_URL not set');
+    return Uri.parse('$base$path');
+  }
+
   Future<Map<String, dynamic>> _fetchAnswers(
-      String title, List<String> questions) async {
-    if (_userId == null) {
-      print("🚨 userId가 없습니다.");
-      return {
-        "coverLetterId": '',
-        "answers": [],
-      };
+      String title,
+      String company,
+      String job,
+      List<String> questions,
+      ) async {
+    if (_userId == null) throw Exception('USER_ID missing');
+
+    final uri = await _makeUri('/api/v1/coverLetters/gen');
+    final response = await _api.post(
+      uri,
+      body: {
+        'userId': _userId,
+        'title': title,
+        'companyName': company,
+        'jobTitle': job,
+        'questions': questions,
+      },
+    );
+    if (response.statusCode != 200) {
+      throw Exception('API error: \${response.statusCode}');
     }
-
-    final url = Uri.parse('$baseUrl/api/v1/coverLetters/gen/$_userId');
-
-    try {
-      final response = await httpInterceptor.post(
-        url,
-        body: {
-          "userId": _userId,
-          "title": title,
-          "questions": questions,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final decodedBody = utf8.decode(response.bodyBytes);
-        final data = jsonDecode(decodedBody);
-
-        final coverLetterId = data['coverLetterId'] ?? '';
-        final questionAnswers =
-        List<Map<String, dynamic>>.from(data['questionAnswers']);
-        final answers =
-        questionAnswers.map((qa) => qa['answer'].toString()).toList();
-
-        return {
-          "coverLetterId": coverLetterId,
-          "answers": answers,
-        };
-      } else {
-        throw Exception(
-            'Failed with status code: ${response.statusCode}, body: ${response.body}');
-      }
-    } catch (e) {
-      print('Request failed: $e');
-      return {
-        "coverLetterId": '',
-        "answers": ['답변 테스트 1', '답변 테스트 2'],
-      };
-    }
+    final data = jsonDecode(utf8.decode(response.bodyBytes));
+    return {
+      'coverLetterId': data['coverLetterId'] ?? '',
+      'answers': (data['questionAnswers'] as List)
+          .map((qa) => qa['answer'].toString())
+          .toList(),
+    };
   }
 
-  /*
-  /// ✅ 사용자가 문항 입력 후 제출
-  void _handleSubmit() async {
-    if (_userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('사용자 정보를 불러오지 못했습니다. 다시 시도해주세요.')),
-      );
-      return;
-    }
-
-    if (titleController.text.trim().isEmpty ||
-        questionControllers
-            .any((controller) => controller.text.trim().isEmpty)) {
+  void _handleSubmit() {
+    if (_userId == null ||
+        titleController.text.trim().isEmpty ||
+        questionControllers.any((c) => c.text.trim().isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('모든 필드를 입력해주세요.')),
       );
       return;
     }
-
     final title = titleController.text.trim();
-    final companyName = companyNameController.text.trim();
-    final jobTitle = jobTitleController.text.trim();
-    final questions = questionControllers
-        .map((controller) => controller.text.trim())
-        .toList();
+    final company = companyController.text.trim();
+    final job = jobController.text.trim();
+    final questions = questionControllers.map((c) => c.text.trim()).toList();
 
-    setState(() => _isLoading = true);
-
-    try {
-      final response = await _fetchAnswers(title, questions);
-
-      final coverLetterId = response["coverLetterId"].toString();
-      final answers = response["answers"];
-
-      if (coverLetterId.toString().isEmpty || answers.isEmpty) {
-        throw Exception('서버에서 coverLetterId 또는 답변을 생성하지 못했습니다.');
-      }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => QuestionResult(
-            title: title.isNotEmpty ? title : '제목 없음',
-            questions: questions.isNotEmpty ? questions : ['질문 없음'],
-            companyName: companyName,
-            jobTitle: jobTitle,
-            answers: answers,
-            coverLetterId: coverLetterId, // ✅ coverLetterId 전달
-          ),
-        ),
-      );
-    } catch (e) {
-      print('Error occurred during submission: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('답변 생성 중 오류가 발생했습니다.')),
-      );
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-   */
-  /// ✅ 사용자가 문항 입력 후 제출
-  void _handleSubmit() async {
-    if (_userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('사용자 정보를 불러오지 못했습니다. 다시 시도해주세요.')),
-      );
-      return;
-    }
-
-    if (titleController.text.trim().isEmpty ||
-        questionControllers.any((controller) => controller.text.trim().isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('모든 필드를 입력해주세요.')),
-      );
-      return;
-    }
-
-    final title = titleController.text.trim();
-    final companyName = companyNameController.text.trim();
-    final jobTitle = jobTitleController.text.trim();
-    final questions = questionControllers.map((controller) => controller.text.trim()).toList();
-
-    // ✅ 로딩 화면으로 이동
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LoadingScreen(
+        builder: (_) => LoadingScreen(
           title: title,
-          companyName: companyName,
-          jobTitle: jobTitle,
+          companyName: company,
+          jobTitle: job,
           questions: questions,
-          userId: _userId!,
         ),
       ),
     );
   }
-
-
-/*
-  void _handleSubmit() async {
-    if (titleController.text.trim().isEmpty ||
-        questionControllers.any((controller) => controller.text.trim().isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('모든 필드를 입력해주세요.')),
-      );
-      return;
-    }
-
-    final title = titleController.text.trim();
-    final companyName = companyNameController.text.trim();
-    final jobTitle = jobTitleController.text.trim();
-    final questions = questionControllers.map((controller) => controller.text.trim()).toList();
-
-    setState(() {
-      _isLoading = true;
-    });
-
-
-
-    try {
-      final response = await _fetchAnswers(title, questions);
-
-      final coverLetterId = response["coverLetterId"];
-      final answers = response["answers"];
-
-      if (answers.isEmpty) {
-        throw Exception('서버에서 답변을 생성하지 못했습니다.');
-      }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => QuestionResult(
-            title: title.isNotEmpty ? title : '제목 없음',
-            questions: questions.isNotEmpty ? questions : ['질문 없음'],
-            companyName: companyName,
-            jobTitle: jobTitle,
-            answers: answers,
-            coverLetterId: coverLetterId,
-          ),
-        ),
-      );
-    } catch (e) {
-      print('Error occurred during submission: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('답변 생성 중 오류가 발생했습니다.')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-   */
 
   // UI 및 TextField 생성 코드는 기존과 동일합니다.
   Widget _buildTextField({
@@ -363,7 +203,7 @@ class _QuestionInsertState extends State<QuestionInsert> {
                       child: _buildTextField(
                         label: '회사명',
                         hint: 'ex)GDSC',
-                        controller: companyNameController,
+                        controller: companyController,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -371,7 +211,7 @@ class _QuestionInsertState extends State<QuestionInsert> {
                       child: _buildTextField(
                         label: '직무명',
                         hint: 'ex)개발',
-                        controller: jobTitleController,
+                        controller: jobController,
                       ),
                     ),
                   ],

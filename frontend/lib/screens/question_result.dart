@@ -14,15 +14,15 @@ class QuestionResult extends StatefulWidget {
   final List<String> answers;
   final String coverLetterId;
 
-  QuestionResult({
-    super.key,
+  const QuestionResult({
+    Key? key,
     required this.title,
     required this.companyName,
     required this.jobTitle,
     required this.questions,
     required this.answers,
-    required String coverLetterId,
-  }) : coverLetterId = coverLetterId.toString();
+    required this.coverLetterId,
+  }) : super(key: key);
 
   @override
   _QuestionResultState createState() => _QuestionResultState();
@@ -30,84 +30,56 @@ class QuestionResult extends StatefulWidget {
 
 class _QuestionResultState extends State<QuestionResult> {
   int _selectedQuestion = 0;
-  final String baseUrl = dotenv.env['API_BASE_URL'] ?? "";
-  final HttpInterceptor httpInterceptor = HttpInterceptor();
+  final HttpInterceptor _api = HttpInterceptor();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  String? _userId;
 
-  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-  String? _userId; // secureStorage에서 가져올 userId
-
-  late List<TextEditingController> _answerControllers;
-  late List<int> _currentTextLengths;
-  late List<String> savedAnswers;
+  late final List<TextEditingController> _answerControllers;
+  late final List<int> _currentTextLengths;
+  late final List<String> _savedAnswers;
 
   @override
   void initState() {
     super.initState();
-    _loadUserInfo(); // userId 가져오기
+    _loadUserId();
     _answerControllers = List.generate(
       widget.questions.length,
-      (index) => TextEditingController(text: widget.answers[index]),
+          (i) => TextEditingController(text: widget.answers[i]),
     );
-
     _currentTextLengths = List.generate(
       widget.questions.length,
-      (index) => widget.answers[index].length,
+          (i) => widget.answers[i].length,
     );
-
-    savedAnswers = List.generate(
-      widget.questions.length,
-      (index) => widget.answers[index],
-    );
+    _savedAnswers = List.from(widget.answers);
   }
 
-  /// `secureStorage`에서 userId 가져오기
-  Future<void> _loadUserInfo() async {
-    String? userId = await secureStorage.read(key: "user_id");
-
-    if (userId == null) {
-      print("🚨 USER_ID가 없습니다.");
-      return;
+  Future<void> _loadUserId() async {
+    final id = await _storage.read(key: 'user_id');
+    if (id != null) {
+      setState(() => _userId = id);
     }
-
-    setState(() {
-      _userId = userId;
-    });
-
-    print("✅ User ID: $_userId");
   }
 
-  @override
-  void dispose() {
-    for (var controller in _answerControllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  //임시저장 API 호출 (PUT /copy/{userId}/{coverLetterId})
   Future<void> _saveTempCoverLetter() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('사용자 정보를 불러오지 못했습니다. 다시 시도해주세요.')),
+        const SnackBar(content: Text('사용자 정보를 불러오지 못했습니다.')),
       );
       return;
     }
-
-    final url = Uri.parse(
-        '$baseUrl/api/v1/coverLetters/copy/$_userId/${widget.coverLetterId}');
-
+    final base = dotenv.env['API_BASE_URL'];
+    final uri = Uri.parse(
+      '$base/api/v1/coverLetters/copy/${widget.coverLetterId}',
+    );
     try {
-      final response = await httpInterceptor.put(url);
-
-      if (response.statusCode == 200) {
+      final res = await _api.put(uri);
+      if (res.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('임시 저장 완료')),
         );
       } else {
-        print("HTTP error ${response.statusCode}");
-        print("Error Response Body: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('임시 저장 실패: ${response.body}')),
+          SnackBar(content: Text('임시 저장 실패: ${res.body}')),
         );
       }
     } catch (e) {
@@ -117,54 +89,46 @@ class _QuestionResultState extends State<QuestionResult> {
     }
   }
 
-  // 최종저장 API 호출 (PUT /{userId}/{coverLetterId})
   Future<void> _saveCoverLetter() async {
     if (_userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('사용자 정보를 불러오지 못했습니다. 다시 시도해주세요.')),
+        const SnackBar(content: Text('사용자 정보를 불러오지 못했습니다.')),
       );
       return;
     }
-
-    final answers =
-        _answerControllers.map((controller) => controller.text.trim()).toList();
-
-    final introduction = {
+    final answers = _answerControllers
+        .map((c) => c.text.trim())
+        .toList();
+    final body = jsonEncode({
       'title': widget.title,
       'company': widget.companyName,
       'jobTitle': widget.jobTitle,
       'questions': widget.questions,
       'answers': answers,
-    };
-
-    final url = Uri.parse(
-        '$baseUrl/api/v1/coverLetters/$_userId/${widget.coverLetterId}');
-
+    });
+    final base = dotenv.env['API_BASE_URL'];
+    final uri = Uri.parse(
+      '$base/api/v1/coverLetters/${widget.coverLetterId}',
+    );
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
-
     try {
-      final response =
-          await httpInterceptor.put(url, body: jsonEncode(introduction));
-
+      final res = await _api.put(uri, body: body);
       Navigator.pop(context);
-
-      if (response.statusCode == 200) {
+      if (res.statusCode == 200) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('최종 저장 완료')),
         );
       } else {
-        print("HTTP error ${response.statusCode}");
-        print("Error Response Body: ${response.body}");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('최종 저장 실패: ${response.body}')),
+          SnackBar(content: Text('최종 저장 실패: ${res.body}')),
         );
       }
     } catch (e) {
@@ -173,6 +137,14 @@ class _QuestionResultState extends State<QuestionResult> {
         SnackBar(content: Text('오류 발생: $e')),
       );
     }
+  }
+
+  @override
+  void dispose() {
+    for (var c in _answerControllers) {
+      c.dispose();
+    }
+    super.dispose();
   }
 
   // UI
@@ -372,7 +344,7 @@ class _QuestionResultState extends State<QuestionResult> {
                         }
 
                         setState(() {
-                          savedAnswers[_selectedQuestion] = answer;
+                          _savedAnswers[_selectedQuestion] = answer;
                         });
 
                         ScaffoldMessenger.of(context).showSnackBar(
